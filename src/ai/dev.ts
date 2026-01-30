@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/explain-risk-score.ts';
+import '@/ai/flows/summarize-conversation-for-review.ts';
+import '@/ai/flows/analyze-conversation-intent.ts';
