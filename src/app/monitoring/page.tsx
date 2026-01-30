@@ -2,11 +2,10 @@ import MonitoringClient from './monitoring-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
-import AuthGuard from '@/components/app/auth-guard';
 
 export default function MonitoringPage() {
   return (
-    <AuthGuard>
+    <>
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
           <Link href="/home" passHref>
             <Button variant="outline" size="icon" className="h-8 w-8">
@@ -17,6 +16,6 @@ export default function MonitoringPage() {
           <h1 className="text-xl font-semibold font-headline">Conversation Monitoring</h1>
         </header>
         <MonitoringClient />
-    </AuthGuard>
+    </>
   );
 }

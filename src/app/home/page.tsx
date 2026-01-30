@@ -2,11 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import AuthGuard from '@/components/app/auth-guard';
 
 export default function HomePage() {
   return (
-    <AuthGuard>
       <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
         <div className="absolute pointer-events-none inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
         <Card className="w-full max-w-lg text-center z-10">
@@ -33,6 +31,5 @@ export default function HomePage() {
           </CardContent>
         </Card>
       </div>
-    </AuthGuard>
   );
 }
