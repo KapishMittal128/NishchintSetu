@@ -12,85 +12,90 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
+// --- Configuration ---
+const AUDIO_CHUNK_DURATION = 3000; // 3 seconds
+const ROLLING_TRANSCRIPT_WINDOW_SIZE = 6; // Keep last 6 chunks for analysis
+const RISK_ANALYSIS_INTERVAL = 1500; // Run analysis every 1.5 seconds
+
+const KEYWORD_WEIGHTS: Record<string, number> = {
+  'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
+  'card': 15, 'credit': 15, 'debit': 15, 'upi': 15, 'police': 12, 'arrest': 15,
+  'refund': 10, 'verify': 10, 'urgent': 12, 'immediately': 12, 'secret': 15,
+  'social security': 20, 'scam': 20, 'fraud': 20,
+};
+
 const riskAssessmentToScore = (assessment: string) => {
     switch (assessment.toLowerCase()) {
-        case 'low': return 10 + Math.random() * 15;
-        case 'medium': return 40 + Math.random() * 20;
-        case 'high': return 75 + Math.random() * 15;
+        case 'low': return 15;
+        case 'medium': return 50;
+        case 'high': return 85;
         default: return 5;
     }
-}
+};
 
 export default function MonitoringClient() {
+  // --- Refs for stable instances ---
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksQueueRef = useRef<Blob[]>([]);
+  const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const analysisIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // --- State Management ---
   const [isMonitoring, setIsMonitoring] = useState(false);
-  const [micError, setMicError] = useState(false);
-  const [transcript, setTranscript] = useState<string[]>([]);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [fullTranscript, setFullTranscript] = useState<string[]>([]);
   const [riskScore, setRiskScore] = useState(0);
   const [riskExplanation, setRiskExplanation] = useState('');
   const [scamIndicators, setScamIndicators] = useState<string[]>([]);
   const [isEmergency, setIsEmergency] = useState(false);
   const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
-  
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioStreamRef = useRef<MediaStream | null>(null);
 
   const { toast } = useToast();
 
-  const processAudioChunk = useCallback(async (audioBlob: Blob) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(audioBlob);
-    reader.onloadend = async () => {
-      const base64data = reader.result as string;
-      try {
-        const newChunk = await getTranscription(base64data);
-        if (newChunk && newChunk.trim().length > 0) {
-          setTranscript(currentTranscript => [...currentTranscript, newChunk]);
-        }
-      } catch (error) {
-        console.error("Error getting transcription:", error);
-        toast({
-          variant: "destructive",
-          title: "Transcription Failed",
-          description: "Could not transcribe audio chunk.",
-        });
-      }
-    };
-  }, [toast]);
+  // --- Core Functions ---
 
   const stopMonitoring = useCallback(() => {
+    setIsMonitoring(false);
+    if (processingIntervalRef.current) clearInterval(processingIntervalRef.current);
+    if (analysisIntervalRef.current) clearInterval(analysisIntervalRef.current);
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
     }
     if (audioStreamRef.current) {
         audioStreamRef.current.getTracks().forEach(track => track.stop());
-        audioStreamRef.current = null;
     }
-    setIsMonitoring(false);
     mediaRecorderRef.current = null;
+    audioStreamRef.current = null;
+    audioChunksQueueRef.current = [];
+    processingIntervalRef.current = null;
+    analysisIntervalRef.current = null;
   }, []);
 
   const startMonitoring = async () => {
-    setMicError(false);
-    // Reset state
-    setTranscript([]);
+    // Reset all states
+    setFullTranscript([]);
     setRiskScore(0);
     setRiskExplanation('');
     setScamIndicators([]);
     setIsEmergency(false);
-    
+    setHasPermission(null);
+    audioChunksQueueRef.current = [];
+
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         toast({
             variant: 'destructive',
             title: 'Unsupported Browser',
             description: 'Your browser does not support the necessary audio recording APIs.',
         });
-        setMicError(true);
+        setHasPermission(false);
         return;
     }
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         audioStreamRef.current = stream;
+        setHasPermission(true);
         setIsMonitoring(true);
 
         const recorder = new MediaRecorder(stream);
@@ -98,14 +103,20 @@ export default function MonitoringClient() {
         
         recorder.ondataavailable = event => {
             if (event.data.size > 0) {
-                processAudioChunk(event.data);
+                audioChunksQueueRef.current.push(event.data);
             }
         };
 
-        recorder.start(4000); // Capture 4-second chunks
+        recorder.onstop = () => {
+          if (isMonitoring) {
+            stopMonitoring();
+          }
+        };
+
+        recorder.start(AUDIO_CHUNK_DURATION);
     } catch (error) {
         console.error('Error accessing microphone:', error);
-        setMicError(true);
+        setHasPermission(false);
         toast({
             variant: 'destructive',
             title: 'Microphone Access Denied',
@@ -114,49 +125,106 @@ export default function MonitoringClient() {
     }
   };
 
-  // Effect for risk analysis
+  // --- Effects for Processing Pipelines ---
+
+  // 1. Audio Chunk Transcription Pipeline
   useEffect(() => {
-    if (transcript.length === 0) {
-      setRiskScore(0);
-      return;
-    }
+    if (!isMonitoring) return;
 
-    const performAnalysis = async () => {
-      const currentTurn = transcript[transcript.length - 1];
-      const conversationHistory = transcript.slice(0, -1).join('\n');
+    const processQueue = async () => {
+      if (audioChunksQueueRef.current.length === 0) return;
       
-      try {
-        const analysis = await getRiskAnalysis(conversationHistory, currentTurn);
+      const audioBlob = audioChunksQueueRef.current.shift();
+      if (!audioBlob) return;
 
-        let newRiskScore = riskAssessmentToScore(analysis.riskAssessment);
-        newRiskScore += analysis.scamIndicators.length * 5;
-        newRiskScore = Math.min(100, newRiskScore);
-
-        setRiskScore(newRiskScore);
-        setScamIndicators(prev => [...new Set([...prev, ...analysis.scamIndicators])]);
-
-        if (newRiskScore > 75) {
-          setIsEmergency(true);
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        try {
+          const newChunkText = await getTranscription(base64data);
+          if (newChunkText && newChunkText.trim().length > 0) {
+            setFullTranscript(currentTranscript => [...currentTranscript, newChunkText]);
+          }
+        } catch (error) {
+          console.error("Error getting transcription:", error);
+          toast({
+            variant: "destructive",
+            title: "Transcription Failed",
+            description: "Could not transcribe an audio chunk.",
+          });
         }
-      } catch (error) {
-        console.error("Error performing risk analysis:", error);
-        toast({
-          variant: "destructive",
-          title: "Analysis Failed",
-          description: "Could not analyze conversation.",
-        });
-      }
+      };
     };
 
-    performAnalysis();
-  }, [transcript, toast]);
+    processingIntervalRef.current = setInterval(processQueue, AUDIO_CHUNK_DURATION / 2);
 
+    return () => {
+      if (processingIntervalRef.current) clearInterval(processingIntervalRef.current);
+    };
+  }, [isMonitoring, toast]);
 
-  // Effect for getting risk explanation
+  // 2. Rolling Transcript & Risk Analysis Pipeline
   useEffect(() => {
+    if (!isMonitoring) return;
+    
+    const performAnalysis = async () => {
+        const recentTranscripts = fullTranscript.slice(-ROLLING_TRANSCRIPT_WINDOW_SIZE);
+        const currentRollingTranscript = recentTranscripts.join(' ');
+
+        if (currentRollingTranscript.trim().length === 0) {
+            setRiskScore(0);
+            return;
+        }
+
+        // --- Client-side deterministic keyword analysis ---
+        let keywordScore = 0;
+        const detectedKeywords = new Set<string>();
+        for (const keyword in KEYWORD_WEIGHTS) {
+            if (currentRollingTranscript.toLowerCase().includes(keyword)) {
+                keywordScore += KEYWORD_WEIGHTS[keyword];
+                detectedKeywords.add(keyword);
+            }
+        }
+        
+        // --- LLM-based contextual analysis ---
+        let llmScore = 0;
+        let llmIndicators: string[] = [];
+        try {
+            const currentTurn = recentTranscripts[recentTranscripts.length - 1] || '';
+            const history = recentTranscripts.slice(0, -1).join('\n');
+            const analysis = await getRiskAnalysis(history, currentTurn);
+            llmScore = riskAssessmentToScore(analysis.riskAssessment);
+            llmIndicators = analysis.scamIndicators;
+        } catch (error) {
+            console.error("Error getting LLM analysis:", error);
+        }
+
+        const combinedIndicators = [...new Set([...Array.from(detectedKeywords), ...llmIndicators])];
+        setScamIndicators(combinedIndicators);
+        
+        // --- Combine scores and update state ---
+        const finalScore = Math.min(100, keywordScore + llmScore + (llmIndicators.length * 2));
+        setRiskScore(finalScore);
+    };
+
+    analysisIntervalRef.current = setInterval(performAnalysis, RISK_ANALYSIS_INTERVAL);
+    
+    return () => {
+      if (analysisIntervalRef.current) clearInterval(analysisIntervalRef.current);
+    };
+
+  }, [isMonitoring, fullTranscript]);
+
+  // 3. Risk Explanation & Emergency Trigger Effect
+  useEffect(() => {
+    if (riskScore > 75 && !isEmergency) {
+        setIsEmergency(true);
+    }
+    
     if (riskScore > 30) {
       setIsLoadingExplanation(true);
-      getRiskExplanation(riskScore, transcript.join('\n')).then(result => {
+      getRiskExplanation(riskScore, fullTranscript.join('\n')).then(result => {
         setRiskExplanation(result.explanation);
         setIsLoadingExplanation(false);
       }).catch(error => {
@@ -164,32 +232,30 @@ export default function MonitoringClient() {
         setRiskExplanation('Could not generate an explanation at this time.');
         setIsLoadingExplanation(false);
       });
-    } else if (transcript.length > 0) {
+    } else if (isMonitoring) {
         setRiskExplanation('The conversation appears to be safe. No significant risks detected.');
     } else {
         setRiskExplanation('');
     }
-  }, [riskScore, transcript]);
+  }, [riskScore, isMonitoring, isEmergency, fullTranscript]);
   
-  // Cleanup effect
+  // 4. Cleanup on unmount
   useEffect(() => {
-    return () => {
-        stopMonitoring();
-    }
+    return () => stopMonitoring();
   }, [stopMonitoring]);
 
-
+  // --- Render ---
   return (
     <div className="flex-1 p-4 sm:p-6 md:p-8">
       {isEmergency && <EmergencyOverlay onDismiss={() => setIsEmergency(false)} />}
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {micError && (
+        {hasPermission === false && (
             <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Microphone Access Required</AlertTitle>
                 <AlertDescription>
-                    Nishchint Setu requires access to your microphone for real-time monitoring. Please grant permission in your browser settings to continue.
+                    Nishchint Setu requires access to your microphone. Please grant permission in your browser settings to continue.
                 </AlertDescription>
             </Alert>
         )}
@@ -209,7 +275,7 @@ export default function MonitoringClient() {
                             <Mic className="mr-2" /> Start
                         </Button>
                      ) : (
-                        <Button size="lg" variant="destructive" className="w-full mt-4" onClick={stopMonitoring} disabled={!isMonitoring}>
+                        <Button size="lg" variant="destructive" className="w-full mt-4" onClick={stopMonitoring}>
                             <Square className="mr-2" /> Stop
                         </Button>
                      )}
@@ -222,7 +288,7 @@ export default function MonitoringClient() {
                     <CardDescription>An explanation of the current risk level.</CardDescription>
                 </CardHeader>
                 <CardContent className="text-base leading-relaxed space-y-4">
-                    {isLoadingExplanation ? (
+                    {isLoadingExplanation && riskScore > 30 ? (
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-full" />
                             <Skeleton className="h-4 w-full" />
@@ -249,8 +315,8 @@ export default function MonitoringClient() {
             <CardDescription>A real-time transcription of the conversation.</CardDescription>
           </CardHeader>
           <CardContent>
-            {transcript.length > 0 ? (
-                <TranscriptDisplay chunks={transcript} keywords={scamIndicators} />
+            {fullTranscript.length > 0 ? (
+                <TranscriptDisplay chunks={fullTranscript} keywords={Object.keys(KEYWORD_WEIGHTS)} />
             ) : (
                 <div className="text-center py-12 text-muted-foreground">
                     {isMonitoring ? (
@@ -272,3 +338,5 @@ export default function MonitoringClient() {
     </div>
   );
 }
+
+    
