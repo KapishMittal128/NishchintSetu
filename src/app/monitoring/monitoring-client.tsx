@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Mic, MicOff, Info, AlertTriangle } from 'lucide-react';
@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
-// --- Configuration ---
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
   'card': 15, 'credit': 15, 'debit': 15, 'upi': 15, 'police': 12, 'arrest': 15,
@@ -20,7 +19,6 @@ const KEYWORD_WEIGHTS: Record<string, number> = {
 };
 
 export default function MonitoringClient() {
-  // --- State Management ---
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [fullTranscript, setFullTranscript] = useState<string[]>([]);
@@ -35,18 +33,29 @@ export default function MonitoringClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // @ts-ignore
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setIsBrowserSupported(false);
+      toast({
+        variant: 'destructive',
+        title: 'Browser Not Supported',
+        description: 'Local transcription is not supported on this browser. Please use Google Chrome.',
+      });
     }
-  }, []);
+  }, [toast]);
 
   const runSingleCycle = async () => {
-    // --- 1. Request Permission ---
+    if (!isBrowserSupported) {
+      toast({ variant: 'destructive', title: 'Unsupported Browser' });
+      return;
+    }
+    
+    setIsProcessing(true);
+    setCycleStatus('Initializing...');
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach(track => track.stop()); // Stop immediate use, recognition will use it
       setHasPermission(true);
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -54,74 +63,64 @@ export default function MonitoringClient() {
       toast({
         variant: 'destructive',
         title: 'Microphone Access Denied',
-        description: 'Please enable microphone permissions in your browser settings.',
+        description: 'Please enable microphone permissions in your browser settings to continue.',
       });
+      setIsProcessing(false);
+      setCycleStatus('Idle');
       return;
     }
 
-    // Reset states for a new analysis
-    setIsProcessing(true);
-    setFullTranscript([]);
-    setRiskScore(0);
-    setRiskExplanation('');
-    setScamIndicators([]);
-    setIsEmergency(false);
-    setCycleStatus('Initializing...');
-    
-    // @ts-ignore
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    setCycleStatus('Waiting for speech...');
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-        setCycleStatus('Processing...');
-        const newChunkText = event.results[0][0].transcript;
-        if (newChunkText && newChunkText.trim()) {
-            setFullTranscript([newChunkText]); // This will trigger the analysis effect
-        } else {
-            toast({ title: "Empty Transcription", description: "No speech was detected." });
-            setIsProcessing(false);
-            setCycleStatus('Analysis Complete. Ready to start again.');
-        }
+      setCycleStatus('Processing...');
+      const newChunkText = event.results[0][0].transcript;
+      if (newChunkText && newChunkText.trim()) {
+        setFullTranscript(prev => [...prev, newChunkText]);
+      } else {
+        toast({ title: 'Empty Transcription', description: 'No clear speech was detected in the last window.' });
+      }
     };
 
     recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        let errorMessage = event.error;
-        if (event.error === 'no-speech') {
-            errorMessage = 'No speech was detected. Please try again.';
-        } else if (event.error === 'not-allowed') {
-            errorMessage = 'Microphone access was denied. Please check your browser settings.';
-            setHasPermission(false);
-        }
-        toast({ variant: 'destructive', title: 'Transcription Error', description: errorMessage });
-        setIsProcessing(false);
-        setCycleStatus('Idle');
+      console.error('Speech recognition error:', event.error);
+      let errorMessage = `An error occurred: ${event.error}`;
+      if (event.error === 'no-speech') {
+        errorMessage = 'No speech was detected. Please try speaking clearly.';
+      } else if (event.error === 'not-allowed') {
+        errorMessage = 'Microphone access was denied. Please check your browser settings.';
+        setHasPermission(false);
+      }
+      toast({ variant: 'destructive', title: 'Transcription Error', description: errorMessage });
+      setIsProcessing(false);
+      setCycleStatus('Idle');
     };
 
     recognition.onstart = () => {
-        setCycleStatus('Listening (3s)...');
+      setCycleStatus('Listening (3s)...');
+    };
+    
+    recognition.onend = () => {
+      if (isProcessing) {
+          // This will be triggered by the analysis effect changing isProcessing
+          setCycleStatus('Analysis Complete. Ready to start again.');
+      }
     };
 
     recognition.start();
 
-    // Manually stop after 3 seconds to enforce the listening window
     setTimeout(() => {
-      // Check if recognition is still active before stopping
-      if (isProcessing) {
         recognition.stop();
-      }
     }, 3000);
   };
-
-  // --- Risk Analysis & Explanation Effect ---
+  
   useEffect(() => {
-    if (fullTranscript.length === 0) {
-      // Don't run on initial load or after a reset.
-      return;
-    }
+    if (fullTranscript.length === 0) return;
 
     const runLocalAnalysis = () => {
         const currentTranscript = fullTranscript.join(' ');
@@ -142,7 +141,6 @@ export default function MonitoringClient() {
         const indicators = Array.from(detectedKeywords);
         setScamIndicators(indicators);
         
-        // Generate local explanation
         setIsLoadingExplanation(true);
         let explanationText = 'The conversation appears to be safe. No significant risks detected.';
         if (finalScore > 75) {
@@ -155,30 +153,17 @@ export default function MonitoringClient() {
         
         setIsLoadingExplanation(false);
         setIsProcessing(false);
-        setCycleStatus('Analysis Complete. Ready to start again.');
     };
 
     runLocalAnalysis();
     
   }, [fullTranscript]);
   
-  
-  // --- Render ---
   return (
-    <div className="flex-1 p-4 sm:p-6 md:p-8">
+    <div className="flex-1 p-6 sm:p-8 md:p-12">
       {isEmergency && <EmergencyOverlay onDismiss={() => setIsEmergency(false)} />}
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {!isBrowserSupported && (
-            <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Browser Not Supported</AlertTitle>
-                <AlertDescription>
-                    This browser does not support the Web Speech API required for local transcription. Please try Google Chrome or another supported browser.
-                </AlertDescription>
-            </Alert>
-        )}
-
         {hasPermission === false && (
             <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
@@ -192,7 +177,7 @@ export default function MonitoringClient() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="md:col-span-1">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-xl">
                         {isProcessing ? <Mic className="text-primary"/> : <MicOff/>}
                         Status
                     </CardTitle>
@@ -202,7 +187,7 @@ export default function MonitoringClient() {
                     <RiskMeter value={riskScore} />
                      <Button 
                         size="lg" 
-                        className="w-full mt-4" 
+                        className="w-full mt-4 text-lg py-7" 
                         onClick={runSingleCycle} 
                         disabled={isProcessing || !isBrowserSupported}
                     >
@@ -214,7 +199,7 @@ export default function MonitoringClient() {
 
             <Card className="md:col-span-2">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Info /> Risk Details</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-xl"><Info /> Risk Details</CardTitle>
                     <CardDescription>An explanation of the current risk level.</CardDescription>
                 </CardHeader>
                 <CardContent className="text-base leading-relaxed space-y-4">
@@ -230,8 +215,8 @@ export default function MonitoringClient() {
                     {scamIndicators.length > 0 && (
                         <div>
                             <h4 className="font-semibold mb-2">Detected Indicators:</h4>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                {scamIndicators.map((indicator, i) => <li key={i}>{indicator}</li>)}
+                            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                {scamIndicators.map((indicator, i) => <li key={i} className="capitalize">{indicator}</li>)}
                             </ul>
                         </div>
                     )}
@@ -241,7 +226,7 @@ export default function MonitoringClient() {
         
         <Card>
           <CardHeader>
-            <CardTitle>Live Transcript</CardTitle>
+            <CardTitle className="text-xl">Live Transcript</CardTitle>
             <CardDescription>A real-time transcription of the conversation.</CardDescription>
           </CardHeader>
           <CardContent>

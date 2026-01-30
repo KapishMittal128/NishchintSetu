@@ -20,40 +20,39 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
-        <div className="absolute pointer-events-none inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+    <div className="flex flex-1 items-center justify-center p-6 sm:p-8 md:p-12">
         <Card className="w-full max-w-md z-10">
             <CardHeader className="p-8 text-center">
                 <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
                     <LogIn className="h-10 w-10" />
                 </div>
-                <CardTitle className="text-4xl font-bold font-headline">
-                    Welcome
+                <CardTitle className="text-4xl font-bold tracking-wide">
+                    Sign In
                 </CardTitle>
                 <CardDescription className="text-lg text-muted-foreground pt-2">
-                    Please sign in to access your dashboard.
+                    Welcome back. Let's keep you safe.
                 </CardDescription>
             </CardHeader>
             <CardContent className="p-8 pt-0">
-                <form onSubmit={handleSignIn} className="space-y-4">
+                <form onSubmit={handleSignIn} className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="password">Password</Label>
                         <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
-                    <Button type="submit" size="lg" className="w-full text-lg py-7 px-8">
+                    <Button type="submit" size="lg" className="w-full text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-shadow">
                         Sign In
                     </Button>
                 </form>
-                <div className="relative my-6">
+                <div className="relative my-8">
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">
+                        <span className="bg-card px-2 text-muted-foreground">
                         Or continue with
                         </span>
                     </div>

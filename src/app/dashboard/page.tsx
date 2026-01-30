@@ -5,14 +5,13 @@ import Link from 'next/link';
 
 export default function Page() {
   return (
-      <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
-        <div className="absolute pointer-events-none inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
-        <Card className="w-full max-w-lg text-center z-10">
+      <div className="flex flex-1 items-center justify-center p-6 sm:p-8 md:p-12">
+        <Card className="w-full max-w-lg text-center z-10 animate-pulse-glow">
           <CardHeader className="p-8">
             <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
               <ShieldCheck className="h-10 w-10" />
             </div>
-            <CardTitle className="text-4xl font-bold font-headline">
+            <CardTitle className="text-4xl font-semibold tracking-wide">
               Nishchint Setu
             </CardTitle>
             <CardDescription className="text-lg text-muted-foreground pt-2">
@@ -21,7 +20,7 @@ export default function Page() {
           </CardHeader>
           <CardContent className="p-8 pt-0">
             <Link href="/monitoring" passHref>
-              <Button size="lg" className="w-full text-lg py-7 px-8">
+              <Button size="lg" className="w-full text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-shadow">
                 Start Monitoring
               </Button>
             </Link>

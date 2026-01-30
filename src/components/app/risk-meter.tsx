@@ -20,7 +20,7 @@ export function RiskMeter({ value }: RiskMeterProps) {
 
   const colorClass =
     displayValue < 30
-      ? 'text-green-500'
+      ? 'text-success'
       : displayValue < 70
       ? 'text-warning'
       : 'text-destructive';
@@ -58,7 +58,7 @@ export function RiskMeter({ value }: RiskMeterProps) {
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-4xl font-bold font-headline tabular-nums">
+        <span className="text-4xl font-bold tabular-nums">
           {Math.round(displayValue)}
         </span>
         <span className={cn('text-sm font-semibold uppercase tracking-wider', colorClass)}>

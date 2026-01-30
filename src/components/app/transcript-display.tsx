@@ -19,8 +19,8 @@ const HighlightedChunk = memo(({ chunk, keywords }: { chunk: string; keywords: s
   return (
     <>
       {parts.map((part, i) =>
-        keywords.some(kw => new RegExp(kw, 'i').test(part)) ? (
-          <span key={i} className="text-warning-foreground font-semibold rounded bg-warning/10 px-1 py-0.5">
+        keywords.some(kw => new RegExp(`^${kw}$`, 'i').test(part)) ? (
+          <span key={i} className="text-warning-foreground font-semibold rounded bg-warning/20 px-1.5 py-1">
             {part}
           </span>
         ) : (

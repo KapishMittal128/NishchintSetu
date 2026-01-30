@@ -10,9 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Garamond', 'serif'],
-        headline: ['Chewy', 'cursive'],
-        code: ['monospace'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -41,6 +39,7 @@ export default {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
         },
+        success: 'hsl(var(--success))',
         warning: {
           DEFAULT: 'hsl(var(--warning))',
           foreground: 'hsl(var(--warning-foreground))',
@@ -72,8 +71,8 @@ export default {
       },
       borderRadius: {
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        md: 'calc(var(--radius) - 4px)',
+        sm: 'calc(var(--radius) - 8px)',
       },
       keyframes: {
         'accordion-down': {
@@ -92,10 +91,19 @@ export default {
             height: '0',
           },
         },
+        'pulse-glow': {
+          '0%, 100%': { 
+            boxShadow: '0 0 20px 0px hsl(var(--primary) / 0.2)' 
+          },
+          '50%': { 
+            boxShadow: '0 0 30px 10px hsl(var(--primary) / 0.1)' 
+          },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'pulse-glow': 'pulse-glow 5s infinite ease-in-out',
       },
     },
   },
