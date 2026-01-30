@@ -20,7 +20,7 @@ const HighlightedChunk = memo(({ chunk, keywords }: { chunk: string; keywords: s
     <>
       {parts.map((part, i) =>
         keywords.some(kw => new RegExp(`^${kw}$`, 'i').test(part)) ? (
-          <span key={i} className="text-warning-foreground font-semibold rounded bg-warning/20 px-1.5 py-1">
+          <span key={i} className="font-semibold text-warning">
             {part}
           </span>
         ) : (
@@ -37,7 +37,7 @@ export function TranscriptDisplay({ chunks, keywords }: TranscriptDisplayProps) 
   return (
     <div className="space-y-4 text-lg leading-relaxed">
       {chunks.map((chunk, index) => (
-        <div key={index} className="animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
+        <div key={index} className="animate-in fade-in duration-700">
           <p>
             <span className="font-semibold text-muted-foreground mr-2">{index % 2 === 0 ? 'Caller:' : 'You:'}</span>
             <HighlightedChunk chunk={chunk} keywords={keywords} />

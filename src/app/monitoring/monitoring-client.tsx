@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Mic, MicOff, Info, AlertTriangle } from 'lucide-react';
+import { Mic, MicOff, Info, AlertTriangle, Loader2 } from 'lucide-react';
 import { EmergencyOverlay } from '@/components/app/emergency-overlay';
 import { RiskMeter } from '@/components/app/risk-meter';
 import { TranscriptDisplay } from '@/components/app/transcript-display';
@@ -106,23 +106,29 @@ export default function MonitoringClient() {
     };
     
     recognition.onend = () => {
+      // isProcessing will be set to false in the analysis effect
       if (isProcessing) {
-          // This will be triggered by the analysis effect changing isProcessing
-          setCycleStatus('Analysis Complete. Ready to start again.');
+          setCycleStatus('Analysis Complete.');
       }
     };
 
     recognition.start();
 
     setTimeout(() => {
-        recognition.stop();
+        if (recognition) {
+          recognition.stop();
+        }
     }, 3000);
   };
   
   useEffect(() => {
-    if (fullTranscript.length === 0) return;
+    if (fullTranscript.length === 0) {
+      setIsProcessing(false);
+      return;
+    };
 
     const runLocalAnalysis = () => {
+        setCycleStatus('Analyzing...');
         const currentTranscript = fullTranscript.join(' ');
         
         let calculatedScore = 0;
@@ -153,6 +159,7 @@ export default function MonitoringClient() {
         
         setIsLoadingExplanation(false);
         setIsProcessing(false);
+        setCycleStatus('Ready');
     };
 
     runLocalAnalysis();
@@ -191,7 +198,7 @@ export default function MonitoringClient() {
                         onClick={runSingleCycle} 
                         disabled={isProcessing || !isBrowserSupported}
                     >
-                        {isProcessing ? <Mic className="mr-2 animate-pulse" /> : <Mic className="mr-2" />}
+                        {isProcessing ? <Loader2 className="mr-2 animate-spin" /> : <Mic className="mr-2" />}
                         {isProcessing ? cycleStatus : 'Start Analysis'}
                     </Button>
                 </CardContent>

@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function Page() {
   return (
       <div className="flex flex-1 items-center justify-center p-6 sm:p-8 md:p-12">
-        <Card className="w-full max-w-lg text-center z-10 animate-pulse-glow">
+        <Card className="w-full max-w-lg text-center z-10">
           <CardHeader className="p-8">
             <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
               <ShieldCheck className="h-10 w-10" />
