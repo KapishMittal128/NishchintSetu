@@ -243,7 +243,7 @@ export default function MonitoringClient() {
           <CardHeader>
             <CardTitle>Live Transcript</CardTitle>
             <CardDescription>A real-time transcription of the conversation.</CardDescription>
-          </Header>
+          </CardHeader>
           <CardContent>
             {fullTranscript.length > 0 ? (
                 <TranscriptDisplay chunks={fullTranscript} keywords={Object.keys(KEYWORD_WEIGHTS)} />
