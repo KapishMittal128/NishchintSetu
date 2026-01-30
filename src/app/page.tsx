@@ -28,7 +28,7 @@ export default function Page() {
                     <LogIn className="h-10 w-10" />
                 </div>
                 <CardTitle className="text-4xl font-bold font-headline">
-                    Welcome Back
+                    Welcome
                 </CardTitle>
                 <CardDescription className="text-lg text-muted-foreground pt-2">
                     Please sign in to access your dashboard.
@@ -45,7 +45,7 @@ export default function Page() {
                         <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
                     <Button type="submit" size="lg" className="w-full text-lg py-7 px-8">
-                        Sign In with Email
+                        Sign In
                     </Button>
                 </form>
                 <div className="relative my-6">
