@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Mic, MicOff, Square, Info, AlertTriangle } from 'lucide-react';
+import { Mic, MicOff, Info, AlertTriangle } from 'lucide-react';
 import { EmergencyOverlay } from '@/components/app/emergency-overlay';
 import { RiskMeter } from '@/components/app/risk-meter';
 import { TranscriptDisplay } from '@/components/app/transcript-display';
@@ -14,8 +14,6 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 // --- Configuration ---
 const RECORDING_DURATION = 3000; // Record for 3 seconds
-const COOLDOWN_DURATION = 2000; // Wait for 2 seconds before next recording
-const ROLLING_TRANSCRIPT_WINDOW_SIZE = 6; // Keep last 6 chunks for analysis
 
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
@@ -34,13 +32,8 @@ const riskAssessmentToScore = (assessment: string) => {
 };
 
 export default function MonitoringClient() {
-  // --- Refs for stable instances and loop control ---
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioStreamRef = useRef<MediaStream | null>(null);
-  const loopActiveRef = useRef(false);
-
   // --- State Management ---
-  const [isMonitoring, setIsMonitoring] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [fullTranscript, setFullTranscript] = useState<string[]>([]);
   const [riskScore, setRiskScore] = useState(0);
@@ -52,20 +45,47 @@ export default function MonitoringClient() {
 
   const { toast } = useToast();
 
-  // --- Core Monitoring Loop ---
-  const runMonitoringCycle = useCallback(async () => {
-    if (!loopActiveRef.current || !mediaRecorderRef.current) return;
+  const runSingleCycle = async () => {
+    // Reset states for a new analysis
+    setFullTranscript([]);
+    setRiskScore(0);
+    setRiskExplanation('');
+    setScamIndicators([]);
+    setIsEmergency(false);
+    setHasPermission(null);
+    setIsProcessing(true);
+    
+    // --- 1. Request Permission & Setup Recorder ---
+    let stream;
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Audio recording is not available in this browser.');
+      }
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setHasPermission(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      setHasPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Microphone Access Denied',
+        description: 'Please enable microphone permissions in your browser settings.',
+      });
+      setIsProcessing(false);
+      return;
+    }
 
-    const recorder = mediaRecorderRef.current;
+    const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
     const audioChunks: Blob[] = [];
 
-    // --- 1. Recording Phase (3s) ---
+    // --- 2. Recording Phase (3s) ---
     setCycleStatus('Recording...');
     
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) audioChunks.push(event.data);
+    };
+
     const recordingPromise = new Promise<void>((resolve) => {
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) audioChunks.push(event.data);
-      };
       recorder.onstop = () => resolve();
     });
 
@@ -76,111 +96,65 @@ export default function MonitoringClient() {
     }
     await recordingPromise;
     
-    // --- 2. Processing Phase (Transcription only) ---
+    // Stop the media stream tracks now that recording is done for this cycle.
+    stream.getTracks().forEach(track => track.stop());
+
+    // --- 3. Processing & Transcription Phase ---
     setCycleStatus('Processing...');
-    if (audioChunks.length > 0) {
-      const audioBlob = new Blob(audioChunks, { type: recorder.mimeType });
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-
-      const base64data = await new Promise<string>(resolve => {
-        reader.onloadend = () => resolve(reader.result as string);
-      });
-
-      // Get Transcription
-      let newChunkText = '';
-      try {
-        newChunkText = await getTranscription(base64data);
-      } catch (error) {
-        console.error("Error getting transcription:", error);
-      }
-
-      if (newChunkText && newChunkText.trim().length > 0) {
-        // Just update the transcript. The useEffect hook will handle analysis.
-        setFullTranscript(currentTranscript => [...currentTranscript, newChunkText]);
-      }
+    if (audioChunks.length === 0) {
+      toast({ variant: "destructive", title: "No audio detected", description: "Please ensure your microphone is working and speak clearly."});
+      setIsProcessing(false);
+      setCycleStatus('Idle');
+      return;
     }
-
-    // --- 3. Cooldown Phase (2s) ---
-    setCycleStatus('Cooldown...');
-    await new Promise(resolve => setTimeout(resolve, COOLDOWN_DURATION));
-
-    // --- 4. Repeat Cycle ---
-    if (loopActiveRef.current) {
-        runMonitoringCycle();
-    }
-
-  }, []);
-
-  const startMonitoring = useCallback(async () => {
-    // Reset states
-    setFullTranscript([]);
-    setRiskScore(0);
-    setRiskExplanation('');
-    setScamIndicators([]);
-    setIsEmergency(false);
-    setHasPermission(null);
-    setCycleStatus('Initializing...');
     
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        toast({ variant: 'destructive', title: 'Unsupported Browser', description: 'Audio recording is not available.' });
-        setHasPermission(false);
+    const audioBlob = new Blob(audioChunks, { type: recorder.mimeType });
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+
+    const base64data = await new Promise<string>(resolve => {
+      reader.onloadend = () => resolve(reader.result as string);
+    });
+
+    let newChunkText = '';
+    try {
+      newChunkText = await getTranscription(base64data);
+    } catch (error) {
+      console.error("Error getting transcription:", error);
+      toast({ variant: "destructive", title: "Transcription Failed", description: "Could not convert audio to text." });
+      setIsProcessing(false);
+      setCycleStatus('Idle');
+      return;
+    }
+
+    if (!newChunkText.trim()) {
+        toast({ title: "Empty Transcription", description: "No speech was detected in the audio." });
+        setIsProcessing(false);
+        setCycleStatus('Idle');
         return;
     }
-
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioStreamRef.current = stream;
-        mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        setHasPermission(true);
-        setIsMonitoring(true);
-        loopActiveRef.current = true;
-        runMonitoringCycle();
-    } catch (error) {
-        console.error('Error accessing microphone:', error);
-        setHasPermission(false);
-        toast({
-            variant: 'destructive',
-            title: 'Microphone Access Denied',
-            description: 'Please enable microphone permissions in your browser settings.',
-        });
-    }
-  }, [runMonitoringCycle, toast]);
-
-  const stopMonitoring = useCallback(() => {
-    loopActiveRef.current = false;
-    setIsMonitoring(false);
-    setCycleStatus('Idle');
-
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
-    }
-    if (audioStreamRef.current) {
-        audioStreamRef.current.getTracks().forEach(track => track.stop());
-    }
-
-    mediaRecorderRef.current = null;
-    audioStreamRef.current = null;
-  }, []);
+    
+    // --- 4. Update Transcript ---
+    // This state update will trigger the analysis useEffect hooks
+    setFullTranscript([newChunkText]);
+  };
 
   // --- Effects ---
 
   // --- Risk Analysis Effect ---
   useEffect(() => {
     if (fullTranscript.length === 0) {
-        setRiskScore(0);
-        setScamIndicators([]);
-        return;
-    };
+      // This happens on initial load or after a reset, do nothing.
+      return;
+    }
 
     const runAnalysis = async () => {
-        const recentTranscripts = fullTranscript.slice(-ROLLING_TRANSCRIPT_WINDOW_SIZE);
-        const currentRollingTranscript = recentTranscripts.join(' ');
+        const currentTranscript = fullTranscript.join(' '); // We only have one chunk now
         
         let keywordScore = 0;
         const detectedKeywords = new Set<string>();
         for (const keyword in KEYWORD_WEIGHTS) {
-            if (currentRollingTranscript.toLowerCase().includes(keyword)) {
+            if (currentTranscript.toLowerCase().includes(keyword)) {
                 keywordScore += KEYWORD_WEIGHTS[keyword];
                 detectedKeywords.add(keyword);
             }
@@ -189,9 +163,8 @@ export default function MonitoringClient() {
         let llmScore = 0;
         let llmIndicators: string[] = [];
         try {
-            const currentTurn = recentTranscripts[recentTranscripts.length - 1] || '';
-            const history = recentTranscripts.slice(0, -1).join('\n');
-            const analysis = await getRiskAnalysis(history, currentTurn);
+            // Since it's a single chunk, history is empty.
+            const analysis = await getRiskAnalysis('', currentTranscript);
             llmScore = riskAssessmentToScore(analysis.riskAssessment);
             llmIndicators = analysis.scamIndicators;
         } catch (error) {
@@ -211,36 +184,38 @@ export default function MonitoringClient() {
 
   // Risk Explanation & Emergency Trigger
   useEffect(() => {
-    if (riskScore > 75 && !isEmergency) {
+    // Don't run on initial render when riskScore is 0 and there's no transcript
+    if (riskScore === 0 && fullTranscript.length === 0) return;
+
+    if (riskScore > 75) {
         setIsEmergency(true);
     }
     
-    if (riskScore > 30) {
-      setIsLoadingExplanation(true);
-      getRiskExplanation(riskScore, fullTranscript.join('\n')).then(result => {
-        setRiskExplanation(result.explanation);
-        setIsLoadingExplanation(false);
-      }).catch(error => {
-        console.error("Error getting risk explanation:", error);
-        setRiskExplanation('Could not generate an explanation at this time.');
-        setIsLoadingExplanation(false);
-      });
-    } else if (isMonitoring) {
-        setRiskExplanation('The conversation appears to be safe. No significant risks detected.');
-    } else {
-        setRiskExplanation('');
+    const fetchExplanation = async () => {
+        setIsLoadingExplanation(true);
+        try {
+            const result = await getRiskExplanation(riskScore, fullTranscript.join('\n'));
+            setRiskExplanation(result.explanation);
+        } catch (error) {
+            console.error("Error getting risk explanation:", error);
+            setRiskExplanation('Could not generate an explanation at this time.');
+        } finally {
+            setIsLoadingExplanation(false);
+            setIsProcessing(false);
+            setCycleStatus('Analysis Complete. Ready to start again.');
+        }
     }
-  }, [riskScore, isMonitoring, isEmergency, fullTranscript]);
-  
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (loopActiveRef.current) {
-        stopMonitoring();
-      }
-    };
-  }, [stopMonitoring]);
 
+    if (riskScore > 30) {
+      fetchExplanation();
+    } else {
+        setRiskExplanation('The conversation appears to be safe. No significant risks detected.');
+        setIsProcessing(false);
+        setCycleStatus('Analysis Complete. Ready to start again.');
+    }
+  }, [riskScore, fullTranscript]);
+  
+  
   // --- Render ---
   return (
     <div className="flex-1 p-4 sm:p-6 md:p-8">
@@ -261,22 +236,22 @@ export default function MonitoringClient() {
             <Card className="md:col-span-1">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        {isMonitoring ? <Mic className="text-primary"/> : <MicOff/>}
+                        {isProcessing ? <Mic className="text-primary"/> : <MicOff/>}
                         Status
                     </CardTitle>
                      <CardDescription>{cycleStatus}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center gap-4">
                     <RiskMeter value={riskScore} />
-                     {!isMonitoring ? (
-                         <Button size="lg" className="w-full mt-4" onClick={startMonitoring} disabled={hasPermission === false}>
-                            <Mic className="mr-2" /> Start
-                        </Button>
-                     ) : (
-                        <Button size="lg" variant="destructive" className="w-full mt-4" onClick={stopMonitoring}>
-                            <Square className="mr-2" /> Stop
-                        </Button>
-                     )}
+                     <Button 
+                        size="lg" 
+                        className="w-full mt-4" 
+                        onClick={runSingleCycle} 
+                        disabled={isProcessing}
+                    >
+                        {isProcessing ? <Mic className="mr-2 animate-pulse" /> : <Mic className="mr-2" />}
+                        {isProcessing ? cycleStatus : 'Start Analysis'}
+                    </Button>
                 </CardContent>
             </Card>
 
@@ -286,14 +261,14 @@ export default function MonitoringClient() {
                     <CardDescription>An explanation of the current risk level.</CardDescription>
                 </CardHeader>
                 <CardContent className="text-base leading-relaxed space-y-4">
-                    {isLoadingExplanation && riskScore > 30 ? (
+                    {isLoadingExplanation ? (
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-full" />
                             <Skeleton className="h-4 w-full" />
                             <Skeleton className="h-4 w-3/4" />
                         </div>
                     ) : (
-                        <p>{riskExplanation || 'Start monitoring to see risk analysis.'}</p>
+                        <p>{riskExplanation || 'Click "Start Analysis" to begin.'}</p>
                     )}
                     {scamIndicators.length > 0 && (
                         <div>
@@ -317,17 +292,8 @@ export default function MonitoringClient() {
                 <TranscriptDisplay chunks={fullTranscript} keywords={Object.keys(KEYWORD_WEIGHTS)} />
             ) : (
                 <div className="text-center py-12 text-muted-foreground">
-                    {isMonitoring ? (
-                        <>
-                            <Mic className="mx-auto h-8 w-8 mb-2 animate-pulse" />
-                            <p>Listening for conversation...</p>
-                        </>
-                    ) : (
-                        <>
-                             <MicOff className="mx-auto h-8 w-8 mb-2" />
-                            <p>Monitoring is off. Press "Start" to begin.</p>
-                        </>
-                    )}
+                     <MicOff className="mx-auto h-8 w-8 mb-2" />
+                    <p>Analysis has not started. Press "Start Analysis" to begin.</p>
                 </div>
             )}
           </CardContent>
