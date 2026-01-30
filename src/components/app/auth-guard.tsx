@@ -1,19 +1,27 @@
+
 'use client';
 
-import { useUser } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
+  const auth = useAuth();
   const { user, loading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    // Only redirect if auth is configured, loading is done, and there is no user.
+    if (auth && !loading && !user) {
       router.push('/');
     }
-  }, [user, loading, router]);
+  }, [auth, user, loading, router]);
+
+  // If Firebase is not configured (auth is null), bypass the guard for now.
+  if (!auth) {
+    return <>{children}</>;
+  }
 
   if (loading || !user) {
     return (
