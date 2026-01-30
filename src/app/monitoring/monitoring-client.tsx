@@ -54,7 +54,6 @@ export default function MonitoringClient() {
     setRiskExplanation('');
     setScamIndicators([]);
     setIsEmergency(false);
-    setHasPermission(null);
     setIsProcessing(true);
     setLastRecordingUrl(null);
     
@@ -125,9 +124,13 @@ export default function MonitoringClient() {
     let newChunkText = '';
     try {
       newChunkText = await getTranscription(base64data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting transcription:", error);
-      toast({ variant: "destructive", title: "Transcription Failed", description: "Could not convert audio to text." });
+      toast({ 
+        variant: "destructive", 
+        title: "Transcription Failed", 
+        description: error.message || "The AI model could not process the audio." 
+      });
       setIsProcessing(false);
       setCycleStatus('Idle');
       return;

@@ -42,12 +42,7 @@ export async function getRiskExplanation(riskScore: number, context: string) {
 
 export async function getTranscription(audioDataUri: string) {
   if (!audioDataUri) return '';
-  try {
-    const result = await transcribeAudio({ audioDataUri });
-    return result.text;
-  } catch (error) {
-    console.error('Error in getTranscription:', error);
-    // Don't return an error message, just empty text.
-    return '';
-  }
+  // Let errors propagate to be caught by the client.
+  const result = await transcribeAudio({ audioDataUri });
+  return result.text;
 }
