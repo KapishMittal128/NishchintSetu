@@ -76,7 +76,7 @@ export default function MonitoringClient() {
     }
     await recordingPromise;
     
-    // --- 2. Processing Phase (Transcription & Analysis) ---
+    // --- 2. Processing Phase (Transcription only) ---
     setCycleStatus('Processing...');
     if (audioChunks.length > 0) {
       const audioBlob = new Blob(audioChunks, { type: recorder.mimeType });
@@ -96,47 +96,8 @@ export default function MonitoringClient() {
       }
 
       if (newChunkText && newChunkText.trim().length > 0) {
-        // This function updater form ensures we have the latest transcript
-        setFullTranscript(currentTranscript => {
-            const updatedTranscript = [...currentTranscript, newChunkText];
-
-            // Run Risk Analysis using the guaranteed latest transcript
-            const recentTranscripts = updatedTranscript.slice(-ROLLING_TRANSCRIPT_WINDOW_SIZE);
-            const currentRollingTranscript = recentTranscripts.join(' ');
-
-            let keywordScore = 0;
-            const detectedKeywords = new Set<string>();
-            for (const keyword in KEYWORD_WEIGHTS) {
-            if (currentRollingTranscript.toLowerCase().includes(keyword)) {
-                keywordScore += KEYWORD_WEIGHTS[keyword];
-                detectedKeywords.add(keyword);
-            }
-            }
-            
-            // We can't await inside the state updater, so we'll do the async part outside
-            // and trigger a state update for the score
-            (async () => {
-                let llmScore = 0;
-                let llmIndicators: string[] = [];
-                try {
-                    const currentTurn = recentTranscripts[recentTranscripts.length - 1] || '';
-                    const history = recentTranscripts.slice(0, -1).join('\n');
-                    const analysis = await getRiskAnalysis(history, currentTurn);
-                    llmScore = riskAssessmentToScore(analysis.riskAssessment);
-                    llmIndicators = analysis.scamIndicators;
-                } catch (error) {
-                    console.error("Error getting LLM analysis:", error);
-                }
-
-                const combinedIndicators = [...new Set([...Array.from(detectedKeywords), ...llmIndicators])];
-                setScamIndicators(combinedIndicators);
-                
-                const finalScore = Math.min(100, keywordScore + llmScore + (llmIndicators.length * 2));
-                setRiskScore(finalScore);
-            })();
-            
-            return updatedTranscript;
-        });
+        // Just update the transcript. The useEffect hook will handle analysis.
+        setFullTranscript(currentTranscript => [...currentTranscript, newChunkText]);
       }
     }
 
@@ -203,6 +164,50 @@ export default function MonitoringClient() {
   }, []);
 
   // --- Effects ---
+
+  // --- Risk Analysis Effect ---
+  useEffect(() => {
+    if (fullTranscript.length === 0) {
+        setRiskScore(0);
+        setScamIndicators([]);
+        return;
+    };
+
+    const runAnalysis = async () => {
+        const recentTranscripts = fullTranscript.slice(-ROLLING_TRANSCRIPT_WINDOW_SIZE);
+        const currentRollingTranscript = recentTranscripts.join(' ');
+        
+        let keywordScore = 0;
+        const detectedKeywords = new Set<string>();
+        for (const keyword in KEYWORD_WEIGHTS) {
+            if (currentRollingTranscript.toLowerCase().includes(keyword)) {
+                keywordScore += KEYWORD_WEIGHTS[keyword];
+                detectedKeywords.add(keyword);
+            }
+        }
+        
+        let llmScore = 0;
+        let llmIndicators: string[] = [];
+        try {
+            const currentTurn = recentTranscripts[recentTranscripts.length - 1] || '';
+            const history = recentTranscripts.slice(0, -1).join('\n');
+            const analysis = await getRiskAnalysis(history, currentTurn);
+            llmScore = riskAssessmentToScore(analysis.riskAssessment);
+            llmIndicators = analysis.scamIndicators;
+        } catch (error) {
+            console.error("Error getting LLM analysis:", error);
+        }
+
+        const combinedIndicators = [...new Set([...Array.from(detectedKeywords), ...llmIndicators])];
+        setScamIndicators(combinedIndicators);
+        
+        const finalScore = Math.min(100, keywordScore + llmScore + (combinedIndicators.length * 2));
+        setRiskScore(finalScore);
+    };
+
+    runAnalysis();
+    
+  }, [fullTranscript]);
 
   // Risk Explanation & Emergency Trigger
   useEffect(() => {
