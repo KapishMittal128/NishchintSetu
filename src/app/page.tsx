@@ -5,9 +5,9 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8 bg-grid-slate-50/[0.05] dark:bg-grid-slate-900/[0.2]">
-      <div className="absolute pointer-events-none inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
-      <Card className="w-full max-w-lg text-center shadow-2xl z-10">
+    <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
+      <div className="absolute pointer-events-none inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+      <Card className="w-full max-w-lg text-center z-10">
         <CardHeader className="p-8">
           <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
             <ShieldCheck className="h-10 w-10" />
