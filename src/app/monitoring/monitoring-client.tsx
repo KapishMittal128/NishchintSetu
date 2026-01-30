@@ -42,6 +42,8 @@ export default function MonitoringClient() {
   const [isEmergency, setIsEmergency] = useState(false);
   const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
   const [cycleStatus, setCycleStatus] = useState('Idle');
+  const [lastRecordingUrl, setLastRecordingUrl] = useState<string | null>(null);
+
 
   const { toast } = useToast();
 
@@ -54,6 +56,7 @@ export default function MonitoringClient() {
     setIsEmergency(false);
     setHasPermission(null);
     setIsProcessing(true);
+    setLastRecordingUrl(null);
     
     // --- 1. Request Permission & Setup Recorder ---
     let stream;
@@ -109,6 +112,9 @@ export default function MonitoringClient() {
     }
     
     const audioBlob = new Blob(audioChunks, { type: recorder.mimeType });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    setLastRecordingUrl(audioUrl);
+
     const reader = new FileReader();
     reader.readAsDataURL(audioBlob);
 
@@ -130,7 +136,7 @@ export default function MonitoringClient() {
     if (!newChunkText.trim()) {
         toast({ title: "Empty Transcription", description: "No speech was detected in the audio." });
         setIsProcessing(false);
-        setCycleStatus('Idle');
+        setCycleStatus('Analysis Complete. Ready to start again.');
         return;
     }
     
@@ -276,6 +282,13 @@ export default function MonitoringClient() {
                             <ul className="list-disc list-inside space-y-1 text-sm">
                                 {scamIndicators.map((indicator, i) => <li key={i}>{indicator}</li>)}
                             </ul>
+                        </div>
+                    )}
+                    {lastRecordingUrl && (
+                        <div>
+                            <h4 className="font-semibold mb-2 mt-4">Last Recording Playback:</h4>
+                            <audio controls src={lastRecordingUrl} className="w-full" />
+                            <p className="text-xs text-muted-foreground mt-1">If you hear silence, please check your microphone.</p>
                         </div>
                     )}
                 </CardContent>
