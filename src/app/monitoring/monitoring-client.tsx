@@ -23,7 +23,7 @@ const riskAssessmentToScore = (assessment: string) => {
 
 export default function MonitoringClient() {
   const [isMonitoring, setIsMonitoring] = useState(false);
-  const [hasMicPermission, setHasMicPermission] = useState<boolean | null>(null);
+  const [micError, setMicError] = useState(false);
   const [transcript, setTranscript] = useState<string[]>([]);
   const [riskScore, setRiskScore] = useState(0);
   const [riskExplanation, setRiskExplanation] = useState('');
@@ -41,13 +41,21 @@ export default function MonitoringClient() {
     reader.readAsDataURL(audioBlob);
     reader.onloadend = async () => {
       const base64data = reader.result as string;
-      const newChunk = await getTranscription(base64data);
-
-      if (newChunk && newChunk.trim().length > 0) {
-        setTranscript(currentTranscript => [...currentTranscript, newChunk]);
+      try {
+        const newChunk = await getTranscription(base64data);
+        if (newChunk && newChunk.trim().length > 0) {
+          setTranscript(currentTranscript => [...currentTranscript, newChunk]);
+        }
+      } catch (error) {
+        console.error("Error getting transcription:", error);
+        toast({
+          variant: "destructive",
+          title: "Transcription Failed",
+          description: "Could not transcribe audio chunk.",
+        });
       }
     };
-  }, []);
+  }, [toast]);
 
   const stopMonitoring = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -62,6 +70,7 @@ export default function MonitoringClient() {
   }, []);
 
   const startMonitoring = async () => {
+    setMicError(false);
     // Reset state
     setTranscript([]);
     setRiskScore(0);
@@ -75,14 +84,13 @@ export default function MonitoringClient() {
             title: 'Unsupported Browser',
             description: 'Your browser does not support the necessary audio recording APIs.',
         });
-        setHasMicPermission(false);
+        setMicError(true);
         return;
     }
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         audioStreamRef.current = stream;
-        setHasMicPermission(true);
         setIsMonitoring(true);
 
         const recorder = new MediaRecorder(stream);
@@ -97,11 +105,11 @@ export default function MonitoringClient() {
         recorder.start(4000); // Capture 4-second chunks
     } catch (error) {
         console.error('Error accessing microphone:', error);
-        setHasMicPermission(false);
+        setMicError(true);
         toast({
             variant: 'destructive',
             title: 'Microphone Access Denied',
-            description: 'Please enable microphone permissions in your browser settings.',
+            description: 'Please enable microphone permissions in your browser settings to use this feature.',
         });
     }
   };
@@ -109,6 +117,7 @@ export default function MonitoringClient() {
   // Effect for risk analysis
   useEffect(() => {
     if (transcript.length === 0) {
+      setRiskScore(0);
       return;
     }
 
@@ -116,22 +125,31 @@ export default function MonitoringClient() {
       const currentTurn = transcript[transcript.length - 1];
       const conversationHistory = transcript.slice(0, -1).join('\n');
       
-      const analysis = await getRiskAnalysis(conversationHistory, currentTurn);
+      try {
+        const analysis = await getRiskAnalysis(conversationHistory, currentTurn);
 
-      let newRiskScore = riskAssessmentToScore(analysis.riskAssessment);
-      newRiskScore += analysis.scamIndicators.length * 5;
-      newRiskScore = Math.min(100, newRiskScore);
+        let newRiskScore = riskAssessmentToScore(analysis.riskAssessment);
+        newRiskScore += analysis.scamIndicators.length * 5;
+        newRiskScore = Math.min(100, newRiskScore);
 
-      setRiskScore(newRiskScore);
-      setScamIndicators(prev => [...new Set([...prev, ...analysis.scamIndicators])]);
+        setRiskScore(newRiskScore);
+        setScamIndicators(prev => [...new Set([...prev, ...analysis.scamIndicators])]);
 
-      if (newRiskScore > 75) {
-        setIsEmergency(true);
+        if (newRiskScore > 75) {
+          setIsEmergency(true);
+        }
+      } catch (error) {
+        console.error("Error performing risk analysis:", error);
+        toast({
+          variant: "destructive",
+          title: "Analysis Failed",
+          description: "Could not analyze conversation.",
+        });
       }
     };
 
     performAnalysis();
-  }, [transcript]);
+  }, [transcript, toast]);
 
 
   // Effect for getting risk explanation
@@ -140,6 +158,10 @@ export default function MonitoringClient() {
       setIsLoadingExplanation(true);
       getRiskExplanation(riskScore, transcript.join('\n')).then(result => {
         setRiskExplanation(result.explanation);
+        setIsLoadingExplanation(false);
+      }).catch(error => {
+        console.error("Error getting risk explanation:", error);
+        setRiskExplanation('Could not generate an explanation at this time.');
         setIsLoadingExplanation(false);
       });
     } else if (transcript.length > 0) {
@@ -162,12 +184,12 @@ export default function MonitoringClient() {
       {isEmergency && <EmergencyOverlay onDismiss={() => setIsEmergency(false)} />}
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {hasMicPermission === false && (
+        {micError && (
             <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Microphone Access Required</AlertTitle>
                 <AlertDescription>
-                    Nishchint Setu requires access to your microphone for real-time monitoring. Please grant permission to continue.
+                    Nishchint Setu requires access to your microphone for real-time monitoring. Please grant permission in your browser settings to continue.
                 </AlertDescription>
             </Alert>
         )}
@@ -183,7 +205,7 @@ export default function MonitoringClient() {
                 <CardContent className="flex flex-col items-center justify-center gap-4">
                     <RiskMeter value={riskScore} />
                      {!isMonitoring ? (
-                         <Button size="lg" className="w-full mt-4" onClick={startMonitoring} disabled={hasMicPermission === false}>
+                         <Button size="lg" className="w-full mt-4" onClick={startMonitoring}>
                             <Mic className="mr-2" /> Start
                         </Button>
                      ) : (
