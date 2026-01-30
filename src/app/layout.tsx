@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'Nishchint Setu',
@@ -27,10 +28,12 @@ export default function RootLayout({
           'bg-background'
         )}
       >
-        <main className="relative flex flex-col min-h-screen">
-          {children}
-        </main>
-        <Toaster />
+        <FirebaseClientProvider>
+          <main className="relative flex flex-col min-h-screen">
+            {children}
+          </main>
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );
