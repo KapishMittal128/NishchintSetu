@@ -44,28 +44,7 @@ export default function MonitoringClient() {
       const newChunk = await getTranscription(base64data);
 
       if (newChunk && newChunk.trim().length > 0) {
-        setTranscript(currentTranscript => {
-            const updatedTranscript = [...currentTranscript, newChunk];
-            
-            // Perform analysis on the updated transcript
-            (async () => {
-                const conversationHistory = updatedTranscript.slice(0, -1).join('\n');
-                const analysis = await getRiskAnalysis(conversationHistory, newChunk);
-        
-                let newRiskScore = riskAssessmentToScore(analysis.riskAssessment);
-                newRiskScore += analysis.scamIndicators.length * 5;
-                newRiskScore = Math.min(100, newRiskScore);
-        
-                setRiskScore(newRiskScore);
-                setScamIndicators(prev => [...new Set([...prev, ...analysis.scamIndicators])]);
-        
-                if (newRiskScore > 75) {
-                    setIsEmergency(true);
-                }
-            })();
-
-            return updatedTranscript;
-        });
+        setTranscript(currentTranscript => [...currentTranscript, newChunk]);
       }
     };
   }, []);
@@ -126,6 +105,34 @@ export default function MonitoringClient() {
         });
     }
   };
+
+  // Effect for risk analysis
+  useEffect(() => {
+    if (transcript.length === 0) {
+      return;
+    }
+
+    const performAnalysis = async () => {
+      const currentTurn = transcript[transcript.length - 1];
+      const conversationHistory = transcript.slice(0, -1).join('\n');
+      
+      const analysis = await getRiskAnalysis(conversationHistory, currentTurn);
+
+      let newRiskScore = riskAssessmentToScore(analysis.riskAssessment);
+      newRiskScore += analysis.scamIndicators.length * 5;
+      newRiskScore = Math.min(100, newRiskScore);
+
+      setRiskScore(newRiskScore);
+      setScamIndicators(prev => [...new Set([...prev, ...analysis.scamIndicators])]);
+
+      if (newRiskScore > 75) {
+        setIsEmergency(true);
+      }
+    };
+
+    performAnalysis();
+  }, [transcript]);
+
 
   // Effect for getting risk explanation
   useEffect(() => {
