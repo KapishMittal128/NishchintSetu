@@ -82,7 +82,7 @@ export default function MonitoringClient() {
 
         recognitionRef.current = recognition;
     }
-  }, [toast]);
+  }, [toast, isProcessing]);
   
   const runSingleCycle = async () => {
     if (!isBrowserSupported) {
@@ -167,12 +167,14 @@ export default function MonitoringClient() {
         setCycleStatus('Ready');
     };
 
-    runLocalAnalysis();
+    if (cycleStatus === 'Processing...' || cycleStatus === 'Analysis Complete.') {
+        runLocalAnalysis();
+    }
     
   }, [fullTranscript, cycleStatus]);
   
   return (
-    <div className="flex-1 p-6 sm:p-8 md:p-12">
+    <div className="p-6 sm:p-8 md:p-12">
       {isEmergency && <EmergencyOverlay onDismiss={() => setIsEmergency(false)} />}
       <div className="max-w-4xl mx-auto space-y-8">
         

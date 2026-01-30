@@ -15,7 +15,9 @@ export default function MonitoringPage() {
           </Link>
           <h1 className="text-2xl font-semibold">Conversation Monitoring</h1>
         </header>
-        <MonitoringClient />
+        <div className="flex-1 overflow-y-auto">
+            <MonitoringClient />
+        </div>
     </>
   );
 }
