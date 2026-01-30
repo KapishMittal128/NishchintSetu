@@ -21,7 +21,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 sm:p-8 md:p-12">
-        <Card className="w-full max-w-md z-10 animate-in fade-in-0 slide-in-from-bottom-8 duration-500 ease-out">
+        <Card className="w-full max-w-md z-10 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
             <CardHeader className="p-8 text-center">
                 <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
                     <LogIn className="h-10 w-10" />
@@ -43,7 +43,7 @@ export default function Page() {
                         <Label htmlFor="password">Password</Label>
                         <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
-                    <Button type="submit" size="lg" className="w-full text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-shadow">
+                    <Button type="submit" size="lg" className="w-full text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                         Sign In
                     </Button>
                 </form>
@@ -57,7 +57,7 @@ export default function Page() {
                         </span>
                     </div>
                 </div>
-                 <Button variant="outline" size="lg" className="w-full text-lg py-7 px-8" onClick={() => handleSignIn()}>
+                 <Button variant="outline" size="lg" className="w-full text-lg py-7 px-8 transition-all duration-300 transform hover:scale-105" onClick={() => handleSignIn()}>
                     Sign In with Google
                 </Button>
             </CardContent>

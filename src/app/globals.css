@@ -4,58 +4,58 @@
 
 @layer base {
   :root {
-    --background: 220 100% 99%; /* Light blue-white base */
-    --foreground: 220 25% 25%; /* Dark blue-grey */
+    --background: 220 100% 99%;
+    --foreground: 220 25% 25%;
 
-    --card: 220 100% 98% / 0.7; /* Translucent frosted glass */
+    --card: 220 100% 98% / 0.7;
     --card-foreground: 220 25% 25%;
 
     --popover: 220 100% 98%;
     --popover-foreground: 220 25% 25%;
 
-    --primary: 217 60% 70%; /* Muted System Blue */
+    --primary: 217 90% 70%; /* Brighter Blue */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 30% 95%;
     --secondary-foreground: 220 25% 25%;
 
     --muted: 220 20% 92%;
-    --muted-foreground: 220 10% 55%; /* Warm grey */
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 217 60% 80%;
+    --accent: 217 90% 75%;
     --accent-foreground: 220 25% 20%;
     
-    --success: 140 60% 60%;
+    --success: 140 70% 60%;
     
-    --warning: 30 55% 62%; /* Muted Amber */
+    --warning: 40 80% 65%; /* More vibrant Amber */
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 65%; /* Softer Red */
+    --destructive: 0 80% 65%; /* Brighter Red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 100% / 0.3; /* Soft white border for glass */
+    --border: 0 0% 100% / 0.3;
     --input: 220 20% 88%;
-    --ring: 217 60% 70%;
+    --ring: 217 90% 70%;
     
     --chart-1: 220 25% 50%;
     --chart-2: 220 25% 40%;
     --chart-3: 220 25% 30%;
     --chart-4: 220 25% 20%;
     --chart-5: 220 25% 10%;
-    --radius: 1.25rem;
+    --radius: 1.5rem; /* Increased radius */
   }
 
   .dark {
-    --background: 220 15% 10%; /* Dark blue base */
+    --background: 220 15% 5%;
     --foreground: 220 20% 90%;
 
-    --card: 220 15% 15% / 0.7;
+    --card: 220 15% 12% / 0.6;
     --card-foreground: 220 20% 90%;
 
     --popover: 220 15% 10%;
     --popover-foreground: 220 20% 90%;
 
-    --primary: 217 60% 70%;
+    --primary: 217 90% 70%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 15% 20%;
@@ -64,20 +64,20 @@
     --muted: 220 15% 20%;
     --muted-foreground: 220 20% 70%;
 
-    --accent: 217 60% 60%;
+    --accent: 217 90% 75%;
     --accent-foreground: 0 0% 100%;
     
-    --success: 140 60% 50%;
+    --success: 140 70% 50%;
 
-    --warning: 30 55% 62%;
+    --warning: 40 80% 65%;
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 60%;
+    --destructive: 0 80% 65%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 100% / 0.1;
     --input: 220 15% 25%;
-    --ring: 217 60% 70%;
+    --ring: 217 90% 70%;
   }
 }
 
@@ -86,14 +86,53 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    background: linear-gradient(180deg, #F8FBFF 0%, #EAF3FF 100%);
-    min-height: 100vh;
+    @apply bg-background text-foreground overflow-hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
 
-  .dark body {
-    background: linear-gradient(180deg, hsl(220 15% 12%) 0%, hsl(220 20% 5%) 100%);
+@layer utilities {
+  .aurora-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background: hsl(var(--background));
+    overflow: hidden;
+  }
+
+  .aurora-bg::before,
+  .aurora-bg::after {
+    content: '';
+    position: absolute;
+    width: 100vmax;
+    height: 100vmax;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    animation: aurora-rotate 20s linear infinite;
+  }
+
+  .aurora-bg::before {
+    background: radial-gradient(circle at center, hsla(var(--primary), 0.2), transparent 40%);
+    transform-origin: 20% 80%;
+  }
+
+  .aurora-bg::after {
+    background: radial-gradient(circle at center, hsla(var(--accent), 0.2), transparent 40%);
+    transform-origin: 80% 20%;
+    animation-delay: -10s;
+  }
+}
+
+@keyframes aurora-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }

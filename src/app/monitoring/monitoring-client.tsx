@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Mic, MicOff, Info, AlertTriangle, Loader2 } from 'lucide-react';
@@ -30,6 +30,7 @@ export default function MonitoringClient() {
   const [cycleStatus, setCycleStatus] = useState('Idle');
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
 
+  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,12 +42,60 @@ export default function MonitoringClient() {
         title: 'Browser Not Supported',
         description: 'Local transcription is not supported on this browser. Please use Google Chrome.',
       });
+    } else {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event: any) => {
+            setCycleStatus('Processing...');
+            const newChunkText = event.results[0][0].transcript;
+            if (newChunkText && newChunkText.trim()) {
+                setFullTranscript(prev => [...prev, newChunkText]);
+            } else {
+                toast({ title: 'Empty Transcription', description: 'No clear speech was detected.' });
+                setIsProcessing(false);
+                setCycleStatus('Ready');
+            }
+        };
+
+        recognition.onerror = (event: any) => {
+            console.error('Speech recognition error:', event.error);
+            let errorMessage = `An error occurred: ${event.error}`;
+            if (event.error === 'no-speech') {
+                errorMessage = 'No speech was detected. Please try speaking clearly.';
+            } else if (event.error === 'not-allowed') {
+                errorMessage = 'Microphone access was denied. Please check your browser settings.';
+                setHasPermission(false);
+            }
+            toast({ variant: 'destructive', title: 'Transcription Error', description: errorMessage });
+            setIsProcessing(false);
+            setCycleStatus('Idle');
+        };
+        
+        recognition.onend = () => {
+            if (isProcessing) {
+                setCycleStatus('Analysis Complete.');
+            }
+        };
+
+        recognitionRef.current = recognition;
     }
   }, [toast]);
-
+  
   const runSingleCycle = async () => {
     if (!isBrowserSupported) {
       toast({ variant: 'destructive', title: 'Unsupported Browser' });
+      return;
+    }
+
+    if (hasPermission === false) {
+      toast({
+        variant: 'destructive',
+        title: 'Microphone Access Denied',
+        description: 'Please enable microphone permissions in your browser settings to continue.',
+      });
       return;
     }
     
@@ -54,8 +103,9 @@ export default function MonitoringClient() {
     setCycleStatus('Initializing...');
 
     try {
+      // Quick check for permission, but main request is via recognition.start()
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop()); // Stop immediate use, recognition will use it
+      stream.getTracks().forEach(track => track.stop());
       setHasPermission(true);
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -70,60 +120,15 @@ export default function MonitoringClient() {
       return;
     }
 
-    setCycleStatus('Waiting for speech...');
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event: any) => {
-      setCycleStatus('Processing...');
-      const newChunkText = event.results[0][0].transcript;
-      if (newChunkText && newChunkText.trim()) {
-        setFullTranscript(prev => [...prev, newChunkText]);
-      } else {
-        toast({ title: 'Empty Transcription', description: 'No clear speech was detected in the last window.' });
-      }
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      let errorMessage = `An error occurred: ${event.error}`;
-      if (event.error === 'no-speech') {
-        errorMessage = 'No speech was detected. Please try speaking clearly.';
-      } else if (event.error === 'not-allowed') {
-        errorMessage = 'Microphone access was denied. Please check your browser settings.';
-        setHasPermission(false);
-      }
-      toast({ variant: 'destructive', title: 'Transcription Error', description: errorMessage });
-      setIsProcessing(false);
-      setCycleStatus('Idle');
-    };
-
-    recognition.onstart = () => {
-      setCycleStatus('Listening (3s)...');
-    };
-    
-    recognition.onend = () => {
-      // isProcessing will be set to false in the analysis effect
-      if (isProcessing) {
-          setCycleStatus('Analysis Complete.');
-      }
-    };
-
-    recognition.start();
-
-    setTimeout(() => {
-        if (recognition) {
-          recognition.stop();
-        }
-    }, 3000);
+    setCycleStatus('Listening...');
+    recognitionRef.current.start();
   };
   
   useEffect(() => {
     if (fullTranscript.length === 0) {
-      setIsProcessing(false);
+      if (cycleStatus === 'Analysis Complete.') {
+          setIsProcessing(false);
+      }
       return;
     };
 
@@ -164,7 +169,7 @@ export default function MonitoringClient() {
 
     runLocalAnalysis();
     
-  }, [fullTranscript]);
+  }, [fullTranscript, cycleStatus]);
   
   return (
     <div className="flex-1 p-6 sm:p-8 md:p-12">
@@ -182,7 +187,7 @@ export default function MonitoringClient() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="md:col-span-1 animate-in fade-in-0 slide-in-from-left-8 duration-500 ease-out">
+            <Card className="md:col-span-1 animate-in fade-in-0 slide-in-from-left-8 duration-1000 ease-out">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                         {isProcessing ? <Mic className="text-primary"/> : <MicOff/>}
@@ -194,7 +199,7 @@ export default function MonitoringClient() {
                     <RiskMeter value={riskScore} />
                      <Button 
                         size="lg" 
-                        className="w-full mt-4 text-lg py-7" 
+                        className="w-full mt-4 text-lg py-7 transition-all duration-300 transform hover:scale-105" 
                         onClick={runSingleCycle} 
                         disabled={isProcessing || !isBrowserSupported}
                     >
@@ -204,7 +209,7 @@ export default function MonitoringClient() {
                 </CardContent>
             </Card>
 
-            <Card className="md:col-span-2 animate-in fade-in-0 slide-in-from-right-8 duration-500 ease-out delay-100">
+            <Card className="md:col-span-2 animate-in fade-in-0 slide-in-from-right-8 duration-1000 ease-out delay-100">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl"><Info /> Risk Details</CardTitle>
                     <CardDescription>An explanation of the current risk level.</CardDescription>
@@ -231,7 +236,7 @@ export default function MonitoringClient() {
             </Card>
         </div>
         
-        <Card className="animate-in fade-in-0 slide-in-from-bottom-8 duration-500 ease-out delay-200">
+        <Card className="animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out delay-200">
           <CardHeader>
             <CardTitle className="text-xl">Live Transcript</CardTitle>
             <CardDescription>A real-time transcription of the conversation.</CardDescription>

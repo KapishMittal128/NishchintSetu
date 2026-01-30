@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function Page() {
   return (
       <div className="flex flex-1 items-center justify-center p-6 sm:p-8 md:p-12">
-        <Card className="w-full max-w-lg text-center z-10 animate-in fade-in-0 slide-in-from-bottom-8 duration-500 ease-out">
+        <Card className="w-full max-w-lg text-center z-10 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
           <CardHeader className="p-8">
             <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
               <ShieldCheck className="h-10 w-10" />
@@ -20,7 +20,7 @@ export default function Page() {
           </CardHeader>
           <CardContent className="p-8 pt-0">
             <Link href="/monitoring" passHref>
-              <Button size="lg" className="w-full text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-shadow">
+              <Button size="lg" className="w-full text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 Start Monitoring
               </Button>
             </Link>

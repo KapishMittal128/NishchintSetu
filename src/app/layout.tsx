@@ -23,6 +23,7 @@ export default function RootLayout({
           'bg-background'
         )}
       >
+        <div className="aurora-bg"></div>
         <main className="relative flex flex-col min-h-screen">
           {children}
         </main>
