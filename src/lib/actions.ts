@@ -1,48 +1,31 @@
 
 'use server';
 
-import { analyzeConversationIntent } from '@/ai/flows/analyze-conversation-intent';
-import { explainRiskScore } from '@/ai/flows/explain-risk-score';
-import { transcribeAudio } from '@/ai/flows/transcribe-audio';
+/**
+ * This file previously contained server actions for AI-based transcription and analysis.
+ * This functionality has been moved to the client-side for local processing
+ * in src/app/monitoring/monitoring-client.tsx.
+ *
+ * The original functions are kept here as no-ops to prevent breaking
+ * other parts of the application if they were imported elsewhere.
+ */
 
 export async function getRiskAnalysis(conversationHistory: string, currentTurn: string) {
-  try {
-    const analysis = await analyzeConversationIntent({
-      conversationHistory,
-      currentTurn,
-    });
-    return analysis;
-  } catch (error) {
-    console.error('Error in getRiskAnalysis:', error);
-    return {
-      intent: 'unknown',
-      sentiment: 'unknown',
-      riskAssessment: 'low',
-      scamIndicators: [],
-    };
-  }
+  console.warn('getRiskAnalysis is a no-op in local mode.');
+  return {
+    intent: 'unknown',
+    sentiment: 'unknown',
+    riskAssessment: 'low',
+    scamIndicators: [],
+  };
 }
 
 export async function getRiskExplanation(riskScore: number, context: string) {
-  if (riskScore < 30) {
-    return { explanation: 'The conversation appears to be safe. No significant risks detected.' };
-  }
-  
-  try {
-    const result = await explainRiskScore({
-      riskScore,
-      context,
-    });
-    return result;
-  } catch (error) {
-    console.error('Error in getRiskExplanation:', error);
-    return { explanation: 'Could not generate an explanation at this time.' };
-  }
+  console.warn('getRiskExplanation is a no-op in local mode.');
+  return { explanation: 'Local processing enabled. No remote explanation available.' };
 }
 
 export async function getTranscription(audioDataUri: string) {
-  if (!audioDataUri) return '';
-  // Let errors propagate to be caught by the client.
-  const result = await transcribeAudio({ audioDataUri });
-  return result.text;
+  console.warn('getTranscription is a no-op in local mode.');
+  return '';
 }
