@@ -17,7 +17,7 @@ export default function LoginClient() {
 
   const handleSignIn = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    router.push('/home');
+    router.push('/dashboard');
   };
 
   return (

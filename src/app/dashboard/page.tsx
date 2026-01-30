@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
-export default function HomePage() {
+export default function DashboardPage() {
   return (
       <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
         <div className="absolute pointer-events-none inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
