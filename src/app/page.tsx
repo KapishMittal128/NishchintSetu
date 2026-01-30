@@ -26,15 +26,15 @@ export default function Page() {
                 <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
                     <LogIn className="h-10 w-10" />
                 </div>
-                <CardTitle className="text-4xl font-bold tracking-wide">
+                <CardTitle className="text-3xl font-bold tracking-wide">
                     Sign In
                 </CardTitle>
-                <CardDescription className="text-lg text-muted-foreground pt-2">
+                <CardDescription className="text-base text-muted-foreground pt-2">
                     Welcome back. Let's keep you safe.
                 </CardDescription>
             </CardHeader>
             <CardContent className="p-8 pt-0">
-                <form onSubmit={handleSignIn} className="space-y-6">
+                <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -43,11 +43,11 @@ export default function Page() {
                         <Label htmlFor="password">Password</Label>
                         <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
-                    <Button type="submit" size="lg" className="w-full text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    <Button type="submit" size="lg" className="w-full bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                         Sign In
                     </Button>
                 </form>
-                <div className="relative my-8">
+                <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
                     </div>
@@ -57,7 +57,7 @@ export default function Page() {
                         </span>
                     </div>
                 </div>
-                 <Button variant="outline" size="lg" className="w-full text-lg py-7 px-8 transition-all duration-300 transform hover:scale-105" onClick={() => handleSignIn()}>
+                 <Button variant="outline" size="lg" className="w-full transition-all duration-300 transform hover:scale-105" onClick={() => handleSignIn()}>
                     Sign In with Google
                 </Button>
             </CardContent>
