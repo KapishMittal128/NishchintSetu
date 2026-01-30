@@ -13,9 +13,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 // --- Configuration ---
-const AUDIO_CHUNK_DURATION = 3000; // 3 seconds
+const RECORDING_DURATION = 3000; // Record for 3 seconds
+const COOLDOWN_DURATION = 2000; // Wait for 2 seconds before next recording
 const ROLLING_TRANSCRIPT_WINDOW_SIZE = 6; // Keep last 6 chunks for analysis
-const RISK_ANALYSIS_INTERVAL = 1500; // Run analysis every 1.5 seconds
 
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
@@ -34,12 +34,10 @@ const riskAssessmentToScore = (assessment: string) => {
 };
 
 export default function MonitoringClient() {
-  // --- Refs for stable instances ---
+  // --- Refs for stable instances and loop control ---
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
-  const audioChunksQueueRef = useRef<Blob[]>([]);
-  const processingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const analysisIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const loopActiveRef = useRef(false);
 
   // --- State Management ---
   const [isMonitoring, setIsMonitoring] = useState(false);
@@ -50,44 +48,121 @@ export default function MonitoringClient() {
   const [scamIndicators, setScamIndicators] = useState<string[]>([]);
   const [isEmergency, setIsEmergency] = useState(false);
   const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
+  const [cycleStatus, setCycleStatus] = useState('Idle');
 
   const { toast } = useToast();
 
-  // --- Core Functions ---
+  // --- Core Monitoring Loop ---
+  const runMonitoringCycle = useCallback(async () => {
+    if (!loopActiveRef.current || !mediaRecorderRef.current) return;
 
-  const stopMonitoring = useCallback(() => {
-    setIsMonitoring(false);
-    if (processingIntervalRef.current) clearInterval(processingIntervalRef.current);
-    if (analysisIntervalRef.current) clearInterval(analysisIntervalRef.current);
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
+    const recorder = mediaRecorderRef.current;
+    const audioChunks: Blob[] = [];
+
+    // --- 1. Recording Phase (3s) ---
+    setCycleStatus('Recording...');
+    
+    const recordingPromise = new Promise<void>((resolve) => {
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunks.push(event.data);
+      };
+      recorder.onstop = () => resolve();
+    });
+
+    recorder.start();
+    await new Promise(resolve => setTimeout(resolve, RECORDING_DURATION));
+    if (recorder.state === 'recording') {
+      recorder.stop();
     }
-    if (audioStreamRef.current) {
-        audioStreamRef.current.getTracks().forEach(track => track.stop());
+    await recordingPromise;
+    
+    // --- 2. Processing Phase (Transcription & Analysis) ---
+    setCycleStatus('Processing...');
+    if (audioChunks.length > 0) {
+      const audioBlob = new Blob(audioChunks, { type: recorder.mimeType });
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+
+      const base64data = await new Promise<string>(resolve => {
+        reader.onloadend = () => resolve(reader.result as string);
+      });
+
+      // Get Transcription
+      let newChunkText = '';
+      try {
+        newChunkText = await getTranscription(base64data);
+      } catch (error) {
+        console.error("Error getting transcription:", error);
+      }
+
+      if (newChunkText && newChunkText.trim().length > 0) {
+        // This function updater form ensures we have the latest transcript
+        setFullTranscript(currentTranscript => {
+            const updatedTranscript = [...currentTranscript, newChunkText];
+
+            // Run Risk Analysis using the guaranteed latest transcript
+            const recentTranscripts = updatedTranscript.slice(-ROLLING_TRANSCRIPT_WINDOW_SIZE);
+            const currentRollingTranscript = recentTranscripts.join(' ');
+
+            let keywordScore = 0;
+            const detectedKeywords = new Set<string>();
+            for (const keyword in KEYWORD_WEIGHTS) {
+            if (currentRollingTranscript.toLowerCase().includes(keyword)) {
+                keywordScore += KEYWORD_WEIGHTS[keyword];
+                detectedKeywords.add(keyword);
+            }
+            }
+            
+            // We can't await inside the state updater, so we'll do the async part outside
+            // and trigger a state update for the score
+            (async () => {
+                let llmScore = 0;
+                let llmIndicators: string[] = [];
+                try {
+                    const currentTurn = recentTranscripts[recentTranscripts.length - 1] || '';
+                    const history = recentTranscripts.slice(0, -1).join('\n');
+                    const analysis = await getRiskAnalysis(history, currentTurn);
+                    llmScore = riskAssessmentToScore(analysis.riskAssessment);
+                    llmIndicators = analysis.scamIndicators;
+                } catch (error) {
+                    console.error("Error getting LLM analysis:", error);
+                }
+
+                const combinedIndicators = [...new Set([...Array.from(detectedKeywords), ...llmIndicators])];
+                setScamIndicators(combinedIndicators);
+                
+                const finalScore = Math.min(100, keywordScore + llmScore + (llmIndicators.length * 2));
+                setRiskScore(finalScore);
+            })();
+            
+            return updatedTranscript;
+        });
+      }
     }
-    mediaRecorderRef.current = null;
-    audioStreamRef.current = null;
-    audioChunksQueueRef.current = [];
-    processingIntervalRef.current = null;
-    analysisIntervalRef.current = null;
+
+    // --- 3. Cooldown Phase (2s) ---
+    setCycleStatus('Cooldown...');
+    await new Promise(resolve => setTimeout(resolve, COOLDOWN_DURATION));
+
+    // --- 4. Repeat Cycle ---
+    if (loopActiveRef.current) {
+        runMonitoringCycle();
+    }
+
   }, []);
 
-  const startMonitoring = async () => {
-    // Reset all states
+  const startMonitoring = useCallback(async () => {
+    // Reset states
     setFullTranscript([]);
     setRiskScore(0);
     setRiskExplanation('');
     setScamIndicators([]);
     setIsEmergency(false);
     setHasPermission(null);
-    audioChunksQueueRef.current = [];
-
+    setCycleStatus('Initializing...');
+    
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        toast({
-            variant: 'destructive',
-            title: 'Unsupported Browser',
-            description: 'Your browser does not support the necessary audio recording APIs.',
-        });
+        toast({ variant: 'destructive', title: 'Unsupported Browser', description: 'Audio recording is not available.' });
         setHasPermission(false);
         return;
     }
@@ -95,128 +170,41 @@ export default function MonitoringClient() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         audioStreamRef.current = stream;
+        mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         setHasPermission(true);
         setIsMonitoring(true);
-
-        const recorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = recorder;
-        
-        recorder.ondataavailable = event => {
-            if (event.data.size > 0) {
-                audioChunksQueueRef.current.push(event.data);
-            }
-        };
-
-        recorder.onstop = () => {
-          if (isMonitoring) {
-            stopMonitoring();
-          }
-        };
-
-        recorder.start(AUDIO_CHUNK_DURATION);
+        loopActiveRef.current = true;
+        runMonitoringCycle();
     } catch (error) {
         console.error('Error accessing microphone:', error);
         setHasPermission(false);
         toast({
             variant: 'destructive',
             title: 'Microphone Access Denied',
-            description: 'Please enable microphone permissions in your browser settings to use this feature.',
+            description: 'Please enable microphone permissions in your browser settings.',
         });
     }
-  };
+  }, [runMonitoringCycle, toast]);
 
-  // --- Effects for Processing Pipelines ---
+  const stopMonitoring = useCallback(() => {
+    loopActiveRef.current = false;
+    setIsMonitoring(false);
+    setCycleStatus('Idle');
 
-  // 1. Audio Chunk Transcription Pipeline
-  useEffect(() => {
-    if (!isMonitoring) return;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+    }
+    if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(track => track.stop());
+    }
 
-    const processQueue = async () => {
-      if (audioChunksQueueRef.current.length === 0) return;
-      
-      const audioBlob = audioChunksQueueRef.current.shift();
-      if (!audioBlob) return;
+    mediaRecorderRef.current = null;
+    audioStreamRef.current = null;
+  }, []);
 
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        try {
-          const newChunkText = await getTranscription(base64data);
-          if (newChunkText && newChunkText.trim().length > 0) {
-            setFullTranscript(currentTranscript => [...currentTranscript, newChunkText]);
-          }
-        } catch (error) {
-          console.error("Error getting transcription:", error);
-          toast({
-            variant: "destructive",
-            title: "Transcription Failed",
-            description: "Could not transcribe an audio chunk.",
-          });
-        }
-      };
-    };
+  // --- Effects ---
 
-    processingIntervalRef.current = setInterval(processQueue, AUDIO_CHUNK_DURATION / 2);
-
-    return () => {
-      if (processingIntervalRef.current) clearInterval(processingIntervalRef.current);
-    };
-  }, [isMonitoring, toast]);
-
-  // 2. Rolling Transcript & Risk Analysis Pipeline
-  useEffect(() => {
-    if (!isMonitoring) return;
-    
-    const performAnalysis = async () => {
-        const recentTranscripts = fullTranscript.slice(-ROLLING_TRANSCRIPT_WINDOW_SIZE);
-        const currentRollingTranscript = recentTranscripts.join(' ');
-
-        if (currentRollingTranscript.trim().length === 0) {
-            setRiskScore(0);
-            return;
-        }
-
-        // --- Client-side deterministic keyword analysis ---
-        let keywordScore = 0;
-        const detectedKeywords = new Set<string>();
-        for (const keyword in KEYWORD_WEIGHTS) {
-            if (currentRollingTranscript.toLowerCase().includes(keyword)) {
-                keywordScore += KEYWORD_WEIGHTS[keyword];
-                detectedKeywords.add(keyword);
-            }
-        }
-        
-        // --- LLM-based contextual analysis ---
-        let llmScore = 0;
-        let llmIndicators: string[] = [];
-        try {
-            const currentTurn = recentTranscripts[recentTranscripts.length - 1] || '';
-            const history = recentTranscripts.slice(0, -1).join('\n');
-            const analysis = await getRiskAnalysis(history, currentTurn);
-            llmScore = riskAssessmentToScore(analysis.riskAssessment);
-            llmIndicators = analysis.scamIndicators;
-        } catch (error) {
-            console.error("Error getting LLM analysis:", error);
-        }
-
-        const combinedIndicators = [...new Set([...Array.from(detectedKeywords), ...llmIndicators])];
-        setScamIndicators(combinedIndicators);
-        
-        // --- Combine scores and update state ---
-        const finalScore = Math.min(100, keywordScore + llmScore + (llmIndicators.length * 2));
-        setRiskScore(finalScore);
-    };
-
-    analysisIntervalRef.current = setInterval(performAnalysis, RISK_ANALYSIS_INTERVAL);
-    
-    return () => {
-      if (analysisIntervalRef.current) clearInterval(analysisIntervalRef.current);
-    };
-
-  }, [isMonitoring, fullTranscript]);
-
-  // 3. Risk Explanation & Emergency Trigger Effect
+  // Risk Explanation & Emergency Trigger
   useEffect(() => {
     if (riskScore > 75 && !isEmergency) {
         setIsEmergency(true);
@@ -239,9 +227,13 @@ export default function MonitoringClient() {
     }
   }, [riskScore, isMonitoring, isEmergency, fullTranscript]);
   
-  // 4. Cleanup on unmount
+  // Cleanup on unmount
   useEffect(() => {
-    return () => stopMonitoring();
+    return () => {
+      if (loopActiveRef.current) {
+        stopMonitoring();
+      }
+    };
   }, [stopMonitoring]);
 
   // --- Render ---
@@ -267,11 +259,12 @@ export default function MonitoringClient() {
                         {isMonitoring ? <Mic className="text-primary"/> : <MicOff/>}
                         Status
                     </CardTitle>
+                     <CardDescription>{cycleStatus}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center gap-4">
                     <RiskMeter value={riskScore} />
                      {!isMonitoring ? (
-                         <Button size="lg" className="w-full mt-4" onClick={startMonitoring}>
+                         <Button size="lg" className="w-full mt-4" onClick={startMonitoring} disabled={hasPermission === false}>
                             <Mic className="mr-2" /> Start
                         </Button>
                      ) : (
@@ -338,5 +331,3 @@ export default function MonitoringClient() {
     </div>
   );
 }
-
-    
