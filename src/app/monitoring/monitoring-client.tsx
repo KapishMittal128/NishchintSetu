@@ -172,7 +172,7 @@ export default function MonitoringClient() {
       <div className="max-w-4xl mx-auto space-y-8">
         
         {hasPermission === false && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="animate-in fade-in-0">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Microphone Access Required</AlertTitle>
                 <AlertDescription>
@@ -182,7 +182,7 @@ export default function MonitoringClient() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="md:col-span-1">
+            <Card className="md:col-span-1 animate-in fade-in-0 slide-in-from-left-8 duration-500 ease-out">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                         {isProcessing ? <Mic className="text-primary"/> : <MicOff/>}
@@ -204,7 +204,7 @@ export default function MonitoringClient() {
                 </CardContent>
             </Card>
 
-            <Card className="md:col-span-2">
+            <Card className="md:col-span-2 animate-in fade-in-0 slide-in-from-right-8 duration-500 ease-out delay-100">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl"><Info /> Risk Details</CardTitle>
                     <CardDescription>An explanation of the current risk level.</CardDescription>
@@ -231,7 +231,7 @@ export default function MonitoringClient() {
             </Card>
         </div>
         
-        <Card>
+        <Card className="animate-in fade-in-0 slide-in-from-bottom-8 duration-500 ease-out delay-200">
           <CardHeader>
             <CardTitle className="text-xl">Live Transcript</CardTitle>
             <CardDescription>A real-time transcription of the conversation.</CardDescription>
