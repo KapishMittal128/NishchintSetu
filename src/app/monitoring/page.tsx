@@ -8,11 +8,11 @@ import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 
 export default function MonitoringPage() {
-  const { clearState } = useAppState();
+  const { signOut } = useAppState();
   const router = useRouter();
 
   const handleSignOut = () => {
-    clearState();
+    signOut();
     router.push('/landing');
   };
 
