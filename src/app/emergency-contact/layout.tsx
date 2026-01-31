@@ -7,12 +7,12 @@ import { useAppState } from '@/hooks/use-app-state';
 import { useRouter, usePathname } from 'next/navigation';
 
 export default function EmergencyContactLayout({ children }: { children: React.ReactNode }) {
-  const { clearState } = useAppState();
+  const { signOut } = useAppState();
   const router = useRouter();
   const pathname = usePathname();
 
   const handleSignOut = () => {
-    clearState();
+    signOut();
     router.push('/landing');
   };
 

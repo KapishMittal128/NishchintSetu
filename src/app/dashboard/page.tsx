@@ -11,7 +11,7 @@ import { MoodTracker } from '@/components/app/mood-tracker';
 import { SafetyTip } from '@/components/app/safety-tip';
 
 export default function DashboardPage() {
-  const { clearState, userUID, allUserProfiles } = useAppState();
+  const { signOut, userUID, allUserProfiles } = useAppState();
   const router = useRouter();
   const { toast } = useToast();
   
@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const pairedContactsCount = currentUser?.pairedContacts?.length || 0;
 
   const handleSignOut = () => {
-    clearState();
+    signOut();
     router.push('/landing');
   };
 

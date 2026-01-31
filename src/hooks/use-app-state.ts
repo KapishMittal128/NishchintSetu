@@ -89,16 +89,33 @@ export const useAppState = () => {
   const [hasSeenSplash, setHasSeenSplash] = useLocalStorage<boolean>('hasSeenSplash', false);
   const [role, setRole] = useLocalStorage<Role>('role', null);
   
-  // Current user's state
+  // Current user's state (persisted, but represents the logged-in user)
   const [userProfile, setUserProfile] = useLocalStorage<UserProfile | null>('userProfile', null);
   const [userUID, setUserUID] = useLocalStorage<string | null>('userUID', null);
   const [userProfileComplete, setUserProfileComplete] = useLocalStorage<boolean>('userProfileComplete', false);
 
-  // Current emergency contact's state
+  // Current emergency contact's state (persisted)
   const [emergencyContactProfile, setEmergencyContactProfile] = useLocalStorage<EmergencyContactProfile | null>('emergencyContactProfile', null);
   const [pairedUserUID, setPairedUserUID] = useLocalStorage<string | null>('pairedUserUID', null);
   const [emergencyContactProfileComplete, setEmergencyContactProfileComplete] = useLocalStorage<boolean>('emergencyContactProfileComplete', false);
   
+  const deletePersistentState = useCallback(() => {
+    // This function is for full data removal, e.g., when a profile is deleted.
+    setRole(null);
+    setUserProfile(null);
+    setUserUID(null);
+    setUserProfileComplete(false);
+    setEmergencyContactProfile(null);
+    setPairedUserUID(null);
+    setEmergencyContactProfileComplete(false);
+  }, [setRole, setUserProfile, setUserUID, setUserProfileComplete, setEmergencyContactProfile, setPairedUserUID, setEmergencyContactProfileComplete]);
+
+  const signOut = useCallback(() => {
+    // This function just ends the session, without deleting persistent profiles.
+    setRole(null);
+    setUserUID(null);
+    setPairedUserUID(null);
+  }, [setRole, setUserUID, setPairedUserUID]);
 
   const addUserProfile = useCallback((profile: UserProfile) => {
     setAllUserProfiles(prev => ({
@@ -161,17 +178,6 @@ export const useAppState = () => {
     });
   }, [setMoodHistory]);
 
-  const clearState = useCallback(() => {
-    // This function now only clears session-specific data, not global device data
-    setRole(null);
-    setUserProfile(null);
-    setUserUID(null);
-    setUserProfileComplete(false);
-    setEmergencyContactProfile(null);
-    setPairedUserUID(null);
-    setEmergencyContactProfileComplete(false);
-  }, [setRole, setUserProfile, setUserUID, setUserProfileComplete, setEmergencyContactProfile, setPairedUserUID, setEmergencyContactProfileComplete]);
-
   const removeUserProfile = useCallback((uid: string) => {
     setAllUserProfiles(prev => {
         const newProfiles = { ...prev };
@@ -188,8 +194,9 @@ export const useAppState = () => {
         delete newMoods[uid];
         return newMoods;
     });
-    clearState();
-  }, [setAllUserProfiles, setNotifications, setMoodHistory, clearState]);
+    // Use the full delete function on profile removal
+    deletePersistentState();
+  }, [setAllUserProfiles, setNotifications, setMoodHistory, deletePersistentState]);
 
   const removeEmergencyContactProfile = useCallback(() => {
     if (emergencyContactProfile && emergencyContactProfile.pairedUserUID && emergencyContactProfile.email) {
@@ -210,9 +217,9 @@ export const useAppState = () => {
         return prev;
       });
     }
-    // After attempting to un-pair, clear the local session for the EC.
-    clearState();
-  }, [emergencyContactProfile, setAllUserProfiles, clearState]);
+    // After attempting to un-pair, clear all persistent EC data
+    deletePersistentState();
+  }, [emergencyContactProfile, setAllUserProfiles, deletePersistentState]);
 
   return {
     // Global State
@@ -243,7 +250,7 @@ export const useAppState = () => {
     emergencyContactProfileComplete,
     setEmergencyContactProfileComplete,
     // Actions
-    clearState,
+    signOut,
     updateUserProfile,
     removeUserProfile,
     removeEmergencyContactProfile,
