@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 // Define types for persisted data
 type Role = 'user' | 'emergency-contact' | null;
@@ -38,18 +38,21 @@ type MoodHistory = Record<string, MoodEntry[]>;
 
 // A custom hook for managing a piece of state in localStorage.
 const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
-  const [storedValue, setStoredValue] = useState<T>(() => {
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+
+  useEffect(() => {
     if (typeof window === 'undefined') {
-      return initialValue;
+      return;
     }
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (item) {
+        setStoredValue(JSON.parse(item));
+      }
     } catch (error) {
       console.error(error);
-      return initialValue;
     }
-  });
+  }, [key]);
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
