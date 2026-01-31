@@ -13,7 +13,10 @@ export default function RoleSelectionPage() {
     allUserProfiles,
     setUserProfile,
     setUserUID,
-    setUserProfileComplete
+    setUserProfileComplete,
+    emergencyContactProfile,
+    emergencyContactProfileComplete,
+    setPairedUserUID
   } = useAppState();
 
   const handleRoleSelect = (role: 'user' | 'emergency-contact') => {
@@ -22,7 +25,6 @@ export default function RoleSelectionPage() {
     if (role === 'user') {
       const userProfiles = Object.values(allUserProfiles);
       // If a user profile already exists, log in as that user.
-      // This assumes one primary user per device.
       if (userProfiles.length > 0) {
         const primaryUser = userProfiles[0];
         setUserProfile(primaryUser);
@@ -34,7 +36,13 @@ export default function RoleSelectionPage() {
         router.push('/user/profile');
       }
     } else {
-      router.push('/emergency-contact/profile');
+      // If an emergency contact profile is already complete, log in.
+      if (emergencyContactProfileComplete && emergencyContactProfile) {
+        setPairedUserUID(emergencyContactProfile.pairedUserUID);
+        router.push('/emergency-contact/dashboard');
+      } else {
+        router.push('/emergency-contact/profile');
+      }
     }
   };
 
