@@ -5,6 +5,7 @@ import { useAppState, Notification, MoodEntry } from '@/hooks/use-app-state';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, ShieldCheck, HeartPulse, Smile, Meh, Frown, User } from 'lucide-react';
 import { format } from 'date-fns';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function EmergencyContactDashboard() {
   const { pairedUserUID, allUserProfiles, notifications, moodHistory } = useAppState();
@@ -76,6 +77,16 @@ export default function EmergencyContactDashboard() {
                           On {format(new Date(notification.timestamp), "PPP 'at' p")}
                         </p>
                         <p className="mt-1">A risk score of <span className="font-bold">{notification.riskScore}</span> was detected.</p>
+                        {notification.transcript && (
+                          <Accordion type="single" collapsible className="w-full mt-2">
+                            <AccordionItem value="item-1">
+                              <AccordionTrigger className="text-sm py-2">View Transcript</AccordionTrigger>
+                              <AccordionContent>
+                                <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md max-h-40 overflow-y-auto">{notification.transcript}</p>
+                              </AccordionContent>
+                            </AccordionItem>
+                          </Accordion>
+                        )}
                       </div>
                     </div>
                   ))}

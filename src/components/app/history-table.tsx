@@ -8,6 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Notification } from '@/hooks/use-app-state';
 import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +27,8 @@ export function HistoryTable({ data }: HistoryTableProps) {
       <TableHeader>
         <TableRow>
           <TableHead>Date & Time</TableHead>
-          <TableHead className="text-right">Risk Score</TableHead>
+          <TableHead className="text-center">Risk Score</TableHead>
+          <TableHead className="text-right">Transcript</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -34,7 +37,7 @@ export function HistoryTable({ data }: HistoryTableProps) {
             return (
                  <TableRow key={notification.timestamp}>
                     <TableCell className="font-medium">{format(new Date(notification.timestamp), "PPP 'at' p")}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                          <Badge 
                             variant="destructive"
                             className={cn(
@@ -45,6 +48,28 @@ export function HistoryTable({ data }: HistoryTableProps) {
                          >
                             {notification.riskScore}
                         </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                        {notification.transcript ? (
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" size="sm">View</Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Conversation Transcript</DialogTitle>
+                                        <DialogDescription>
+                                            Recorded on {format(new Date(notification.timestamp), "PPP 'at' p")}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="mt-4 max-h-96 overflow-y-auto p-4 bg-muted/50 rounded-lg">
+                                        <p className="text-sm text-foreground">{notification.transcript}</p>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        ) : (
+                            <span className="text-xs text-muted-foreground">N/A</span>
+                        )}
                     </TableCell>
                 </TableRow>
             )

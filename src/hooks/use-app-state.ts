@@ -30,6 +30,7 @@ export type EmergencyContactProfile = Profile & {
 export type Notification = {
   riskScore: number;
   timestamp: string;
+  transcript?: string;
 };
 
 export type MoodEntry = {

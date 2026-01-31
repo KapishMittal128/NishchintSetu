@@ -2,21 +2,39 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, History } from 'lucide-react';
-import { useAppState } from '@/hooks/use-app-state';
+import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, Activity, AlertTriangle, Smile, Meh, Frown } from 'lucide-react';
+import { useAppState, Notification, MoodEntry } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { MoodTracker } from '@/components/app/mood-tracker';
 import { SafetyTip } from '@/components/app/safety-tip';
+import { useEffect, useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+
+type ActivityItem = (Omit<Notification, 'transcript'> & { type: 'notification' }) | (MoodEntry & { type: 'mood' });
 
 export default function DashboardPage() {
-  const { signOut, userUID, allUserProfiles } = useAppState();
+  const { signOut, userUID, allUserProfiles, notifications, moodHistory } = useAppState();
   const router = useRouter();
   const { toast } = useToast();
+  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   
   const currentUser = userUID ? allUserProfiles[userUID] : null;
   const pairedContactsCount = currentUser?.pairedContacts?.length || 0;
+
+  useEffect(() => {
+    if (userUID) {
+      const userNotifications = (notifications[userUID] || []).map(n => ({...n, type: 'notification' as const}));
+      const userMoods = (moodHistory[userUID] || []).map(m => ({...m, type: 'mood' as const}));
+
+      const combinedActivity = [...userNotifications, ...userMoods]
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 5);
+      
+      setRecentActivity(combinedActivity);
+    }
+  }, [notifications, moodHistory, userUID]);
 
   const handleSignOut = () => {
     signOut();
@@ -29,6 +47,22 @@ export default function DashboardPage() {
       toast({ title: 'Copied!', description: 'Your UID has been copied to the clipboard.' });
     }
   };
+
+  const ActivityIcon = ({item}: {item: ActivityItem}) => {
+    if (item.type === 'notification') return <AlertTriangle className="h-5 w-5 text-destructive" />;
+    if (item.type === 'mood') {
+        if (item.mood === 'happy') return <Smile className="h-5 w-5 text-success" />;
+        if (item.mood === 'neutral') return <Meh className="h-5 w-5 text-warning" />;
+        if (item.mood === 'sad') return <Frown className="h-5 w-5 text-destructive" />;
+    }
+    return <Activity className="h-5 w-5 text-muted-foreground" />;
+  }
+
+  const ActivityText = ({item}: {item: ActivityItem}) => {
+     if (item.type === 'notification') return <>High-risk alert sent (Score: <span className="font-bold">{item.riskScore}</span>)</>;
+     if (item.type === 'mood') return <>You recorded your mood as <span className="font-bold capitalize">{item.mood}</span></>;
+     return null;
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -45,12 +79,6 @@ export default function DashboardPage() {
                 <Button variant="ghost" className="w-full justify-start text-base">
                 <Shield className="mr-2 h-5 w-5" />
                 Monitoring
-                </Button>
-            </Link>
-            <Link href="/user/history" passHref>
-                <Button variant="ghost" className="w-full justify-start text-base">
-                    <History className="mr-2 h-5 w-5" />
-                    History
                 </Button>
             </Link>
             <Button variant="ghost" className="w-full justify-start text-base" disabled>
@@ -80,11 +108,25 @@ export default function DashboardPage() {
             <div className="lg:col-span-2 space-y-6">
                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <CardHeader>
-                        <CardTitle>Safety Tip of the Day</CardTitle>
-                        <CardDescription>A small tip to keep you safe and secure.</CardDescription>
+                        <CardTitle className="flex items-center gap-2"><Activity />Recent Activity</CardTitle>
+                        <CardDescription>Here are the latest updates from your account.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <SafetyTip />
+                        {recentActivity.length > 0 ? (
+                            <div className="space-y-4">
+                                {recentActivity.map(item => (
+                                    <div key={item.timestamp} className="flex items-center gap-4">
+                                        <ActivityIcon item={item} />
+                                        <div className="flex-1">
+                                            <p className="text-sm"><ActivityText item={item} /></p>
+                                            <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                             <p className="text-sm text-muted-foreground text-center py-4">No recent activity to show.</p>
+                        )}
                     </CardContent>
                 </Card>
                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
@@ -131,6 +173,15 @@ export default function DashboardPage() {
                                 <Copy className="h-5 w-5" />
                             </Button>
                         </div>
+                    </CardContent>
+                </Card>
+                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
+                    <CardHeader>
+                        <CardTitle>Safety Tip of the Day</CardTitle>
+                        <CardDescription>A small tip to keep you safe and secure.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <SafetyTip />
                     </CardContent>
                 </Card>
             </div>

@@ -151,8 +151,12 @@ export default function MonitoringClient() {
         const finalScore = Math.min(100, calculatedScore);
         setRiskScore(finalScore);
 
-        if (finalScore > 50 && userUID) {
-            addNotification(userUID, { riskScore: finalScore, timestamp: new Date().toISOString() });
+        if (finalScore >= 50 && userUID) {
+            addNotification(userUID, { 
+              riskScore: finalScore, 
+              timestamp: new Date().toISOString(),
+              transcript: currentTranscript,
+            });
              toast({
                 title: 'Alert Sent!',
                 description: 'A high-risk notification has been sent to your emergency contact.',
