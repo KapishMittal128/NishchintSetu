@@ -57,7 +57,7 @@ export default function EmergencyContactDashboard() {
       <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main column */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="animate-in fade-in-0 h-full">
+          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><AlertTriangle/> Risk Alerts</CardTitle>
               <CardDescription>High-risk conversations from {pairedUser?.name || 'the user'} are logged here.</CardDescription>
@@ -93,7 +93,7 @@ export default function EmergencyContactDashboard() {
 
         {/* Side column */}
         <div className="space-y-6">
-          <Card className="animate-in fade-in-0 delay-100">
+          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><HeartPulse/> Latest Mood</CardTitle>
               <CardDescription>How {pairedUser?.name || 'they'} are feeling.</CardDescription>
@@ -116,7 +116,7 @@ export default function EmergencyContactDashboard() {
             </CardContent>
           </Card>
           
-          <Card className="animate-in fade-in-0 delay-200">
+          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
              <CardHeader>
                 <CardTitle className="flex items-center gap-2"><User/> User Details</CardTitle>
              </CardHeader>

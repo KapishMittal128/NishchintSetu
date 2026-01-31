@@ -92,7 +92,7 @@ export default function UserProfilePage() {
 
   return (
     <div className="flex flex-1 items-center justify-center p-6">
-      <Card className="w-full max-w-md z-10 animate-in fade-in-0">
+      <Card className="w-full max-w-md z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <CardHeader>
           <CardTitle>{isEditMode ? 'Edit Your Profile' : 'Complete Your Profile'}</CardTitle>
           <CardDescription>

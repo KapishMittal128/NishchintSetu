@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings } from 'lucide-react';
+import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, History } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +47,12 @@ export default function DashboardPage() {
                 Monitoring
                 </Button>
             </Link>
+            <Link href="/user/history" passHref>
+                <Button variant="ghost" className="w-full justify-start text-base">
+                    <History className="mr-2 h-5 w-5" />
+                    History
+                </Button>
+            </Link>
             <Button variant="ghost" className="w-full justify-start text-base" disabled>
                 <Bot className="mr-2 h-5 w-5" />
                 AI Chatbot
@@ -72,7 +78,7 @@ export default function DashboardPage() {
         <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main column */}
             <div className="lg:col-span-2 space-y-6">
-                <Card className="animate-in fade-in-0">
+                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <CardHeader>
                         <CardTitle>Safety Tip of the Day</CardTitle>
                         <CardDescription>A small tip to keep you safe and secure.</CardDescription>
@@ -81,7 +87,7 @@ export default function DashboardPage() {
                         <SafetyTip />
                     </CardContent>
                 </Card>
-                <Card className="animate-in fade-in-0 delay-100">
+                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
                     <CardHeader>
                          <CardTitle className="flex items-center gap-2"><HeartPulse/> Mood Tracker</CardTitle>
                         <CardDescription>How are you feeling today? Let your loved ones know.</CardDescription>
@@ -94,7 +100,7 @@ export default function DashboardPage() {
             
             {/* Side column */}
             <div className="space-y-6">
-                 <Card className="animate-in fade-in-0 delay-200">
+                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Users />Paired Contacts</CardTitle>
                     </CardHeader>
@@ -113,7 +119,7 @@ export default function DashboardPage() {
                         )}
                     </CardContent>
                 </Card>
-                <Card className="animate-in fade-in-0 delay-300">
+                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-450">
                     <CardHeader>
                         <CardTitle>Your Unique ID</CardTitle>
                         <CardDescription>Share this with your emergency contacts.</CardDescription>

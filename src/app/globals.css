@@ -117,14 +117,16 @@
   }
 
   .aurora-bg::before {
-    background: radial-gradient(circle at center, hsla(var(--primary), 0.2), transparent 40%);
+    background: radial-gradient(circle at center, hsla(var(--primary), 0.3), transparent 50%);
     transform-origin: 20% 80%;
+    animation-duration: 25s;
   }
 
   .aurora-bg::after {
-    background: radial-gradient(circle at center, hsla(var(--accent), 0.2), transparent 40%);
+    background: radial-gradient(circle at center, hsla(var(--accent), 0.3), transparent 50%);
     transform-origin: 80% 20%;
-    animation-delay: -10s;
+    animation-delay: -12s;
+    animation-duration: 30s;
   }
 }
 
