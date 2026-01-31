@@ -11,6 +11,7 @@ import { MoodTracker } from '@/components/app/mood-tracker';
 import { SafetyTip } from '@/components/app/safety-tip';
 import { useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { GuidedAssistanceManager } from '@/components/app/guided-assistance-manager';
 
 type ActivityItem = (Omit<Notification, 'transcript'> & { type: 'notification' }) | (MoodEntry & { type: 'mood' });
 
@@ -66,6 +67,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen">
+      <GuidedAssistanceManager />
       <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
         <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
         <nav className="flex-1 space-y-2">
@@ -169,7 +171,7 @@ export default function DashboardPage() {
                     <CardContent className="space-y-4">
                         <div className="p-3 bg-muted rounded-lg flex items-center justify-between">
                             <span className="font-mono text-lg text-foreground">{userUID}</span>
-                            <Button variant="ghost" size="icon" onClick={handleCopyToClipboard}>
+                            <Button variant="ghost" size="icon" onClick={handleCopyToClipboard} data-trackable-id="copy-uid">
                                 <Copy className="h-5 w-5" />
                             </Button>
                         </div>

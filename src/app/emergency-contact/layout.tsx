@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, LogOut, User, HeartPulse, History, Settings, FileText, BookOpen } from 'lucide-react';
+import { LayoutDashboard, LogOut, User, HeartPulse, History, Settings, FileText, BookOpen, HandHelping } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -20,6 +20,7 @@ export default function EmergencyContactLayout({ children }: { children: React.R
     { href: '/emergency-contact/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/emergency-contact/history', label: 'Risk History', icon: History },
     { href: '/emergency-contact/mood', label: 'Mood History', icon: HeartPulse },
+    { href: '/emergency-contact/assistance', label: 'Assistance Log', icon: HandHelping },
     { href: '/emergency-contact/reports', label: 'Monthly Reports', icon: FileText },
     { href: '/emergency-contact/resources', label: 'Scam Resources', icon: BookOpen },
     { href: '/emergency-contact/user-profile', label: 'Paired User Profile', icon: User },

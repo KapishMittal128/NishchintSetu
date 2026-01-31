@@ -218,6 +218,7 @@ export default function MonitoringClient() {
                         className="w-full mt-4 text-lg py-7 transition-all duration-300 transform hover:scale-105" 
                         onClick={runSingleCycle} 
                         disabled={isProcessing || !isBrowserSupported}
+                        data-trackable-id="start-analysis"
                     >
                         {isProcessing ? <Loader2 className="mr-2 animate-spin" /> : <Mic className="mr-2" />}
                         {isProcessing ? cycleStatus : 'Start Analysis'}

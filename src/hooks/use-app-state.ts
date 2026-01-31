@@ -38,9 +38,23 @@ export type MoodEntry = {
   timestamp: string;
 };
 
+export type AssistanceEvent = {
+  timestamp: string;
+  page: string;
+  reason: string; // 'repeated_navigation', 'repeated_clicks', 'inactivity'
+};
+
 type Notifications = Record<string, Notification[]>;
 type AllUserProfiles = Record<string, UserProfile>;
 type MoodHistory = Record<string, MoodEntry[]>;
+type AssistanceHistory = Record<string, AssistanceEvent[]>;
+
+export type ConfusionTracker = {
+  repeatedNav: { path: string; timestamps: number[] };
+  repeatedClick: { id: string; timestamps: number[] };
+  lastActionTimestamp: number | null;
+};
+
 
 // A custom hook for managing a piece of state in localStorage.
 const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
@@ -85,6 +99,12 @@ export const useAppState = () => {
   const [allUserProfiles, setAllUserProfiles] = useLocalStorage<AllUserProfiles>('allUserProfiles', {});
   const [notifications, setNotifications] = useLocalStorage<Notifications>('notifications', {});
   const [moodHistory, setMoodHistory] = useLocalStorage<MoodHistory>('moodHistory', {});
+  const [assistanceHistory, setAssistanceHistory] = useLocalStorage<AssistanceHistory>('assistanceHistory', {});
+  const [confusionTracker, setConfusionTracker] = useLocalStorage<ConfusionTracker>('confusionTracker', {
+    repeatedNav: { path: '', timestamps: [] },
+    repeatedClick: { id: '', timestamps: [] },
+    lastActionTimestamp: null,
+  });
 
   // Session-specific state
   const [hasSeenSplash, setHasSeenSplash] = useLocalStorage<boolean>('hasSeenSplash', false);
@@ -178,6 +198,21 @@ export const useAppState = () => {
         };
     });
   }, [setMoodHistory]);
+  
+  const addAssistanceEvent = useCallback((uid: string, event: AssistanceEvent) => {
+    setAssistanceHistory(prev => {
+        const userHistory = prev[uid] || [];
+        return { ...prev, [uid]: [...userHistory, event] };
+    });
+  }, [setAssistanceHistory]);
+
+  const resetConfusionTracker = useCallback(() => {
+    setConfusionTracker({
+        repeatedNav: { path: '', timestamps: [] },
+        repeatedClick: { id: '', timestamps: [] },
+        lastActionTimestamp: Date.now(), // Reset inactivity timer on resolution
+    });
+  }, [setConfusionTracker]);
 
   const removeUserProfile = useCallback((uid: string) => {
     setAllUserProfiles(prev => {
@@ -195,9 +230,14 @@ export const useAppState = () => {
         delete newMoods[uid];
         return newMoods;
     });
+     setAssistanceHistory(prev => {
+        const newHistory = { ...prev };
+        delete newHistory[uid];
+        return newHistory;
+    });
     // Use the full delete function on profile removal
     deletePersistentState();
-  }, [setAllUserProfiles, setNotifications, setMoodHistory, deletePersistentState]);
+  }, [setAllUserProfiles, setNotifications, setMoodHistory, setAssistanceHistory, deletePersistentState]);
 
   const removeEmergencyContactProfile = useCallback(() => {
     if (emergencyContactProfile && emergencyContactProfile.pairedUserUID && emergencyContactProfile.email) {
@@ -231,6 +271,8 @@ export const useAppState = () => {
     moodHistory,
     addMoodEntry,
     pairEmergencyContact,
+    assistanceHistory,
+    addAssistanceEvent,
     // Session State
     hasSeenSplash,
     setHasSeenSplash,
@@ -255,5 +297,9 @@ export const useAppState = () => {
     updateUserProfile,
     removeUserProfile,
     removeEmergencyContactProfile,
+    // Confusion Tracking
+    confusionTracker,
+    setConfusionTracker,
+    resetConfusionTracker,
   };
 };

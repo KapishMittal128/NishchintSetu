@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Home, Shield, LogOut, Bot, Settings } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
+import { GuidedAssistanceManager } from '@/components/app/guided-assistance-manager';
 
 export default function MonitoringPage() {
   const { signOut } = useAppState();
@@ -18,6 +19,7 @@ export default function MonitoringPage() {
 
   return (
     <div className="flex min-h-screen">
+      <GuidedAssistanceManager />
        <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
         <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
         <nav className="flex-1 space-y-2">
