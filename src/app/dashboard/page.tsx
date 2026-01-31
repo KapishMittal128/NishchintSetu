@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, History, Settings } from 'lucide-react';
+import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,12 +47,6 @@ export default function DashboardPage() {
                 Monitoring
                 </Button>
             </Link>
-             <Link href="/history" passHref>
-                <Button variant="ghost" className="w-full justify-start text-base">
-                <History className="mr-2 h-5 w-5" />
-                History
-                </Button>
-            </Link>
             <Button variant="ghost" className="w-full justify-start text-base" disabled>
                 <Bot className="mr-2 h-5 w-5" />
                 AI Chatbot
@@ -80,7 +74,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-2 space-y-6">
                 <Card className="animate-in fade-in-0">
                     <CardHeader>
-                        <CardTitle>AI Safety Tip of the Day</CardTitle>
+                        <CardTitle>Safety Tip of the Day</CardTitle>
                         <CardDescription>A small tip to keep you safe and secure.</CardDescription>
                     </CardHeader>
                     <CardContent>

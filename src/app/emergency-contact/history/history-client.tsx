@@ -5,17 +5,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { HistoryChart } from '@/components/app/history-chart';
 import { HistoryTable } from '@/components/app/history-table';
 import { ShieldX } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function HistoryClient() {
-  const { userUID, notifications } = useAppState();
-  const userNotifications = userUID ? notifications[userUID] || [] : [];
+  const { pairedUserUID, notifications } = useAppState();
+  const [userNotifications, setUserNotifications] = useState(pairedUserUID ? notifications[pairedUserUID] || [] : []);
+
+  useEffect(() => {
+    const userNotifs = pairedUserUID ? notifications[pairedUserUID] || [] : [];
+    setUserNotifications(userNotifs);
+
+    // Poll for updates to simulate real-time for other tabs
+    const interval = setInterval(() => {
+      const updatedNotifications = JSON.parse(localStorage.getItem('notifications') || '{}')[pairedUserUID || ''] || [];
+      setUserNotifications(updatedNotifications);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [pairedUserUID, notifications]);
 
   if (userNotifications.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground animate-in fade-in-0">
         <ShieldX className="mx-auto h-12 w-12 mb-4" />
         <h3 className="text-xl font-semibold">No History Yet</h3>
-        <p>High-risk notifications from the monitoring tool will appear here.</p>
+        <p>High-risk notifications from your paired user will appear here.</p>
       </div>
     );
   }
@@ -26,7 +40,7 @@ export default function HistoryClient() {
         <CardHeader>
           <CardTitle>Risk Score Over Time</CardTitle>
           <CardDescription>
-            A visual representation of detected risk levels during conversations.
+            A visual representation of detected risk levels during your paired user's conversations.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -39,7 +53,7 @@ export default function HistoryClient() {
         <CardHeader>
           <CardTitle>Notification Log</CardTitle>
           <CardDescription>
-            A detailed log of all high-risk alerts that have been triggered.
+            A detailed log of all high-risk alerts that have been triggered for the user.
           </CardDescription>
         </CardHeader>
         <CardContent>

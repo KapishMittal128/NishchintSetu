@@ -3,7 +3,7 @@
 import MonitoringClient from './monitoring-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, History, Bot, Settings } from 'lucide-react';
+import { Home, Shield, LogOut, Bot, Settings } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 
@@ -31,12 +31,6 @@ export default function MonitoringPage() {
                 <Button variant="secondary" className="w-full justify-start text-base">
                 <Shield className="mr-2 h-5 w-5" />
                 Monitoring
-                </Button>
-            </Link>
-             <Link href="/history" passHref>
-                <Button variant="ghost" className="w-full justify-start text-base">
-                <History className="mr-2 h-5 w-5" />
-                History
                 </Button>
             </Link>
             <Button variant="ghost" className="w-full justify-start text-base" disabled>

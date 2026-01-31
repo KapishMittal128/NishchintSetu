@@ -7,8 +7,8 @@ type Role = 'user' | 'emergency-contact' | null;
 
 export type Profile = {
   name: string;
-  age?: string;
-  gender?: string;
+  age: string;
+  gender: string;
   email?: string;
 };
 
@@ -24,7 +24,7 @@ export type UserProfile = Profile & {
 
 export type EmergencyContactProfile = Profile & {
   email: string; // Ensure email is mandatory
-  pairedUserUID: string | null;
+  pairedUserUID: string;
 };
 
 export type Notification = {
@@ -124,6 +124,10 @@ export const useAppState = () => {
     setAllUserProfiles(prev => {
       const userToUpdate = prev[userUidToPair];
       if (userToUpdate) {
+        // Avoid adding duplicate contacts
+        const isAlreadyPaired = userToUpdate.pairedContacts?.some(c => c.email === newContact.email);
+        if (isAlreadyPaired) return prev;
+        
         const updatedContacts = [...(userToUpdate.pairedContacts || []), newContact];
         const updatedUser = { ...userToUpdate, pairedContacts: updatedContacts };
         return {
@@ -187,6 +191,29 @@ export const useAppState = () => {
     clearState();
   }, [setAllUserProfiles, setNotifications, setMoodHistory, clearState]);
 
+  const removeEmergencyContactProfile = useCallback(() => {
+    if (emergencyContactProfile && emergencyContactProfile.pairedUserUID && emergencyContactProfile.email) {
+      const { pairedUserUID, email } = emergencyContactProfile;
+      
+      setAllUserProfiles(prev => {
+        const userToUpdate = prev[pairedUserUID];
+        if (userToUpdate) {
+          const updatedContacts = (userToUpdate.pairedContacts || []).filter(
+            contact => contact.email !== email
+          );
+          const updatedUser = { ...userToUpdate, pairedContacts: updatedContacts };
+          return {
+            ...prev,
+            [pairedUserUID]: updatedUser
+          };
+        }
+        return prev;
+      });
+    }
+    // After attempting to un-pair, clear the local session for the EC.
+    clearState();
+  }, [emergencyContactProfile, setAllUserProfiles, clearState]);
+
   return {
     // Global State
     allUserProfiles,
@@ -219,5 +246,6 @@ export const useAppState = () => {
     clearState,
     updateUserProfile,
     removeUserProfile,
+    removeEmergencyContactProfile,
   };
 };

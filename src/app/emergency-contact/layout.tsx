@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, LogOut, User, HeartPulse } from 'lucide-react';
+import { LayoutDashboard, LogOut, User, HeartPulse, History, Settings } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -19,7 +19,8 @@ export default function EmergencyContactLayout({ children }: { children: React.R
   const navLinks = [
     { href: '/emergency-contact/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/emergency-contact/mood', label: 'Mood History', icon: HeartPulse },
-    { href: '/emergency-contact/user-profile', label: 'User Profile', icon: User },
+    { href: '/emergency-contact/history', label: 'Risk History', icon: History },
+    { href: '/emergency-contact/user-profile', label: 'Paired User Profile', icon: User },
   ];
 
   return (
@@ -41,6 +42,15 @@ export default function EmergencyContactLayout({ children }: { children: React.R
           ))}
         </nav>
         <div className="space-y-2">
+             <Link href="/emergency-contact/settings" passHref>
+                <Button 
+                    variant={pathname === '/emergency-contact/settings' ? 'secondary' : 'outline'}
+                    className="w-full justify-start text-base"
+                >
+                    <Settings className="mr-2 h-5 w-5" />
+                    Settings
+                </Button>
+            </Link>
             <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut}>
                 <LogOut className="mr-2 h-5 w-5" />
                 Sign Out
