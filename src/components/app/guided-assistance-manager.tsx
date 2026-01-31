@@ -6,7 +6,7 @@ import { AssistanceOverlay } from './assistance-overlay';
 
 const NAV_THRESHOLD = 3; // 3 visits
 const NAV_WINDOW = 15 * 1000; // 15 seconds
-const CLICK_THRESHOLD = 5; // 5 clicks
+const CLICK_THRESHOLD = 3; // 3 clicks
 const CLICK_WINDOW = 10 * 1000; // 10 seconds
 const INACTIVITY_THRESHOLD = 45 * 1000; // 45 seconds
 

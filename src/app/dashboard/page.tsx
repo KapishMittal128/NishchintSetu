@@ -72,13 +72,13 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
         <nav className="flex-1 space-y-2">
             <Link href="/dashboard" passHref>
-                <Button variant="secondary" className="w-full justify-start text-base">
+                <Button variant="secondary" className="w-full justify-start text-base" data-trackable-id="nav-dashboard">
                 <Home className="mr-2 h-5 w-5" />
                 Dashboard
                 </Button>
             </Link>
             <Link href="/monitoring" passHref>
-                <Button variant="ghost" className="w-full justify-start text-base">
+                <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-monitoring">
                 <Shield className="mr-2 h-5 w-5" />
                 Monitoring
                 </Button>
@@ -90,12 +90,12 @@ export default function DashboardPage() {
         </nav>
         <div className="space-y-2">
             <Link href="/user/profile" passHref>
-                <Button variant="outline" className="w-full justify-start text-base">
+                <Button variant="outline" className="w-full justify-start text-base" data-trackable-id="nav-profile-settings">
                     <Settings className="mr-2 h-5 w-5" />
                     Profile Settings
                 </Button>
             </Link>
-            <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut}>
+            <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut} data-trackable-id="nav-signout">
                 <LogOut className="mr-2 h-5 w-5" />
                 Sign Out
             </Button>
