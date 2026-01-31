@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAppState } from '@/hooks/use-app-state';
+import { useAppState, UserProfile } from '@/hooks/use-app-state';
 import { generateUID } from '@/lib/uid';
 import { Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +14,15 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function UserProfilePage() {
   const router = useRouter();
-  const { userProfile, setUserProfile, userUID, setUserUID, setUserProfileComplete } = useAppState();
+  const { 
+    userProfile, 
+    setUserProfile, 
+    userUID, 
+    setUserUID, 
+    setUserProfileComplete,
+    addUserProfile 
+  } = useAppState();
+
   const [name, setName] = useState(userProfile?.name || '');
   const [age, setAge] = useState(userProfile?.age || '');
   const [gender, setGender] = useState(userProfile?.gender || '');
@@ -23,11 +31,17 @@ export default function UserProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const profile = { name, age, gender };
     const uid = generateUID();
+    const profile: UserProfile = { name, age, gender, uid, pairedContacts: [] };
+    
+    // Set session state
     setUserProfile(profile);
     setUserUID(uid);
     setUserProfileComplete(true);
+    
+    // Add to global list of users
+    addUserProfile(profile);
+
     setIsCompleted(true);
   };
   

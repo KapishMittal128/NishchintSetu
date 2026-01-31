@@ -1,22 +1,43 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 // Define types for persisted data
 type Role = 'user' | 'emergency-contact' | null;
-type Profile = {
+
+export type Profile = {
   name: string;
   age?: string;
   gender?: string;
   email?: string;
-} | null;
+};
+
+export type UserProfile = Profile & {
+  uid: string;
+  pairedContacts?: string[]; // Array of emergency contact emails
+};
+
+export type EmergencyContactProfile = Profile & {
+  email: string; // Ensure email is mandatory
+  pairedUserUID: string | null;
+};
+
 export type Notification = {
   riskScore: number;
   timestamp: string;
 };
-type Notifications = Record<string, Notification[]>;
 
-const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T) => void] => {
+export type MoodEntry = {
+  mood: 'happy' | 'neutral' | 'sad';
+  timestamp: string;
+};
+
+type Notifications = Record<string, Notification[]>;
+type AllUserProfiles = Record<string, UserProfile>;
+type MoodHistory = Record<string, MoodEntry[]>;
+
+// A custom hook for managing a piece of state in localStorage.
+const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
       return initialValue;
@@ -30,7 +51,7 @@ const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T) => voi
     }
   });
 
-  const setValue = (value: T) => {
+  const setValue = (value: T | ((val: T) => T)) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
@@ -46,15 +67,47 @@ const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T) => voi
 };
 
 export const useAppState = () => {
+  // Global, persistent state for the whole device
+  const [allUserProfiles, setAllUserProfiles] = useLocalStorage<AllUserProfiles>('allUserProfiles', {});
+  const [notifications, setNotifications] = useLocalStorage<Notifications>('notifications', {});
+  const [moodHistory, setMoodHistory] = useLocalStorage<MoodHistory>('moodHistory', {});
+
+  // Session-specific state
   const [hasSeenSplash, setHasSeenSplash] = useLocalStorage<boolean>('hasSeenSplash', false);
   const [role, setRole] = useLocalStorage<Role>('role', null);
-  const [userProfile, setUserProfile] = useLocalStorage<Profile>('userProfile', null);
+  
+  // Current user's state
+  const [userProfile, setUserProfile] = useLocalStorage<Profile | null>('userProfile', null);
   const [userUID, setUserUID] = useLocalStorage<string | null>('userUID', null);
   const [userProfileComplete, setUserProfileComplete] = useLocalStorage<boolean>('userProfileComplete', false);
-  const [emergencyContactProfile, setEmergencyContactProfile] = useLocalStorage<Profile>('emergencyContactProfile', null);
+
+  // Current emergency contact's state
+  const [emergencyContactProfile, setEmergencyContactProfile] = useLocalStorage<Profile | null>('emergencyContactProfile', null);
   const [pairedUserUID, setPairedUserUID] = useLocalStorage<string | null>('pairedUserUID', null);
   const [emergencyContactProfileComplete, setEmergencyContactProfileComplete] = useLocalStorage<boolean>('emergencyContactProfileComplete', false);
-  const [notifications, setNotifications] = useLocalStorage<Notifications>('notifications', {});
+  
+
+  const addUserProfile = useCallback((profile: UserProfile) => {
+    setAllUserProfiles(prev => ({
+      ...prev,
+      [profile.uid]: profile
+    }));
+  }, [setAllUserProfiles]);
+
+  const pairEmergencyContact = useCallback((userUidToPair: string, contactProfile: EmergencyContactProfile) => {
+    setAllUserProfiles(prev => {
+      const userToUpdate = prev[userUidToPair];
+      if (userToUpdate) {
+        const updatedContacts = [...(userToUpdate.pairedContacts || []), contactProfile.email];
+        return {
+          ...prev,
+          [userUidToPair]: { ...userToUpdate, pairedContacts: updatedContacts }
+        };
+      }
+      return prev;
+    });
+  }, [setAllUserProfiles]);
+
 
   const addNotification = useCallback((uid: string, notification: Notification) => {
     setNotifications(prev => {
@@ -66,7 +119,19 @@ export const useAppState = () => {
     });
   }, [setNotifications]);
 
+  const addMoodEntry = useCallback((uid: string, mood: 'happy' | 'neutral' | 'sad') => {
+    setMoodHistory(prev => {
+        const userMoods = prev[uid] || [];
+        const newEntry: MoodEntry = { mood, timestamp: new Date().toISOString() };
+        return {
+            ...prev,
+            [uid]: [...userMoods, newEntry]
+        };
+    });
+  }, [setMoodHistory]);
+
   const clearState = useCallback(() => {
+    // This function now only clears session-specific data, not global device data
     setRole(null);
     setUserProfile(null);
     setUserUID(null);
@@ -74,30 +139,37 @@ export const useAppState = () => {
     setEmergencyContactProfile(null);
     setPairedUserUID(null);
     setEmergencyContactProfileComplete(false);
-    // Optional: decide if you want to clear notifications and splash status on sign out
-    // setNotifications({});
-    // setHasSeenSplash(false);
   }, [setRole, setUserProfile, setUserUID, setUserProfileComplete, setEmergencyContactProfile, setPairedUserUID, setEmergencyContactProfileComplete]);
 
   return {
+    // Global State
+    allUserProfiles,
+    addUserProfile,
+    notifications,
+    addNotification,
+    moodHistory,
+    addMoodEntry,
+    pairEmergencyContact,
+    // Session State
     hasSeenSplash,
     setHasSeenSplash,
     role,
     setRole,
+    // User State
     userProfile,
     setUserProfile,
     userUID,
     setUserUID,
     userProfileComplete,
     setUserProfileComplete,
+    // Emergency Contact State
     emergencyContactProfile,
     setEmergencyContactProfile,
     pairedUserUID,
     setPairedUserUID,
     emergencyContactProfileComplete,
     setEmergencyContactProfileComplete,
-    notifications,
-    addNotification,
+    // Actions
     clearState,
   };
 };

@@ -6,13 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAppState } from '@/hooks/use-app-state';
+import { useAppState, EmergencyContactProfile } from '@/hooks/use-app-state';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function EmergencyContactProfilePage() {
   const router = useRouter();
-  const { setEmergencyContactProfile, setPairedUserUID, setEmergencyContactProfileComplete, userUID: storedUserUID, userProfile } = useAppState();
+  const { 
+    setEmergencyContactProfile, 
+    setPairedUserUID, 
+    setEmergencyContactProfileComplete, 
+    allUserProfiles,
+    pairEmergencyContact
+  } = useAppState();
+
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
@@ -24,20 +31,28 @@ export default function EmergencyContactProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // This logic verifies if a user profile with this UID has been created on this device.
-    // In a real app, this would be a check against a database.
-    if (uidToPair === storedUserUID) {
-      const profile = { name, age, gender, email };
+    
+    // The new, corrected verification logic:
+    // Check if the UID exists in the `allUserProfiles` object from our global state.
+    if (allUserProfiles && allUserProfiles[uidToPair]) {
+      const userToPair = allUserProfiles[uidToPair];
+      const profile: EmergencyContactProfile = { name, age, gender, email, pairedUserUID: uidToPair };
+
+      // Set the session state for the emergency contact
       setEmergencyContactProfile(profile);
       setPairedUserUID(uidToPair);
       setEmergencyContactProfileComplete(true);
+      
+      // Persistently link this contact to the user's profile
+      pairEmergencyContact(uidToPair, profile);
+
       toast({
         title: 'Successfully Paired!',
-        description: `You are now connected to ${userProfile?.name || 'the user'}.`,
+        description: `You are now connected to ${userToPair.name}.`,
       });
       router.push('/emergency-contact/dashboard');
     } else {
-      setError('The User UID does not match any user created on this device. Please check and try again.');
+      setError('This User UID does not exist. Please check with the user and try again.');
     }
   };
 
@@ -111,8 +126,11 @@ export default function EmergencyContactProfilePage() {
               <Input
                 id="uid"
                 value={uidToPair}
-                onChange={(e) => setUidToPair(e.target.value)}
-                placeholder="e.g., friendly-wombat-123"
+                onChange={(e) => {
+                  setError('');
+                  setUidToPair(e.target.value);
+                }}
+                placeholder="e.g., 123-456-789"
                 required
               />
             </div>

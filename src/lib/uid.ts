@@ -1,9 +1,7 @@
-const ADJECTIVES = ['friendly', 'brave', 'calm', 'gentle', 'happy', 'wise', 'witty', 'clever', 'bright', 'warm'];
-const NOUNS = ['wombat', 'panda', 'koala', 'dolphin', 'sparrow', 'river', 'ocean', 'mountain', 'meadow', 'forest'];
 
 export function generateUID(): string {
-  const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-  const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-  const num = Math.floor(Math.random() * 900) + 100; // 100-999
-  return `${adj}-${noun}-${num}`;
+  const num1 = Math.floor(Math.random() * 900) + 100;
+  const num2 = Math.floor(Math.random() * 900) + 100;
+  const num3 = Math.floor(Math.random() * 900) + 100;
+  return `${num1}-${num2}-${num3}`;
 }
