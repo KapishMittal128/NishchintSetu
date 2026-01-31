@@ -3,7 +3,7 @@
 import MonitoringClient from './monitoring-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Bot, Settings } from 'lucide-react';
+import { Home, Shield, LogOut, Bot, Settings, Activity } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { GuidedAssistanceManager } from '@/components/app/guided-assistance-manager';
@@ -33,6 +33,12 @@ export default function MonitoringPage() {
                 <Button variant="secondary" className="w-full justify-start text-base" data-trackable-id="nav-monitoring">
                 <Shield className="mr-2 h-5 w-5" />
                 Monitoring
+                </Button>
+            </Link>
+             <Link href="/activity" passHref>
+                <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-activity">
+                <Activity className="mr-2 h-5 w-5" />
+                Activity Log
                 </Button>
             </Link>
             <Button variant="ghost" className="w-full justify-start text-base" disabled>
