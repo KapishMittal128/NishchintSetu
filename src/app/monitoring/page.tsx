@@ -1,3 +1,6 @@
+// This page is now effectively unused, as the MonitoringClient is rendered directly in the User dashboard.
+// Keeping it to prevent breaking any potential links, but it can be removed in a future cleanup.
+
 import MonitoringClient from './monitoring-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';

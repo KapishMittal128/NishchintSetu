@@ -10,6 +10,7 @@ import { TranscriptDisplay } from '@/components/app/transcript-display';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { useAppState } from '@/hooks/use-app-state';
 
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
@@ -32,6 +33,7 @@ export default function MonitoringClient() {
 
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
+  const { userUID, addNotification } = useAppState();
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -148,6 +150,15 @@ export default function MonitoringClient() {
         
         const finalScore = Math.min(100, calculatedScore);
         setRiskScore(finalScore);
+
+        if (finalScore > 50 && userUID) {
+            addNotification(userUID, { riskScore: finalScore, timestamp: new Date().toISOString() });
+             toast({
+                title: 'Alert Sent!',
+                description: 'A high-risk notification has been sent to your emergency contact.',
+                variant: 'destructive'
+            });
+        }
         
         const indicators = Array.from(detectedKeywords);
         setScamIndicators(indicators);
@@ -171,13 +182,12 @@ export default function MonitoringClient() {
         runLocalAnalysis();
     }
     
-  }, [fullTranscript, cycleStatus]);
+  }, [fullTranscript, cycleStatus, userUID, addNotification, toast]);
   
   return (
-    <div className="p-6 sm:p-8 md:p-12">
+    <div className="w-full space-y-8 animate-in fade-in-0">
       {isEmergency && <EmergencyOverlay onDismiss={() => setIsEmergency(false)} />}
-      <div className="max-w-4xl mx-auto space-y-8">
-        
+      
         {hasPermission === false && (
             <Alert variant="destructive" className="animate-in fade-in-0">
                 <AlertTriangle className="h-4 w-4" />
@@ -254,7 +264,6 @@ export default function MonitoringClient() {
             )}
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }
