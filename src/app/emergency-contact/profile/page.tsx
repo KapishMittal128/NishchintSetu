@@ -8,11 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppState } from '@/hooks/use-app-state';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function EmergencyContactProfilePage() {
   const router = useRouter();
   const { setEmergencyContactProfile, setPairedUserUID, setEmergencyContactProfileComplete, userUID: storedUserUID, userProfile } = useAppState();
   const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [email, setEmail] = useState('');
   const [uidToPair, setUidToPair] = useState('');
   const [error, setError] = useState('');
 
@@ -20,8 +24,10 @@ export default function EmergencyContactProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // This logic verifies if a user profile with this UID has been created on this device.
+    // In a real app, this would be a check against a database.
     if (uidToPair === storedUserUID) {
-      const profile = { name };
+      const profile = { name, age, gender, email };
       setEmergencyContactProfile(profile);
       setPairedUserUID(uidToPair);
       setEmergencyContactProfileComplete(true);
@@ -31,7 +37,7 @@ export default function EmergencyContactProfilePage() {
       });
       router.push('/emergency-contact/dashboard');
     } else {
-      setError('The User UID does not match. Please check and try again.');
+      setError('The User UID does not match any user created on this device. Please check and try again.');
     }
   };
 
@@ -41,7 +47,7 @@ export default function EmergencyContactProfilePage() {
         <CardHeader>
           <CardTitle>Complete Your Profile</CardTitle>
           <CardDescription>
-            Enter your name and the unique ID of the person you want to protect.
+            Enter your details and the unique ID of the person you want to protect.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -56,7 +62,51 @@ export default function EmergencyContactProfilePage() {
                 required
               />
             </div>
+             <div className="space-y-2">
+              <Label htmlFor="age">Your Age</Label>
+              <Input
+                id="age"
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                placeholder="e.g., 35"
+                required
+              />
+            </div>
             <div className="space-y-2">
+              <Label>Your Gender</Label>
+              <RadioGroup
+                value={gender}
+                onValueChange={setGender}
+                className="flex gap-4"
+                required
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="male" id="male-ec" />
+                  <Label htmlFor="male-ec">Male</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="female" id="female-ec" />
+                  <Label htmlFor="female-ec">Female</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="other" id="other-ec" />
+                  <Label htmlFor="other-ec">Other</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Your Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g., jane@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-2 pt-4 border-t">
               <Label htmlFor="uid">User's Unique ID</Label>
               <Input
                 id="uid"

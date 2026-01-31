@@ -10,17 +10,20 @@ import { useAppState } from '@/hooks/use-app-state';
 import { generateUID } from '@/lib/uid';
 import { Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function UserProfilePage() {
   const router = useRouter();
   const { userProfile, setUserProfile, userUID, setUserUID, setUserProfileComplete } = useAppState();
   const [name, setName] = useState(userProfile?.name || '');
+  const [age, setAge] = useState(userProfile?.age || '');
+  const [gender, setGender] = useState(userProfile?.gender || '');
   const [isCompleted, setIsCompleted] = useState(!!userUID);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const profile = { name };
+    const profile = { name, age, gender };
     const uid = generateUID();
     setUserProfile(profile);
     setUserUID(uid);
@@ -68,7 +71,7 @@ export default function UserProfilePage() {
         <CardHeader>
           <CardTitle>Complete Your Profile</CardTitle>
           <CardDescription>
-            Please enter your name. This will be used to identify you to your emergency contact.
+            Please enter your details. This will be used to identify you to your emergency contact.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -82,6 +85,39 @@ export default function UserProfilePage() {
                 placeholder="e.g., John Doe"
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="age">Age</Label>
+              <Input
+                id="age"
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                placeholder="e.g., 65"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Gender</Label>
+              <RadioGroup
+                value={gender}
+                onValueChange={setGender}
+                className="flex gap-4"
+                required
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="male" id="male" />
+                  <Label htmlFor="male">Male</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="female" id="female" />
+                  <Label htmlFor="female">Female</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="other" id="other" />
+                  <Label htmlFor="other">Other</Label>
+                </div>
+              </RadioGroup>
             </div>
             <Button type="submit" className="w-full">
               Save and Generate ID

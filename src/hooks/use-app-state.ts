@@ -4,7 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 
 // Define types for persisted data
 type Role = 'user' | 'emergency-contact' | null;
-type Profile = { name: string } | null;
+type Profile = {
+  name: string;
+  age?: string;
+  gender?: string;
+  email?: string;
+} | null;
 export type Notification = {
   riskScore: number;
   timestamp: string;
