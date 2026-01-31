@@ -7,46 +7,21 @@ import { useAppState } from '@/hooks/use-app-state';
 
 export default function Page() {
   const router = useRouter();
-  const {
-    hasSeenSplash,
-    setHasSeenSplash,
-    role,
-    userProfileComplete,
-    emergencyContactProfileComplete,
-  } = useAppState();
+  const { hasSeenSplash, setHasSeenSplash } = useAppState();
 
+  // Show splash only if it hasn't been seen in this session.
   const [showSplash, setShowSplash] = useState(!hasSeenSplash);
 
   useEffect(() => {
-    if (showSplash) return;
-
-    if (!role) {
-      router.replace('/landing');
+    // If we are showing the splash screen, do nothing yet.
+    if (showSplash) {
       return;
     }
 
-    if (role === 'user') {
-      if (userProfileComplete) {
-        router.replace('/dashboard');
-      } else {
-        router.replace('/user/profile');
-      }
-    } else if (role === 'emergency-contact') {
-      if (emergencyContactProfileComplete) {
-        router.replace('/emergency-contact/dashboard');
-      } else {
-        router.replace('/emergency-contact/profile');
-      }
-    } else {
-        router.replace('/landing');
-    }
-  }, [
-    showSplash,
-    router,
-    role,
-    userProfileComplete,
-    emergencyContactProfileComplete,
-  ]);
+    // After the splash screen is done, always redirect to the landing page.
+    router.replace('/landing');
+    
+  }, [showSplash, router]);
 
   const handleSplashComplete = () => {
     setHasSeenSplash(true);
@@ -57,6 +32,6 @@ export default function Page() {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
-  // Render a loading state or null while the router is redirecting
+  // Render a loading state or null while the router is redirecting.
   return null;
 }
