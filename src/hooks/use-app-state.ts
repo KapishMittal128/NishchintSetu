@@ -107,7 +107,6 @@ export const useAppState = () => {
   });
 
   // Session-specific state
-  const [hasSeenSplash, setHasSeenSplash] = useLocalStorage<boolean>('hasSeenSplash', false);
   const [role, setRole] = useLocalStorage<Role>('role', null);
   
   // Current user's state (persisted, but represents the logged-in user)
@@ -274,8 +273,6 @@ export const useAppState = () => {
     assistanceHistory,
     addAssistanceEvent,
     // Session State
-    hasSeenSplash,
-    setHasSeenSplash,
     role,
     setRole,
     // User State

@@ -3,14 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SplashScreen } from '@/components/app/splash-screen';
-import { useAppState } from '@/hooks/use-app-state';
 
 export default function Page() {
   const router = useRouter();
-  const { hasSeenSplash, setHasSeenSplash } = useAppState();
-
-  // Show splash only if it hasn't been seen in this session.
-  const [showSplash, setShowSplash] = useState(!hasSeenSplash);
+  
+  // Always show splash on initial load of this page.
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     // If we are showing the splash screen, do nothing yet.
@@ -24,7 +22,6 @@ export default function Page() {
   }, [showSplash, router]);
 
   const handleSplashComplete = () => {
-    setHasSeenSplash(true);
     setShowSplash(false);
   };
 
