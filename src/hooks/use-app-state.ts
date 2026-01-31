@@ -12,9 +12,14 @@ export type Profile = {
   email?: string;
 };
 
+export type PairedContact = {
+  name: string;
+  email: string;
+};
+
 export type UserProfile = Profile & {
   uid: string;
-  pairedContacts?: string[]; // Array of emergency contact emails
+  pairedContacts?: PairedContact[];
 };
 
 export type EmergencyContactProfile = Profile & {
@@ -38,7 +43,7 @@ type MoodHistory = Record<string, MoodEntry[]>;
 
 // A custom hook for managing a piece of state in localStorage.
 const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const [storedValue, setStoredValue] = useState<T>(() => initialValue);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -48,13 +53,20 @@ const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val
       const item = window.localStorage.getItem(key);
       if (item) {
         setStoredValue(JSON.parse(item));
+      } else {
+        window.localStorage.setItem(key, JSON.stringify(initialValue));
       }
     } catch (error) {
-      console.error(error);
+      console.error(`Error reading localStorage key “${key}”:`, error);
+      // If error, set to initial value
+      window.localStorage.setItem(key, JSON.stringify(initialValue));
     }
-  }, [key]);
+  }, [key, initialValue]);
 
   const setValue = (value: T | ((val: T) => T)) => {
+    if (typeof window == 'undefined') {
+        console.warn(`Tried setting localStorage key “${key}” even though environment is not a client`);
+    }
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
@@ -62,12 +74,13 @@ const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
-      console.error(error);
+      console.error(`Error setting localStorage key “${key}”:`, error);
     }
   };
 
   return [storedValue, setValue];
 };
+
 
 export const useAppState = () => {
   // Global, persistent state for the whole device
@@ -80,12 +93,12 @@ export const useAppState = () => {
   const [role, setRole] = useLocalStorage<Role>('role', null);
   
   // Current user's state
-  const [userProfile, setUserProfile] = useLocalStorage<Profile | null>('userProfile', null);
+  const [userProfile, setUserProfile] = useLocalStorage<UserProfile | null>('userProfile', null);
   const [userUID, setUserUID] = useLocalStorage<string | null>('userUID', null);
   const [userProfileComplete, setUserProfileComplete] = useLocalStorage<boolean>('userProfileComplete', false);
 
   // Current emergency contact's state
-  const [emergencyContactProfile, setEmergencyContactProfile] = useLocalStorage<Profile | null>('emergencyContactProfile', null);
+  const [emergencyContactProfile, setEmergencyContactProfile] = useLocalStorage<EmergencyContactProfile | null>('emergencyContactProfile', null);
   const [pairedUserUID, setPairedUserUID] = useLocalStorage<string | null>('pairedUserUID', null);
   const [emergencyContactProfileComplete, setEmergencyContactProfileComplete] = useLocalStorage<boolean>('emergencyContactProfileComplete', false);
   
@@ -97,11 +110,25 @@ export const useAppState = () => {
     }));
   }, [setAllUserProfiles]);
 
+  const updateUserProfile = useCallback((uid: string, newProfileData: Partial<Omit<UserProfile, 'uid' | 'pairedContacts'>>) => {
+      setAllUserProfiles(prev => {
+          const userToUpdate = prev[uid];
+          if (userToUpdate) {
+              const updatedProfile = { ...userToUpdate, ...newProfileData };
+              return { ...prev, [uid]: updatedProfile };
+          }
+          return prev;
+      });
+      setUserProfile(prev => prev ? ({ ...prev, ...newProfileData }) : null);
+  }, [setAllUserProfiles, setUserProfile]);
+
+
   const pairEmergencyContact = useCallback((userUidToPair: string, contactProfile: EmergencyContactProfile) => {
     setAllUserProfiles(prev => {
       const userToUpdate = prev[userUidToPair];
       if (userToUpdate) {
-        const updatedContacts = [...(userToUpdate.pairedContacts || []), contactProfile.email];
+        const newContact: PairedContact = { name: contactProfile.name, email: contactProfile.email };
+        const updatedContacts = [...(userToUpdate.pairedContacts || []), newContact];
         return {
           ...prev,
           [userUidToPair]: { ...userToUpdate, pairedContacts: updatedContacts }
@@ -144,6 +171,25 @@ export const useAppState = () => {
     setEmergencyContactProfileComplete(false);
   }, [setRole, setUserProfile, setUserUID, setUserProfileComplete, setEmergencyContactProfile, setPairedUserUID, setEmergencyContactProfileComplete]);
 
+  const removeUserProfile = useCallback((uid: string) => {
+    setAllUserProfiles(prev => {
+        const newProfiles = { ...prev };
+        delete newProfiles[uid];
+        return newProfiles;
+    });
+    setNotifications(prev => {
+        const newNotifs = { ...prev };
+        delete newNotifs[uid];
+        return newNotifs;
+    });
+    setMoodHistory(prev => {
+        const newMoods = { ...prev };
+        delete newMoods[uid];
+        return newMoods;
+    });
+    clearState();
+  }, [setAllUserProfiles, setNotifications, setMoodHistory, clearState]);
+
   return {
     // Global State
     allUserProfiles,
@@ -174,5 +220,7 @@ export const useAppState = () => {
     setEmergencyContactProfileComplete,
     // Actions
     clearState,
+    updateUserProfile,
+    removeUserProfile,
   };
 };

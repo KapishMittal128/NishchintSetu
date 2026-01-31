@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAppState, UserProfile } from '@/hooks/use-app-state';
+import { useAppState, UserProfile, PairedContact } from '@/hooks/use-app-state';
 import { generateUID } from '@/lib/uid';
-import { Copy } from 'lucide-react';
+import { Copy, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export default function UserProfilePage() {
   const router = useRouter();
@@ -20,29 +21,54 @@ export default function UserProfilePage() {
     userUID, 
     setUserUID, 
     setUserProfileComplete,
-    addUserProfile 
+    addUserProfile,
+    updateUserProfile,
+    removeUserProfile
   } = useAppState();
 
-  const [name, setName] = useState(userProfile?.name || '');
-  const [age, setAge] = useState(userProfile?.age || '');
-  const [gender, setGender] = useState(userProfile?.gender || '');
-  const [isCompleted, setIsCompleted] = useState(!!userUID);
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
   const { toast } = useToast();
+
+  const isEditMode = !!userUID && !!userProfile;
+
+  useEffect(() => {
+    if (isEditMode) {
+      setName(userProfile.name || '');
+      setAge(userProfile.age || '');
+      setGender(userProfile.gender || '');
+    }
+  }, [isEditMode, userProfile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const uid = generateUID();
-    const profile: UserProfile = { name, age, gender, uid, pairedContacts: [] };
     
-    // Set session state
-    setUserProfile(profile);
-    setUserUID(uid);
-    setUserProfileComplete(true);
-    
-    // Add to global list of users
-    addUserProfile(profile);
-
-    setIsCompleted(true);
+    if (isEditMode) {
+      // Update existing profile
+      const updatedProfileData = { name, age, gender };
+      updateUserProfile(userUID, updatedProfileData);
+      toast({
+        title: 'Profile Updated!',
+        description: 'Your information has been saved.',
+      });
+      router.push('/dashboard');
+    } else {
+      // Create new profile
+      const uid = generateUID();
+      const profile: UserProfile = { name, age, gender, uid, pairedContacts: [] };
+      
+      setUserProfile(profile);
+      setUserUID(uid);
+      setUserProfileComplete(true);
+      addUserProfile(profile);
+      
+      toast({
+        title: 'Profile Created!',
+        description: 'You can now share your UID with your emergency contact.',
+      });
+       router.push('/dashboard');
+    }
   };
   
   const handleCopyToClipboard = () => {
@@ -52,40 +78,25 @@ export default function UserProfilePage() {
     }
   };
 
-  if (isCompleted && userUID) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-6">
-        <Card className="w-full max-w-md text-center z-10 animate-in fade-in-0">
-          <CardHeader>
-            <CardTitle className="text-2xl">Your Profile is Complete</CardTitle>
-            <CardDescription>Share your unique ID with your emergency contact.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 bg-muted rounded-lg flex items-center justify-between">
-              <span className="font-mono text-lg">{userUID}</span>
-              <Button variant="ghost" size="icon" onClick={handleCopyToClipboard}>
-                <Copy className="h-5 w-5" />
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Your emergency contact will need this ID to link to your account and receive alerts. Keep it safe.
-            </p>
-            <Button onClick={() => router.push('/dashboard')} className="w-full">
-              Go to Dashboard
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const handleDeleteProfile = () => {
+    if (userUID) {
+        removeUserProfile(userUID);
+        toast({
+            title: 'Profile Deleted',
+            description: 'Your profile and all associated data have been removed.',
+            variant: 'destructive',
+        });
+        router.push('/landing');
+    }
+  };
 
   return (
     <div className="flex flex-1 items-center justify-center p-6">
       <Card className="w-full max-w-md z-10 animate-in fade-in-0">
         <CardHeader>
-          <CardTitle>Complete Your Profile</CardTitle>
+          <CardTitle>{isEditMode ? 'Edit Your Profile' : 'Complete Your Profile'}</CardTitle>
           <CardDescription>
-            Please enter your details. This will be used to identify you to your emergency contact.
+            This information helps identify you to your emergency contacts.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -134,9 +145,41 @@ export default function UserProfilePage() {
               </RadioGroup>
             </div>
             <Button type="submit" className="w-full">
-              Save and Generate ID
+              {isEditMode ? 'Save Changes' : 'Save and Continue'}
             </Button>
+            {isEditMode && (
+                 <Button type="button" className="w-full" variant="outline" onClick={() => router.push('/dashboard')}>
+                    Cancel
+                </Button>
+            )}
           </form>
+
+            {isEditMode && (
+                <div className="mt-6 border-t pt-6">
+                    <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive" className="w-full">
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete Profile
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete your
+                            profile, risk history, and mood data from this device.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteProfile}>
+                            Yes, delete my profile
+                        </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                    </AlertDialog>
+                </div>
+            )}
         </CardContent>
       </Card>
     </div>

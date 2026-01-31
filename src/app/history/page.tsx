@@ -1,13 +1,13 @@
 'use client';
 
-import MonitoringClient from './monitoring-client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Home, Shield, LogOut, History, Bot, Settings } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
+import HistoryClient from './history-client';
 
-export default function MonitoringPage() {
+export default function HistoryPage() {
   const { clearState } = useAppState();
   const router = useRouter();
 
@@ -28,13 +28,13 @@ export default function MonitoringPage() {
                 </Button>
             </Link>
             <Link href="/monitoring" passHref>
-                <Button variant="secondary" className="w-full justify-start text-base">
+                <Button variant="ghost" className="w-full justify-start text-base">
                 <Shield className="mr-2 h-5 w-5" />
                 Monitoring
                 </Button>
             </Link>
              <Link href="/history" passHref>
-                <Button variant="ghost" className="w-full justify-start text-base">
+                <Button variant="secondary" className="w-full justify-start text-base">
                 <History className="mr-2 h-5 w-5" />
                 History
                 </Button>
@@ -57,12 +57,12 @@ export default function MonitoringPage() {
             </Button>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto bg-muted/20">
+       <main className="flex-1 overflow-y-auto bg-muted/20">
         <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
-          <h1 className="text-2xl font-semibold">Conversation Monitoring</h1>
+          <h1 className="text-2xl font-semibold">Risk History</h1>
         </header>
         <div className="p-6">
-            <MonitoringClient />
+          <HistoryClient />
         </div>
       </main>
     </div>

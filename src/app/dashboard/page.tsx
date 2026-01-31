@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Users, Copy, HeartPulse } from 'lucide-react';
+import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, History, Settings } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +32,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-64 bg-background/80 border-r p-4 flex flex-col">
+      <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
         <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
         <nav className="flex-1 space-y-2">
             <Link href="/dashboard" passHref>
@@ -47,11 +47,29 @@ export default function DashboardPage() {
                 Monitoring
                 </Button>
             </Link>
+             <Link href="/history" passHref>
+                <Button variant="ghost" className="w-full justify-start text-base">
+                <History className="mr-2 h-5 w-5" />
+                History
+                </Button>
+            </Link>
+            <Button variant="ghost" className="w-full justify-start text-base" disabled>
+                <Bot className="mr-2 h-5 w-5" />
+                AI Chatbot
+            </Button>
         </nav>
-        <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut}>
-            <LogOut className="mr-2 h-5 w-5" />
-            Sign Out
-        </Button>
+        <div className="space-y-2">
+            <Link href="/user/profile" passHref>
+                <Button variant="outline" className="w-full justify-start text-base">
+                    <Settings className="mr-2 h-5 w-5" />
+                    Profile Settings
+                </Button>
+            </Link>
+            <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut}>
+                <LogOut className="mr-2 h-5 w-5" />
+                Sign Out
+            </Button>
+        </div>
       </aside>
       <main className="flex-1 overflow-y-auto bg-muted/20">
         <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
@@ -86,9 +104,19 @@ export default function DashboardPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Users />Paired Contacts</CardTitle>
                     </CardHeader>
-                    <CardContent className="text-center">
+                    <CardContent>
                         <div className="text-6xl font-bold text-primary">{pairedContactsCount}</div>
                         <p className="text-muted-foreground mt-2">{pairedContactsCount === 1 ? 'person is' : 'people are'} looking out for you.</p>
+                        {pairedContactsCount > 0 && (
+                            <div className="mt-4 space-y-2 text-left">
+                                <h4 className="font-semibold text-sm text-foreground/80">Your Contacts:</h4>
+                                <ul className="list-disc list-inside text-muted-foreground text-sm">
+                                    {currentUser?.pairedContacts?.map(contact => (
+                                        <li key={contact.email}>{contact.name}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
                 <Card className="animate-in fade-in-0 delay-300">
@@ -98,7 +126,7 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="p-3 bg-muted rounded-lg flex items-center justify-between">
-                            <span className="font-mono text-base">{userUID}</span>
+                            <span className="font-mono text-lg text-foreground">{userUID}</span>
                             <Button variant="ghost" size="icon" onClick={handleCopyToClipboard}>
                                 <Copy className="h-5 w-5" />
                             </Button>
