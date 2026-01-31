@@ -20,7 +20,7 @@ export default function LandingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-0 space-y-8">
-           <Link href="/login" passHref>
+           <Link href="/role-selection" passHref>
             <Button size="lg" className="w-full max-w-sm mx-auto text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
               Get Started
             </Button>

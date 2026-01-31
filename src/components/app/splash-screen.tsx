@@ -22,7 +22,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
       <h1
-        className={`text-3xl md:text-4xl font-bold transition-all duration-1000 ${
+        className={`text-3xl md:text-4xl font-extrabold transition-all duration-1000 ${
           visible
             ? 'animate-in fade-in-0 zoom-in-95'
             : 'animate-out fade-out-0 zoom-out-95'
