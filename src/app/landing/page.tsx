@@ -1,46 +1,90 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldCheck } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ShieldCheck, AlertTriangle, Lock, HandHelping } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-1 items-center justify-center p-6 sm:p-8 md:p-12">
+    <div className="flex flex-col min-h-screen">
       <div className="aurora-bg"></div>
-      <Card className="w-full max-w-4xl text-center z-10 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
-        <CardHeader className="p-8">
-          <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-4">
-            <ShieldCheck className="h-10 w-10" />
+
+      {/* Hero Section */}
+      <section className="flex-1 flex items-center justify-center text-center z-10 p-6">
+        <div className="max-w-4xl animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
+          <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-6">
+            <ShieldCheck className="h-12 w-12" />
           </div>
-          <CardTitle className="text-4xl font-semibold tracking-wide">
+          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">
             Nishchint Setu
-          </CardTitle>
-          <CardDescription className="text-lg text-muted-foreground pt-2">
-            Your bridge to safety. Real-time conversation monitoring to protect you from scams.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-8 pt-0 space-y-8">
-           <Link href="/role-selection" passHref>
-            <Button size="lg" className="w-full max-w-sm mx-auto text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-              Get Started
-            </Button>
-          </Link>
-          <div className="grid md:grid-cols-2 gap-8 pt-8 text-left border-t border-border/10">
-            <div>
-                <h3 className="font-semibold text-xl mb-2">How It Works</h3>
-                <p className="text-muted-foreground">
-                    Nishchint Setu listens to your phone conversations in real-time. Using on-device analysis, it detects suspicious keywords and patterns associated with common scams. If a potential threat is identified, you and your emergency contact are alerted.
-                </p>
-            </div>
-             <div>
-                <h3 className="font-semibold text-xl mb-2">Your Privacy Matters</h3>
-                <p className="text-muted-foreground">
-                    Your conversations are processed entirely on your device. No audio or transcript data is ever sent to the cloud or stored anywhere after the call ends, ensuring your complete privacy. Only risk alerts are shared with your chosen emergency contact.
-                </p>
-            </div>
+          </h1>
+          <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Your bridge to safety. Real-time conversation monitoring to protect you and your loved ones from phone scams, with privacy at its core.
+          </p>
+          <div className="mt-8">
+            <Link href="/role-selection" passHref>
+              <Button size="lg" className="text-lg py-7 px-8 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                Get Started
+              </Button>
+            </Link>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 md:py-24 bg-background/50 z-10">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-semibold">Peace of Mind, Powered by Privacy</h2>
+            <p className="text-muted-foreground mt-2">Key features designed to keep you safe without compromise.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card>
+              <CardHeader className="items-center text-center">
+                 <div className="p-3 bg-primary/10 rounded-full mb-3">
+                    <AlertTriangle className="h-8 w-8 text-primary" />
+                 </div>
+                <CardTitle>Real-Time Risk Analysis</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center text-muted-foreground">
+                <p>Analyzes conversations live on your device to detect suspicious keywords and patterns associated with common scams.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="items-center text-center">
+                <div className="p-3 bg-primary/10 rounded-full mb-3">
+                    <Lock className="h-8 w-8 text-primary" />
+                 </div>
+                <CardTitle>100% Private</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center text-muted-foreground">
+                <p>No audio or transcript data is ever sent to the cloud. All analysis happens locally, ensuring your conversations remain private.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="items-center text-center">
+                 <div className="p-3 bg-primary/10 rounded-full mb-3">
+                    <ShieldCheck className="h-8 w-8 text-primary" />
+                 </div>
+                <CardTitle>Guardian Alerts</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center text-muted-foreground">
+                <p>If a potential threat is identified, your chosen emergency contact is alerted with the conversation context to help you.</p>
+              </CardContent>
+            </Card>
+             <Card>
+              <CardHeader className="items-center text-center">
+                 <div className="p-3 bg-primary/10 rounded-full mb-3">
+                    <HandHelping className="h-8 w-8 text-primary" />
+                 </div>
+                <CardTitle>Guided Assistance</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center text-muted-foreground">
+                <p>Detects if you're stuck and offers simple, clear options to get you back on track, ensuring a stress-free experience.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
