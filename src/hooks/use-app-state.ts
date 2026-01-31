@@ -46,21 +46,18 @@ const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val
   const [storedValue, setStoredValue] = useState<T>(() => initialValue);
 
   useEffect(() => {
+    // This effect now only runs once on mount to load the initial value
     if (typeof window === 'undefined') {
       return;
     }
     try {
       const item = window.localStorage.getItem(key);
-      if (item) {
-        setStoredValue(JSON.parse(item));
-      } else {
-        window.localStorage.setItem(key, JSON.stringify(initialValue));
-      }
+      setStoredValue(item ? JSON.parse(item) : initialValue);
     } catch (error) {
       console.error(`Error reading localStorage key “${key}”:`, error);
-      // If error, set to initial value
-      window.localStorage.setItem(key, JSON.stringify(initialValue));
+      setStoredValue(initialValue);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   const setValue = (value: T | ((val: T) => T)) => {
@@ -123,15 +120,15 @@ export const useAppState = () => {
   }, [setAllUserProfiles, setUserProfile]);
 
 
-  const pairEmergencyContact = useCallback((userUidToPair: string, contactProfile: EmergencyContactProfile) => {
+  const pairEmergencyContact = useCallback((userUidToPair: string, newContact: PairedContact) => {
     setAllUserProfiles(prev => {
       const userToUpdate = prev[userUidToPair];
       if (userToUpdate) {
-        const newContact: PairedContact = { name: contactProfile.name, email: contactProfile.email };
         const updatedContacts = [...(userToUpdate.pairedContacts || []), newContact];
+        const updatedUser = { ...userToUpdate, pairedContacts: updatedContacts };
         return {
           ...prev,
-          [userUidToPair]: { ...userToUpdate, pairedContacts: updatedContacts }
+          [userUidToPair]: updatedUser
         };
       }
       return prev;

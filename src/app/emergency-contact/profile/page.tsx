@@ -32,20 +32,19 @@ export default function EmergencyContactProfilePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // The new, corrected verification logic:
-    // Check if the UID exists in the `allUserProfiles` object from our global state.
-    if (allUserProfiles && allUserProfiles[uidToPair]) {
-      const userToPair = allUserProfiles[uidToPair];
-      const profile: EmergencyContactProfile = { name, age, gender, email, pairedUserUID: uidToPair };
+    const userToPair = allUserProfiles[uidToPair];
 
+    if (userToPair) {
+      const ecProfile: EmergencyContactProfile = { name, age, gender, email, pairedUserUID: uidToPair };
+
+      // Persistently link this EC to the user's profile
+      pairEmergencyContact(uidToPair, { name: ecProfile.name, email: ecProfile.email });
+      
       // Set the session state for the emergency contact
-      setEmergencyContactProfile(profile);
+      setEmergencyContactProfile(ecProfile);
       setPairedUserUID(uidToPair);
       setEmergencyContactProfileComplete(true);
       
-      // Persistently link this contact to the user's profile
-      pairEmergencyContact(uidToPair, profile);
-
       toast({
         title: 'Successfully Paired!',
         description: `You are now connected to ${userToPair.name}.`,

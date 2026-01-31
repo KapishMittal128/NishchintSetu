@@ -10,26 +10,23 @@ export default function RoleSelectionPage() {
   const router = useRouter();
   const { 
     setRole, 
-    allUserProfiles,
-    setUserProfile,
-    setUserUID,
-    setUserProfileComplete,
+    userProfile,
+    userProfileComplete,
     emergencyContactProfile,
     emergencyContactProfileComplete,
-    setPairedUserUID
+    setPairedUserUID,
+    setUserProfile,
+    setUserUID
   } = useAppState();
 
   const handleRoleSelect = (role: 'user' | 'emergency-contact') => {
     setRole(role);
 
     if (role === 'user') {
-      const userProfiles = Object.values(allUserProfiles);
-      // If a user profile already exists, log in as that user.
-      if (userProfiles.length > 0) {
-        const primaryUser = userProfiles[0];
-        setUserProfile(primaryUser);
-        setUserUID(primaryUser.uid);
-        setUserProfileComplete(true);
+      // If a user profile is already complete from a previous session, log them in.
+      if (userProfileComplete && userProfile) {
+        setUserProfile(userProfile);
+        setUserUID(userProfile.uid);
         router.push('/dashboard');
       } else {
         // Otherwise, go to create a new profile.
