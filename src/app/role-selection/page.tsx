@@ -8,12 +8,31 @@ import { useAppState } from '@/hooks/use-app-state';
 
 export default function RoleSelectionPage() {
   const router = useRouter();
-  const { setRole } = useAppState();
+  const { 
+    setRole, 
+    allUserProfiles,
+    setUserProfile,
+    setUserUID,
+    setUserProfileComplete
+  } = useAppState();
 
   const handleRoleSelect = (role: 'user' | 'emergency-contact') => {
     setRole(role);
+
     if (role === 'user') {
-      router.push('/user/profile');
+      const userProfiles = Object.values(allUserProfiles);
+      // If a user profile already exists, log in as that user.
+      // This assumes one primary user per device.
+      if (userProfiles.length > 0) {
+        const primaryUser = userProfiles[0];
+        setUserProfile(primaryUser);
+        setUserUID(primaryUser.uid);
+        setUserProfileComplete(true);
+        router.push('/dashboard');
+      } else {
+        // Otherwise, go to create a new profile.
+        router.push('/user/profile');
+      }
     } else {
       router.push('/emergency-contact/profile');
     }

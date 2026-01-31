@@ -1,31 +1,28 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getSafetyTip } from '@/ai/flows/get-safety-tip';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Lightbulb } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const TIPS = [
+  "Never share your OTP (One-Time Password) with anyone, not even bank employees.",
+  "If someone pressures you to act immediately, it's a red flag. A legitimate organization will give you time to think.",
+  "Be skeptical of unsolicited calls or messages asking for personal or financial information.",
+  "Government agencies like the IRS or Social Security Administration will not call you to demand immediate payment.",
+  "Never click on suspicious links sent via text or email, especially those related to refunds or account verification.",
+  "If a deal seems too good to be true, it probably is. Always verify offers with the official company.",
+  "Do not install any apps or software on your phone or computer at the request of an unknown caller."
+];
 
 export function SafetyTip() {
   const [tip, setTip] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTip = async () => {
-      try {
-        setIsLoading(true);
-        const response = await getSafetyTip();
-        setTip(response.tip);
-      } catch (error) {
-        console.error('Failed to get safety tip:', error);
-        setTip('Could not load a tip right now. Remember to never share personal information over the phone.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchTip();
+    // This runs only on the client, after hydration, to avoid server/client mismatch
+    setTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
   }, []);
 
-  if (isLoading) {
+  if (!tip) {
     return (
       <div className="flex items-start gap-4">
         <Skeleton className="h-8 w-8 rounded-full" />
@@ -39,7 +36,7 @@ export function SafetyTip() {
 
   return (
     <div className="flex items-start gap-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
-      <Lightbulb className="h-8 w-8 text-primary mt-1" />
+      <Lightbulb className="h-8 w-8 text-primary mt-1 shrink-0" />
       <p className="text-lg text-foreground/90">
         {tip}
       </p>
