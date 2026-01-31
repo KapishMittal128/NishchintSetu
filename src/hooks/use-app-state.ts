@@ -61,7 +61,7 @@ const useLocalStorage = <T>(key: string, initialValue: T): [T, (value: T | ((val
       // If error, set to initial value
       window.localStorage.setItem(key, JSON.stringify(initialValue));
     }
-  }, [key, initialValue]);
+  }, [key]);
 
   const setValue = (value: T | ((val: T) => T)) => {
     if (typeof window == 'undefined') {
