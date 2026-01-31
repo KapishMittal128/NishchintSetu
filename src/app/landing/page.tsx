@@ -3,45 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ShieldCheck, AlertTriangle, Lock, HandHelping, User, ShieldAlert } from 'lucide-react';
-import Link from 'next/link';
-import { useAppState } from '@/hooks/use-app-state';
+import { ShieldCheck, AlertTriangle, Lock, HandHelping } from 'lucide-react';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { 
-    setRole, 
-    userProfile,
-    userProfileComplete,
-    emergencyContactProfile,
-    emergencyContactProfileComplete,
-    setPairedUserUID,
-    setUserProfile,
-    setUserUID
-  } = useAppState();
 
-  const handleRoleSelect = (role: 'user' | 'emergency-contact') => {
-    setRole(role);
-
-    if (role === 'user') {
-      // If a user profile is already complete from a previous session, log them in.
-      if (userProfileComplete && userProfile) {
-        setUserProfile(userProfile);
-        setUserUID(userProfile.uid);
-        router.push('/dashboard');
-      } else {
-        // Otherwise, go to create a new profile.
-        router.push('/user/profile');
-      }
-    } else {
-      // If an emergency contact profile is already complete, log in.
-      if (emergencyContactProfileComplete && emergencyContactProfile) {
-        setPairedUserUID(emergencyContactProfile.pairedUserUID);
-        router.push('/emergency-contact/dashboard');
-      } else {
-        router.push('/emergency-contact/profile');
-      }
-    }
+  const handleGetStarted = () => {
+    router.push('/role-selection');
   };
 
   return (
@@ -60,36 +28,11 @@ export default function LandingPage() {
           <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Your bridge to safety. Real-time conversation monitoring to protect you and your loved ones from phone scams, with privacy at its core.
           </p>
-          
-          <Card className="mt-12 w-full max-w-3xl mx-auto text-center z-10 bg-card/80 border-0 shadow-none">
-            <CardHeader>
-                <CardTitle className="text-3xl font-semibold tracking-wide">
-                    Get Started
-                </CardTitle>
-                <CardDescription className="text-lg text-muted-foreground pt-2">
-                    First, choose your role to begin.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div 
-                    className="p-8 border rounded-lg bg-background/50 hover:bg-primary/5 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col items-center"
-                    onClick={() => handleRoleSelect('user')}
-                >
-                    <User className="h-12 w-12 text-primary mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">I am the User</h3>
-                    <p className="text-muted-foreground text-sm">I want to protect my own conversations from scams.</p>
-                </div>
-                <div 
-                    className="p-8 border rounded-lg bg-background/50 hover:bg-primary/5 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col items-center"
-                    onClick={() => handleRoleSelect('emergency-contact')}
-                >
-                    <ShieldAlert className="h-12 w-12 text-primary mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">I am an Emergency Contact</h3>
-                    <p className="text-muted-foreground text-sm">I want to receive alerts for a family member or friend.</p>
-                </div>
-            </CardContent>
-          </Card>
-
+          <div className="mt-8">
+            <Button size="lg" className="text-lg py-7" onClick={handleGetStarted}>
+              Get Started
+            </Button>
+          </div>
         </div>
       </section>
 
