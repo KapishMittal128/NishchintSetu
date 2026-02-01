@@ -16,9 +16,8 @@ export default function LandingPage() {
 
   return (
     <div className="dark bg-background text-foreground">
-      <header className="absolute top-0 left-0 w-full z-30 p-6 flex justify-between items-center">
+      <header className="absolute top-0 left-0 w-full z-30 p-6 flex justify-start items-center">
         <h2 className="text-2xl font-bold">Nishchint Setu</h2>
-        <Button variant="outline" onClick={() => router.push('/login')}>Sign In</Button>
       </header>
 
       {/* Hero Section */}
