@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShieldCheck, AlertTriangle, Lock, HandHelping } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Card } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import Image from 'next/image';
 
 const features = [
   {
@@ -36,51 +38,64 @@ export default function LandingPage() {
   };
 
   return (
-    <TooltipProvider>
-      <div className="dark text-foreground">
-        <header className="absolute top-0 left-0 w-full z-30 p-6 flex justify-start items-center">
-          <h2 className="text-2xl font-bold">Nishchint Setu</h2>
-        </header>
+    <div className="dark text-foreground min-h-screen w-full">
+       <Image
+        alt="Background"
+        src="https://picsum.photos/seed/green-abstract/1920/1080"
+        data-ai-hint="abstract green"
+        fill
+        objectFit="cover"
+        quality={80}
+        className="-z-10 brightness-[.2]"
+      />
+      
+      <header className="absolute top-0 left-0 w-full z-30 p-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Nishchint Setu</h2>
+      </header>
 
-        <main className="relative min-h-screen flex flex-col items-center justify-center text-center p-6 overflow-hidden">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10" />
+      <main className="relative flex flex-col items-center justify-center text-center p-6 min-h-[70vh] md:min-h-[80vh]">
+        <div className="relative z-20 flex flex-col items-center justify-center animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+            Nishchint Setu
+          </h1>
+          <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto text-foreground/80">
+            Your bridge to safety. Real-time conversation monitoring to protect you and your loved ones from phone scams, with privacy at its core.
+          </p>
+          <div className="mt-10">
+            <Button size="lg" className="text-lg py-7 px-10" onClick={handleGetStarted}>
+              Get Started Now
+            </Button>
+          </div>
+        </div>
+      </main>
 
-          <div className="relative z-20 flex flex-col items-center justify-center flex-1 -mt-20 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-              Nishchint Setu
-            </h1>
-            <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto text-foreground/80">
-              Your bridge to safety. Real-time conversation monitoring to protect you and your loved ones from phone scams, with privacy at its core.
-            </p>
-            <div className="mt-10">
-              <Button size="lg" className="text-lg py-7 px-10" onClick={handleGetStarted}>
-                Get Started Now
-              </Button>
-            </div>
-          </div>
-          
-          <div className="relative z-20 w-full max-w-5xl mx-auto pb-10">
-            <div className="text-center mb-6 animate-in fade-in-0 delay-200">
-                 <h2 className="text-xl font-semibold">Peace of Mind, Powered by Privacy</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in-0 delay-300">
-              {features.map((feature, index) => (
-                <Tooltip key={index} delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-black/30 border border-white/10 hover:border-primary/50 hover:bg-black/50 transition-all cursor-pointer backdrop-blur-lg">
-                      <feature.icon className="h-8 w-8 text-primary" />
-                      <h3 className="font-semibold text-center text-sm">{feature.title}</h3>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs text-center bg-black/80 border-white/10 text-white" sideOffset={10}>
-                    <p>{feature.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          </div>
-        </main>
-      </div>
-    </TooltipProvider>
+       <section className="relative z-20 w-full max-w-5xl mx-auto px-6 pb-20 animate-in fade-in-0 delay-300">
+        <div className="text-center mb-12">
+            <h2 className="text-3xl font-semibold tracking-tight">Peace of Mind, Powered by Privacy</h2>
+            <p className="mt-2 text-lg text-foreground/80">Click on each feature to learn more.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {features.map((feature, index) => (
+             <Collapsible key={index} className="w-full">
+                <Card className="bg-background/10 backdrop-blur-lg border-white/10 hover:border-primary/50 transition-all duration-300 text-left">
+                    <CollapsibleTrigger className="w-full p-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-primary/20 rounded-lg">
+                                <feature.icon className="h-7 w-7 text-primary" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-semibold">{feature.title}</h3>
+                            </div>
+                        </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                        <p className="text-base text-foreground/70 px-6 pb-6 pt-0">{feature.description}</p>
+                    </CollapsibleContent>
+                </Card>
+            </Collapsible>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
