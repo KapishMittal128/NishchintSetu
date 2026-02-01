@@ -1,8 +1,8 @@
 {
   "landing-hero": {
-    "src": "https://picsum.photos/seed/abstract-dark/1920/1280",
+    "src": "https://picsum.photos/seed/abstract-green/1920/1280",
     "width": 1920,
     "height": 1280,
-    "hint": "abstract technology dark"
+    "hint": "abstract technology green"
   }
 }

@@ -43,7 +43,7 @@ export default function LoginPage() {
                                 <Label htmlFor="password">Password</Label>
                                 <Input id="password" type="password" required />
                             </div>
-                            <Button type="submit" size="lg" className="w-full mt-4 bg-gradient-to-br from-primary to-[#8ab7f7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <Button type="submit" size="lg" className="w-full mt-4 bg-gradient-to-br from-primary to-[#8deeb7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                                 Sign In
                             </Button>
                         </form>
