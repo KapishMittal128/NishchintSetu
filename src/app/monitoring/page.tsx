@@ -43,10 +43,12 @@ export default function MonitoringPage() {
                 Activity Log
                 </Button>
             </Link>
-            <Button variant="ghost" className="w-full justify-start text-base" disabled>
-                <Bot className="mr-2 h-5 w-5" />
-                AI Chatbot
-            </Button>
+            <Link href="/chatbot" passHref>
+                <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-chatbot">
+                    <Bot className="mr-2 h-5 w-5" />
+                    AI Chatbot
+                </Button>
+            </Link>
         </nav>
         <div className="space-y-2">
             <Link href="/user/profile" passHref>
