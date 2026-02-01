@@ -67,7 +67,7 @@ export default function UserProfilePage() {
         title: 'Profile Created!',
         description: 'You can now share your UID with your emergency contact.',
       });
-       router.push('/dashboard');
+       router.replace('/dashboard');
     }
   };
   

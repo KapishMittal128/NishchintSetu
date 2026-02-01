@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, Activity } from 'lucide-react';
+import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, Activity, Lightbulb } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,8 @@ import { SafetyTip } from '@/components/app/safety-tip';
 import { GuidedAssistanceManager } from '@/components/app/guided-assistance-manager';
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
+import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
 
 export default function DashboardPage() {
   const { signOut, userUID, allUserProfiles } = useAppState();
@@ -90,61 +92,58 @@ export default function DashboardPage() {
             <div className="lg:col-span-2 space-y-6">
                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
                     <CardHeader>
-                         <CardTitle className="flex items-center gap-2"><HeartPulse/> Mood Tracker</CardTitle>
-                        <CardDescription>How are you feeling today? Let your loved ones know.</CardDescription>
+                        <CardTitle className="flex items-center gap-2"><Users />Connect & Protect</CardTitle>
+                        <CardDescription>Share your Unique ID with emergency contacts so they can look out for you.</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                       <MoodTracker />
-                    </CardContent>
-                </Card>
-            </div>
-            
-            {/* Side column */}
-            <div className="space-y-6">
-                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Users />Paired Contacts</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-6xl font-bold text-primary">{pairedContactsCount}</div>
-                        <p className="text-muted-foreground mt-2">{pairedContactsCount === 1 ? 'person is' : 'people are'} looking out for you.</p>
-                        {pairedContactsCount > 0 && (
-                            <div className="mt-4 space-y-2 text-left">
-                                <h4 className="font-semibold text-sm text-foreground/80">Your Contacts:</h4>
-                                <ul className="list-disc list-inside text-muted-foreground text-sm">
-                                    {currentUser?.pairedContacts?.map(contact => (
-                                        <li key={contact.email}>{contact.name}</li>
-                                    ))}
-                                </ul>
+                    <CardContent className="space-y-6">
+                        <div>
+                             <Label htmlFor="uid-display">Your Unique ID</Label>
+                            <div id="uid-display" className="mt-2 p-3 bg-muted rounded-lg flex items-center justify-between">
+                                <span className="font-mono text-lg text-foreground">{userUID}</span>
+                                <Button variant="ghost" size="icon" onClick={handleCopyToClipboard} data-trackable-id="copy-uid">
+                                    <Copy className="h-5 w-5" />
+                                </Button>
                             </div>
-                        )}
-                    </CardContent>
-                </Card>
-                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-450">
-                    <CardHeader>
-                        <CardTitle>Your Unique ID</CardTitle>
-                        <CardDescription>Share this with your emergency contacts.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="p-3 bg-muted rounded-lg flex items-center justify-between">
-                            <span className="font-mono text-lg text-foreground">{userUID}</span>
-                            <Button variant="ghost" size="icon" onClick={handleCopyToClipboard} data-trackable-id="copy-uid">
-                                <Copy className="h-5 w-5" />
-                            </Button>
+                        </div>
+                        <Separator />
+                        <div>
+                             <h4 className="font-semibold text-foreground/90">Paired Contacts ({pairedContactsCount})</h4>
+                             {pairedContactsCount > 0 ? (
+                                <div className="mt-4 space-y-2 text-left">
+                                    <ul className="list-disc list-inside text-muted-foreground text-sm space-y-1">
+                                        {currentUser?.pairedContacts?.map(contact => (
+                                            <li key={contact.email} className="ml-4">{contact.name} ({contact.email})</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                             ) : (
+                                <p className="text-sm text-muted-foreground mt-2">Your paired contacts will appear here once they add your UID.</p>
+                             )}
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
+                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
                     <CardHeader>
-                        <CardTitle>Safety Tip of the Day</CardTitle>
-                        <CardDescription>A small tip to keep you safe and secure.</CardDescription>
+                        <CardTitle className="flex items-center gap-2"><Lightbulb />Safety Tip of the Day</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <SafetyTip />
                     </CardContent>
                 </Card>
             </div>
-
+            
+            {/* Side column */}
+            <div className="space-y-6">
+                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-450">
+                    <CardHeader>
+                         <CardTitle className="flex items-center gap-2"><HeartPulse/> Mood Tracker</CardTitle>
+                        <CardDescription>How are you feeling today?</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       <MoodTracker />
+                    </CardContent>
+                </Card>
+            </div>
         </div>
       </main>
     </div>
