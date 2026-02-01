@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShieldCheck, AlertTriangle, Lock, HandHelping } from 'lucide-react';
+import Image from 'next/image';
+import placeholderImages from '@/lib/placeholder-images.json';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -13,35 +15,45 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="aurora-bg"></div>
+    <div className="dark bg-background text-foreground">
+      <header className="absolute top-0 left-0 w-full z-30 p-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Nishchint Setu</h2>
+        <Button variant="outline" onClick={() => router.push('/login')}>Sign In</Button>
+      </header>
 
       {/* Hero Section */}
-      <section className="flex-1 flex items-center justify-center text-center z-10 p-6">
-        <div className="w-full max-w-3xl animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
-          <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-6">
-            <ShieldCheck className="h-12 w-12" />
-          </div>
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">
+      <section className="relative min-h-screen flex items-center justify-center text-center z-10 p-6 overflow-hidden">
+        <Image
+          src={placeholderImages['landing-hero'].src}
+          alt="Abstract background"
+          fill
+          className="object-cover z-0"
+          data-ai-hint={placeholderImages['landing-hero'].hint}
+          priority
+        />
+        <div className="absolute inset-0 bg-background/70 backdrop-blur-sm z-10" />
+
+        <div className="relative z-20 w-full max-w-3xl animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
             Nishchint Setu
           </h1>
-          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-muted-foreground">
+          <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto text-foreground/80">
             Your bridge to safety. Real-time conversation monitoring to protect you and your loved ones from phone scams, with privacy at its core.
           </p>
-          <div className="mt-8">
-            <Button size="lg" className="text-lg py-7" onClick={handleGetStarted}>
-              Get Started
+          <div className="mt-10">
+            <Button size="lg" className="text-lg py-7 px-10" onClick={handleGetStarted}>
+              Get Started Now
             </Button>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24 bg-background/50 z-10">
+      <section className="py-20 md:py-32 bg-background z-10">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-semibold">Peace of Mind, Powered by Privacy</h2>
-            <p className="text-muted-foreground mt-2">Key features designed to keep you safe without compromise.</p>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold">Peace of Mind, Powered by Privacy</h2>
+            <p className="text-foreground/80 mt-4 text-lg">Key features designed to keep you safe without compromise.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card>
