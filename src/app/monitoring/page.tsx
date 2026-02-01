@@ -7,6 +7,8 @@ import { Home, Shield, LogOut, Bot, Settings, Activity } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { GuidedAssistanceManager } from '@/components/app/guided-assistance-manager';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 export default function MonitoringPage() {
   const { signOut } = useAppState();
@@ -60,8 +62,12 @@ export default function MonitoringPage() {
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto bg-muted/20">
-        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
           <h1 className="text-2xl font-semibold">Conversation Monitoring</h1>
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
         </header>
         <div className="p-6">
             <MonitoringClient />

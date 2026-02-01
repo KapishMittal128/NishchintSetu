@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertTriangle, ShieldCheck, HeartPulse, Smile, Meh, Frown, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 export default function EmergencyContactDashboard() {
   const { pairedUserUID, allUserProfiles, notifications, moodHistory } = useAppState();
@@ -50,10 +52,14 @@ export default function EmergencyContactDashboard() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
         <h1 className="text-2xl font-semibold">
           Dashboard for <span className="text-primary">{pairedUser?.name || 'User'}</span>
         </h1>
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </header>
       <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main column */}

@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Smile, Meh, Frown, HeartPulse } from 'lucide-react';
 import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 export default function MoodHistoryPage() {
   const { pairedUserUID, allUserProfiles, moodHistory } = useAppState();
@@ -34,10 +36,14 @@ export default function MoodHistoryPage() {
 
   return (
     <>
-       <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+       <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
         <h1 className="text-2xl font-semibold">
           Mood History for <span className="text-primary">{pairedUser?.name || 'User'}</span>
         </h1>
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </header>
       <div className="p-6">
         <Card className="animate-in fade-in-0">

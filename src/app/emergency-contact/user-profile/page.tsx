@@ -3,6 +3,8 @@
 import { useAppState } from '@/hooks/use-app-state';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Cake, VenetianMask, AtSign } from 'lucide-react';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 export default function PairedUserProfilePage() {
   const { pairedUserUID, allUserProfiles } = useAppState();
@@ -11,10 +13,14 @@ export default function PairedUserProfilePage() {
 
   return (
      <>
-       <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+       <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
         <h1 className="text-2xl font-semibold">
             Paired User's Profile
         </h1>
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </header>
       <div className="p-6 flex justify-center items-start">
         <Card className="w-full max-w-lg animate-in fade-in-0">

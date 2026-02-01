@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { GuidedAssistanceManager } from '@/components/app/guided-assistance-manager';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 type ActivityItem = (Omit<Notification, 'transcript'> & { type: 'notification' }) | (MoodEntry & { type: 'mood' });
 
@@ -93,8 +95,12 @@ export default function ActivityPage() {
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto bg-muted/20">
-        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
           <h1 className="text-2xl font-semibold">Activity Log</h1>
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
         </header>
         <div className="p-6">
             <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500">
