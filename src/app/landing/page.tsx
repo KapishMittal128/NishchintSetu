@@ -18,22 +18,24 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="flex-1 flex items-center justify-center text-center z-10 p-6">
-        <div className="max-w-4xl w-full animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
-          <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-6">
-            <ShieldCheck className="h-12 w-12" />
-          </div>
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight">
-            Nishchint Setu
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Your bridge to safety. Real-time conversation monitoring to protect you and your loved ones from phone scams, with privacy at its core.
-          </p>
-          <div className="mt-8">
+        <Card className="w-full max-w-3xl animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out">
+          <CardHeader className="items-center p-8 md:p-12">
+            <div className="mx-auto bg-primary/10 text-primary p-3 rounded-full w-fit mb-6">
+              <ShieldCheck className="h-12 w-12" />
+            </div>
+            <CardTitle className="text-4xl md:text-6xl font-semibold tracking-tight">
+              Nishchint Setu
+            </CardTitle>
+            <CardDescription className="mt-4 text-lg md:text-xl max-w-2xl mx-auto">
+              Your bridge to safety. Real-time conversation monitoring to protect you and your loved ones from phone scams, with privacy at its core.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pb-8 md:pb-12 pt-0">
             <Button size="lg" className="text-lg py-7" onClick={handleGetStarted}>
               Get Started
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Features Section */}
