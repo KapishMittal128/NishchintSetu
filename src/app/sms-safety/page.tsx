@@ -115,7 +115,7 @@ export default function SmsSafetyPage() {
                 <div className="flex flex-col gap-2">
                     <Button onClick={() => simulateSms('low')} variant="outline" size="sm">Simulate Low-Risk</Button>
                     <Button onClick={() => simulateSms('medium')} variant="outline" size="sm">Simulate Medium-Risk</Button>
-                    <Button onClick={() => simulateSms('high')} variant="destructive" size="sm">Simulate High-Risk</Button>
+                    <Button onClick={() => simulateSms('high')} variant="outline" size="sm">Simulate High-Risk</Button>
                 </div>
               )}
             </div>

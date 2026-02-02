@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useAppState, Notification, MoodEntry } from '@/hooks/use-app-state';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, ShieldCheck, HeartPulse, Smile, Meh, Frown, User } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, HeartPulse, Smile, Meh, Frown, User, Clock, Siren } from 'lucide-react';
 import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
 import { useTranslation } from '@/context/translation-context';
-import { capitalize } from '@/lib/utils';
+import { capitalize, cn } from '@/lib/utils';
 
 export default function EmergencyContactDashboard() {
   const { pairedUserUID, allUserProfiles, notifications, moodHistory } = useAppState();
@@ -53,6 +53,26 @@ export default function EmergencyContactDashboard() {
     if (mood === 'sad') return <Frown className="h-10 w-10 text-destructive" />;
     return <HeartPulse className="h-10 w-10 text-muted-foreground" />;
   };
+  
+  const SentimentIndicator = ({ sentiment }: { sentiment: Notification['sentiment'] }) => {
+    if (!sentiment) return null;
+
+    const sentimentInfo = {
+        threatening: { icon: Siren, className: 'text-destructive' },
+        urgent: { icon: Clock, className: 'text-warning' },
+        calm: { icon: Smile, className: 'text-success' },
+    };
+    
+    const { icon: Icon, className } = sentimentInfo[sentiment];
+    const text = t(`smsSafety.sentimentIndicator.${sentiment}`);
+
+    return (
+        <div className={cn("flex items-center gap-2 mt-2", className)}>
+            <Icon className="h-4 w-4" />
+            <span className="text-sm font-semibold">{t('monitoring.client.toneAnalysis')}: {text}</span>
+        </div>
+    );
+  };
 
   return (
     <>
@@ -87,6 +107,7 @@ export default function EmergencyContactDashboard() {
                           {t('ecDashboard.riskAlerts.onDate', { values: { date: format(new Date(notification.timestamp), "PPP 'at' p") } })}
                         </p>
                         <p className="mt-1">{t('ecDashboard.riskAlerts.riskScoreWas', { values: { score: notification.riskScore } })}</p>
+                        <SentimentIndicator sentiment={notification.sentiment} />
                         {notification.transcript && (
                           <Accordion type="single" collapsible className="w-full mt-2">
                             <AccordionItem value="item-1">
@@ -167,5 +188,3 @@ export default function EmergencyContactDashboard() {
     </>
   );
 }
-
-    
