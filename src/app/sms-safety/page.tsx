@@ -63,7 +63,7 @@ export default function SmsSafetyPage() {
 
   const renderContent = () => {
     if (permissionStatus !== 'granted') {
-      return <SmsPermissionCard status={permissionStatus} onGrant={requestSmsPermission} />;
+      return <SmsPermissionCard status={permissionStatus as 'prompt' | 'denied'} onGrant={requestSmsPermission} />;
     }
 
     return (

@@ -28,35 +28,49 @@ export function SmsListener() {
   };
 
   useEffect(() => {
-    if (Capacitor.getPlatform() === 'android') {
-      // Native platform: Use Capacitor plugin listener
-      const registerListener = async () => {
-        await SmsPlugin.addListener('smsReceived', (data: any) => {
-          if (data && typeof data.sender === 'string' && typeof data.body === 'string') {
-            handleSmsData(data.sender, data.body);
-          }
-        });
-      };
-      registerListener();
-      
-      return () => {
-        SmsPlugin.removeAllListeners();
-      };
-    } else {
-      // Web platform: Use DOM event listener for simulation
-      const handleDomEvent = (event: Event) => {
-        const customEvent = event as CustomEvent;
-        if (customEvent.detail && typeof customEvent.detail.sender === 'string' && typeof customEvent.detail.body === 'string') {
-          handleSmsData(customEvent.detail.sender, customEvent.detail.body);
-        }
-      };
+    let listenerHandle: any = null;
 
-      document.addEventListener('smsReceived', handleDomEvent);
-      return () => {
-        document.removeEventListener('smsReceived', handleDomEvent);
-      };
-    }
-  }, [userUID]); // Rerun if userUID changes
+    const registerListener = async () => {
+        if (Capacitor.getPlatform() === 'android') {
+            // Native platform: Use Capacitor plugin listener
+            try {
+                listenerHandle = await SmsPlugin.addListener('smsReceived', (data: any) => {
+                    if (data && typeof data.sender === 'string' && typeof data.body === 'string') {
+                        handleSmsData(data.sender, data.body);
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to add SMS listener", e);
+            }
+        } else {
+            // Web platform: Use DOM event listener for simulation
+            const handleDomEvent = (event: Event) => {
+                const customEvent = event as CustomEvent;
+                if (customEvent.detail && typeof customEvent.detail.sender === 'string' && typeof customEvent.detail.body === 'string') {
+                    handleSmsData(customEvent.detail.sender, customEvent.detail.body);
+                }
+            };
+            document.addEventListener('smsReceived', handleDomEvent);
+            // Store the handler so we can remove it
+            listenerHandle = handleDomEvent; 
+        }
+    };
+    
+    registerListener();
+
+    return () => {
+        if (Capacitor.getPlatform() === 'android') {
+            if (listenerHandle && typeof listenerHandle.remove === 'function') {
+                listenerHandle.remove();
+            }
+        } else {
+            // It's a DOM event handler
+            if (listenerHandle) {
+                document.removeEventListener('smsReceived', listenerHandle);
+            }
+        }
+    };
+  }, [userUID, addSmsMessage, toast]); // Re-run if userUID changes
 
   return null;
 }

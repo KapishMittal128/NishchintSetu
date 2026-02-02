@@ -5,11 +5,13 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
 import com.getcapacitor.PermissionState;
 import android.Manifest;
 
 @CapacitorPlugin(name = "SmsPlugin", permissions = {
-    @com.getcapacitor.annotation.Permission(
+    @Permission(
         strings = { Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS },
         alias = "sms"
     )
@@ -41,11 +43,25 @@ public class SmsPlugin extends Plugin {
         requestPermissionForAlias("sms", call, "requestSmsPermissionCallback");
     }
 
+    @PermissionCallback
+    private void requestSmsPermissionCallback(PluginCall call) {
+        if (getPermissionState("sms") != PermissionState.GRANTED) {
+            call.reject("Permission is required to read SMS.");
+        } else {
+            call.resolve();
+        }
+    }
+
+
     @PluginMethod
     public void checkSmsPermission(PluginCall call) {
-        PermissionState state = getPermissionState("sms");
         JSObject result = new JSObject();
-        result.put("status", state.toString().toLowerCase());
+        if (Capacitor.isPluginAvailable("SmsPlugin")) {
+            PermissionState state = getPermissionState("sms");
+            result.put("status", state.toString().toLowerCase());
+        } else {
+            result.put("status", "unavailable");
+        }
         call.resolve(result);
     }
 }
