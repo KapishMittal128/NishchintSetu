@@ -186,7 +186,16 @@
       "calm": "Calm"
     },
     "noSms": "No SMS Messages Yet",
-    "noSmsDescription": "As new text messages arrive, they will be analyzed and shown here."
+    "noSmsDescription": "As new text messages arrive, they will be analyzed and shown here.",
+    "permission": {
+      "title": "Enable SMS Safety",
+      "description": "To protect you from SMS scams, Nishchint Setu needs your permission to read incoming text messages. Your privacy is our priority.",
+      "point1": "Messages are analyzed only on your device.",
+      "point2": "Message content is never sent to our servers.",
+      "point3": "You can revoke this permission at any time.",
+      "grantButton": "Grant Permission",
+      "denied": "Permission was denied. To use this feature, please enable SMS permissions in your device's settings for this app."
+    }
   },
   "chatbot": {
     "title": "AI Safety Chatbot",
@@ -392,4 +401,3 @@
     "na": "N/A"
   }
 }
-    

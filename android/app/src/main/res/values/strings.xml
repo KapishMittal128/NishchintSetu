@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Nishchint Setu</string>
+    <string name="title_activity_main">Nishchint Setu</string>
+    <string name="package_name">com.nishchintsetu.app</string>
+    <string name="custom_url_scheme">com.nishchintsetu.app</string>
+</resources>
