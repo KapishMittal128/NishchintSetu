@@ -20,6 +20,7 @@ export type PairedContact = {
 export type UserProfile = Profile & {
   uid: string;
   pairedContacts?: PairedContact[];
+  emergencyContactNumber?: string;
 };
 
 export type EmergencyContactProfile = Profile & {

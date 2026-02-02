@@ -29,24 +29,26 @@ export default function UserProfilePage() {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
+  const [emergencyNumber, setEmergencyNumber] = useState('');
   const { toast } = useToast();
 
   const isEditMode = !!userUID && !!userProfile;
 
   useEffect(() => {
-    if (isEditMode) {
+    if (isEditMode && userProfile) {
       setName(userProfile.name || '');
       setAge(userProfile.age || '');
       setGender(userProfile.gender || '');
+      setEmergencyNumber(userProfile.emergencyContactNumber || '');
     }
   }, [isEditMode, userProfile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (isEditMode) {
+    if (isEditMode && userUID) {
       // Update existing profile
-      const updatedProfileData = { name, age, gender };
+      const updatedProfileData = { name, age, gender, emergencyContactNumber: emergencyNumber };
       updateUserProfile(userUID, updatedProfileData);
       toast({
         title: 'Profile Updated!',
@@ -56,7 +58,7 @@ export default function UserProfilePage() {
     } else {
       // Create new profile
       const uid = generateUID();
-      const profile: UserProfile = { name, age, gender, uid, pairedContacts: [] };
+      const profile: UserProfile = { name, age, gender, uid, pairedContacts: [], emergencyContactNumber: emergencyNumber };
       
       setUserProfile(profile);
       setUserUID(uid);
@@ -143,6 +145,16 @@ export default function UserProfilePage() {
                   <Label htmlFor="other">Other</Label>
                 </div>
               </RadioGroup>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="emergency-number">Emergency Contact Phone</Label>
+                <Input
+                    id="emergency-number"
+                    type="tel"
+                    value={emergencyNumber}
+                    onChange={(e) => setEmergencyNumber(e.target.value)}
+                    placeholder="Optional: e.g., 123-456-7890"
+                />
             </div>
             <Button type="submit" className="w-full">
               {isEditMode ? 'Save Changes' : 'Save and Continue'}

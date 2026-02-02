@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, Activity, Lightbulb, MessageSquareWarning } from 'lucide-react';
+import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, Activity, Lightbulb, MessageSquareWarning, PhoneForwarded, Save } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,11 +15,14 @@ import { ThemeToggle } from '@/components/app/theme-toggle';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { SmsListener } from '@/components/app/sms-listener';
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
 
 export default function DashboardPage() {
-  const { signOut, userUID, allUserProfiles } = useAppState();
+  const { signOut, userUID, allUserProfiles, updateUserProfile } = useAppState();
   const router = useRouter();
   const { toast } = useToast();
+  const [emergencyPhone, setEmergencyPhone] = useState('');
   
   const currentUser = userUID ? allUserProfiles[userUID] : null;
   const pairedContactsCount = currentUser?.pairedContacts?.length || 0;
@@ -34,6 +37,24 @@ export default function DashboardPage() {
       navigator.clipboard.writeText(userUID);
       toast({ title: 'Copied!', description: 'Your UID has been copied to the clipboard.' });
     }
+  };
+
+  const handleSaveEmergencyNumber = () => {
+    if (userUID && emergencyPhone.trim()) {
+        updateUserProfile(userUID, { emergencyContactNumber: emergencyPhone.trim() });
+        toast({ title: 'Emergency number saved!', description: 'You can now call your emergency contact with one tap.' });
+        setEmergencyPhone('');
+    } else {
+        toast({ variant: 'destructive', title: 'Invalid Number', description: 'Please enter a valid phone number.' });
+    }
+  };
+
+  const handleCallEmergencyContact = () => {
+      if (currentUser?.emergencyContactNumber) {
+          window.location.href = `tel:${currentUser.emergencyContactNumber}`;
+      } else {
+          toast({ variant: 'destructive', title: 'No Number Set', description: 'Please save an emergency contact number first.' });
+      }
   };
 
   return (
@@ -142,6 +163,37 @@ export default function DashboardPage() {
             
             {/* Side column */}
             <div className="space-y-6">
+                <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><PhoneForwarded /> Emergency Call</CardTitle>
+                        <CardDescription>
+                            {currentUser?.emergencyContactNumber ? 'Tap to call your emergency contact.' : 'Set up your one-tap emergency call.'}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {currentUser?.emergencyContactNumber ? (
+                            <Button size="lg" className="w-full text-lg py-7" onClick={handleCallEmergencyContact}>
+                                <PhoneForwarded className="mr-2 h-5 w-5" /> Call Emergency Contact
+                            </Button>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="emergency-phone">Contact's Phone Number</Label>
+                                    <Input 
+                                        id="emergency-phone"
+                                        type="tel"
+                                        value={emergencyPhone}
+                                        onChange={(e) => setEmergencyPhone(e.target.value)}
+                                        placeholder="Enter phone number"
+                                    />
+                                </div>
+                                <Button className="w-full" onClick={handleSaveEmergencyNumber}>
+                                    <Save className="mr-2 h-5 w-5" /> Save Number
+                                </Button>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-450">
                     <CardHeader>
                          <CardTitle className="flex items-center gap-2"><HeartPulse/> Mood Tracker</CardTitle>
