@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Bot, Settings, Activity, MessageSquareWarning, ShieldCheck, Clock, Siren, Smile as SmileIcon, Smartphone } from 'lucide-react';
+import { Home, Shield, LogOut, Bot, Settings, Activity, MessageSquareWarning, ShieldCheck, Clock, Siren, Smile, Smartphone } from 'lucide-react';
 import { useAppState, SmsMessage } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,13 +33,38 @@ export default function SmsSafetyPage() {
     return <Badge className="bg-success/80 text-white">{t('smsSafety.riskIndicator.low', { values: { score }})}</Badge>;
   };
   
-  const SentimentIndicator = ({ sentiment }: { sentiment: SmsMessage['sentiment'] }) => {
-    const key = `smsSafety.sentimentIndicator.${sentiment}`;
-    const text = t(key);
-      if (sentiment === 'threatening') return <div className="flex items-center gap-1 text-destructive"><Siren className="h-4 w-4" /> {text}</div>;
-      if (sentiment === 'urgent') return <div className="flex items-center gap-1 text-warning"><Clock className="h-4 w-4" /> {text}</div>;
-      return <div className="flex items-center gap-1 text-success"><SmileIcon className="h-4 w-4" /> {text}</div>;
-  }
+  const SentimentDetails = ({ sentiment }: { sentiment: SmsMessage['sentiment'] }) => {
+    const { t } = useTranslation();
+    const sentimentInfo = {
+        threatening: {
+            icon: Siren,
+            className: 'text-destructive',
+            description: t('smsSafety.sentimentDetails.threatening')
+        },
+        urgent: {
+            icon: Clock,
+            className: 'text-warning',
+            description: t('smsSafety.sentimentDetails.urgent')
+        },
+        calm: {
+            icon: Smile,
+            className: 'text-success',
+            description: t('smsSafety.sentimentDetails.calm')
+        }
+    };
+    const { icon: Icon, className, description } = sentimentInfo[sentiment];
+    const text = t(`smsSafety.sentimentIndicator.${sentiment}`);
+
+    return (
+        <div className="mt-4 p-3 bg-muted/50 rounded-lg border">
+            <div className="flex items-center gap-2">
+                <Icon className={cn('h-5 w-5', className)} />
+                <h4 className={cn('font-semibold', className)}>{text}</h4>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1 pl-7">{description}</p>
+        </div>
+    );
+  };
 
   useEffect(() => {
     if (userUID) {
@@ -113,9 +138,7 @@ export default function SmsSafetyPage() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-base text-foreground/90 p-4 bg-background/50 rounded-md leading-relaxed">{msg.body}</p>
-                      <div className="text-sm font-medium mt-4 text-muted-foreground">
-                        <SentimentIndicator sentiment={msg.sentiment} />
-                      </div>
+                       <SentimentDetails sentiment={msg.sentiment} />
                     </CardContent>
                   </Card>
                 ))}

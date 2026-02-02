@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Mic, MicOff, Info, AlertTriangle, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Info, AlertTriangle, Loader2, Smile, Clock, Siren } from 'lucide-react';
 import { EmergencyOverlay } from '@/components/app/emergency-overlay';
 import { RiskMeter } from '@/components/app/risk-meter';
 import { TranscriptDisplay } from '@/components/app/transcript-display';
@@ -12,6 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useAppState } from '@/hooks/use-app-state';
 import { useTranslation } from '@/context/translation-context';
+import { analyzeConversationIntent } from '@/ai/flows/analyze-conversation-intent';
+import { cn } from '@/lib/utils';
+
 
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
@@ -27,6 +30,7 @@ export default function MonitoringClient() {
   const [riskScore, setRiskScore] = useState(0);
   const [riskExplanation, setRiskExplanation] = useState('');
   const [scamIndicators, setScamIndicators] = useState<string[]>([]);
+  const [sentiment, setSentiment] = useState<'calm' | 'urgent' | 'threatening'>('calm');
   const [isEmergency, setIsEmergency] = useState(false);
   const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
   const [cycleStatus, setCycleStatus] = useState('Idle');
@@ -129,27 +133,24 @@ export default function MonitoringClient() {
   };
   
   useEffect(() => {
-    if (fullTranscript.length === 0) {
-      if (cycleStatus === 'Analysis Complete.') {
-          setIsProcessing(false);
-      }
-      return;
-    };
+    const runAnalysis = async () => {
+        if (fullTranscript.length === 0) {
+            if (cycleStatus === 'Analysis Complete.') {
+                setIsProcessing(false);
+            }
+            return;
+        }
 
-    const runLocalAnalysis = () => {
         setCycleStatus('Analyzing...');
         const currentTranscript = fullTranscript.join(' ');
         
+        // --- Local Risk Score Calculation (for the meter) ---
         let calculatedScore = 0;
-        const detectedKeywords = new Set<string>();
-        
         for (const keyword in KEYWORD_WEIGHTS) {
             if (currentTranscript.toLowerCase().includes(keyword)) {
                 calculatedScore += KEYWORD_WEIGHTS[keyword];
-                detectedKeywords.add(keyword);
             }
         }
-        
         const finalScore = Math.min(100, calculatedScore);
         setRiskScore(finalScore);
 
@@ -165,27 +166,33 @@ export default function MonitoringClient() {
                 variant: 'destructive'
             });
         }
-        
-        const indicators = Array.from(detectedKeywords);
-        setScamIndicators(indicators);
-        
-        setIsLoadingExplanation(true);
-        let explanationText = t('monitoring.client.riskExplanations.safe');
         if (finalScore > 75) {
             setIsEmergency(true);
-            explanationText = t('monitoring.client.riskExplanations.high', { values: { indicators: indicators.join(', ') } });
-        } else if (finalScore > 30) {
-            explanationText = t('monitoring.client.riskExplanations.medium', { values: { indicators: indicators.join(', ') } });
         }
-        setRiskExplanation(explanationText);
-        
-        setIsLoadingExplanation(false);
-        setIsProcessing(false);
-        setCycleStatus('Ready');
+
+        // --- AI-Powered Analysis (for explanation and sentiment) ---
+        setIsLoadingExplanation(true);
+        try {
+            const aiResult = await analyzeConversationIntent({
+                conversationHistory: fullTranscript.slice(0, -1).join('\n'),
+                currentTurn: fullTranscript.slice(-1)[0]
+            });
+            setRiskExplanation(aiResult.riskAssessment);
+            setScamIndicators(aiResult.scamIndicators);
+            setSentiment(aiResult.sentiment);
+        } catch (error) {
+            console.error("AI analysis failed:", error);
+            setRiskExplanation(t('monitoring.client.aiError'));
+            setScamIndicators([]);
+        } finally {
+            setIsLoadingExplanation(false);
+            setIsProcessing(false);
+            setCycleStatus('Ready');
+        }
     };
 
     if (cycleStatus === 'Processing...' || cycleStatus === 'Analysis Complete.') {
-        runLocalAnalysis();
+        runAnalysis();
     }
     
   }, [fullTranscript, cycleStatus, userUID, addNotification, toast, t]);
@@ -233,7 +240,7 @@ export default function MonitoringClient() {
                     <CardTitle className="flex items-center gap-2 text-xl"><Info /> {t('monitoring.client.riskDetailsTitle')}</CardTitle>
                     <CardDescription>{t('monitoring.client.riskDetailsDescription')}</CardDescription>
                 </CardHeader>
-                <CardContent className="text-base leading-relaxed space-y-4">
+                <CardContent className="text-base leading-relaxed space-y-6">
                     {isLoadingExplanation ? (
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-full" />
@@ -243,7 +250,23 @@ export default function MonitoringClient() {
                     ) : (
                         <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p>
                     )}
-                    {scamIndicators.length > 0 && (
+                     {fullTranscript.length > 0 && (
+                      <div>
+                          <h4 className="font-semibold mb-2">{t('monitoring.client.toneAnalysis')}</h4>
+                          <div className="flex items-center gap-2">
+                            {sentiment === 'threatening' && <Siren className="h-5 w-5 text-destructive" />}
+                            {sentiment === 'urgent' && <Clock className="h-5 w-5 text-warning" />}
+                            {sentiment === 'calm' && <Smile className="h-5 w-5 text-success" />}
+                            <span className={cn(
+                              sentiment === 'threatening' && 'text-destructive',
+                              sentiment === 'urgent' && 'text-warning',
+                              sentiment === 'calm' && 'text-success',
+                              "font-medium capitalize"
+                            )}>{t(`smsSafety.sentimentIndicator.${sentiment}`)}</span>
+                          </div>
+                      </div>
+                    )}
+                    {scamIndicators.length > 0 && !isLoadingExplanation &&(
                         <div>
                             <h4 className="font-semibold mb-2">{t('monitoring.client.indicatorsTitle')}</h4>
                             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
@@ -274,5 +297,3 @@ export default function MonitoringClient() {
     </div>
   );
 }
-
-    

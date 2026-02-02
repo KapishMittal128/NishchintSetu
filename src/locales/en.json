@@ -131,10 +131,10 @@
       "statusTitle": "Status",
       "status": "{{status}}",
       "startAnalysis": "Start Analysis",
-      "riskDetailsTitle": "Risk Details",
-      "riskDetailsDescription": "An explanation of the current risk level.",
+      "riskDetailsTitle": "Analysis Details",
+      "riskDetailsDescription": "An AI-powered analysis of the conversation.",
       "initialExplanation": "Click \"Start Analysis\" to begin.",
-      "indicatorsTitle": "Detected Indicators:",
+      "indicatorsTitle": "Detected Scam Indicators:",
       "transcriptTitle": "Live Transcript",
       "transcriptDescription": "A real-time transcription of the conversation.",
       "transcriptPlaceholder": "Analysis has not started. Press \"Start Analysis\" to begin.",
@@ -158,11 +158,8 @@
         "medium": "Medium Risk",
         "high": "High Risk"
       },
-      "riskExplanations": {
-        "safe": "The conversation appears to be safe. No significant risks detected.",
-        "medium": "Medium risk detected. The conversation contains potential scam indicators such as: {{indicators}}. Please be cautious.",
-        "high": "High risk detected! The conversation contains multiple scam indicators like: {{indicators}}. It is strongly advised to end the call."
-      }
+      "aiError": "The AI analysis could not be completed. Please try again.",
+      "toneAnalysis": "Tone Analysis"
     }
   },
   "activityLog": {
@@ -187,6 +184,11 @@
       "threatening": "Threatening",
       "urgent": "Urgent",
       "calm": "Calm"
+    },
+    "sentimentDetails": {
+      "threatening": "This message uses threatening language to create fear or pressure.",
+      "urgent": "This message creates a false sense of urgency to make you act quickly without thinking.",
+      "calm": "The tone of this message appears calm and does not show immediate signs of manipulation."
     },
     "noSms": "No SMS Messages Yet",
     "noSmsDescription": "As new text messages arrive, they will be analyzed and shown here.",

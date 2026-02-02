@@ -28,8 +28,8 @@ const AnalyzeConversationIntentOutputSchema = z.object({
       'The identified intent of the current turn in the conversation.'
     ),
   sentiment: z
-    .string()
-    .describe('The sentiment of the current turn in the conversation.'),
+    .enum(['calm', 'urgent', 'threatening'])
+    .describe('The sentiment of the current turn. Can be "calm", "urgent", or "threatening".'),
   riskAssessment: z
     .string()
     .describe(
@@ -58,6 +58,10 @@ const prompt = ai.definePrompt({
   prompt: `You are an AI assistant specializing in analyzing conversation intent and identifying potential scam risks.
 
   Analyze the provided conversation history and the current turn to determine the intent, sentiment, and potential scam indicators.
+  The sentiment should be one of the following: "calm", "urgent", or "threatening".
+  - "urgent" sentiment is used when the speaker is creating pressure, using time-sensitive language.
+  - "threatening" sentiment is used when there are signs of intimidation, warnings of negative consequences, or mentions of legal/police action.
+  - "calm" is for neutral or positive conversations.
 
   Conversation History:
   {{conversationHistory}}
@@ -71,7 +75,7 @@ const prompt = ai.definePrompt({
   \`\`\`json
   {
     "intent": "", // The identified intent of the current turn in the conversation. (e.g., information seeking, persuasion, etc.)
-    "sentiment": "", // The sentiment of the current turn in the conversation. (e.g., positive, negative, neutral)
+    "sentiment": "", // The sentiment of the current turn. Must be "calm", "urgent", or "threatening".
     "riskAssessment": "", // An assessment of the risk associated with the current turn, based on the intent and sentiment. (e.g., low, medium, high)
     "scamIndicators": [""], // A list of potential scam indicators identified in the conversation. (e.g., request for personal information, pressure to act quickly, etc.)
   }
