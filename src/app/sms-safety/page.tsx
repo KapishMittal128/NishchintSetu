@@ -17,6 +17,8 @@ import { SmsListener } from '@/components/app/sms-listener';
 import { useTranslation } from '@/context/translation-context';
 import { useSmsPermission } from '@/hooks/use-sms-permission';
 import { SmsPermissionCard } from '@/components/app/sms-permission-card';
+import { SmsPermissionDeniedCard } from '@/components/app/sms-permission-denied-card';
+
 
 export default function SmsSafetyPage() {
   const { signOut, userUID, smsHistory } = useAppState();
@@ -51,12 +53,20 @@ export default function SmsSafetyPage() {
     router.push('/landing');
   };
 
-  const simulateSms = () => {
+  const simulateSms = (riskLevel: 'low' | 'medium' | 'high') => {
+    let sender = 'Bank';
+    let body = 'Your monthly statement is ready.';
+
+    if (riskLevel === 'medium') {
+        sender = 'Courier';
+        body = 'Your package delivery has a customs fee. Click this link to pay now: http://bit.ly/fake-link';
+    } else if (riskLevel === 'high') {
+        sender = '555-URGENT';
+        body = 'URGENT: Your bank account is locked! To unlock it you MUST verify your identity and share the OTP we just sent. Your code is 123456. Go here now: http://real-bank-looks-fake.com/verify';
+    }
+
     const event = new CustomEvent('smsReceived', {
-        detail: {
-            sender: '555-TEST',
-            body: 'URGENT: Your bank account has been locked due to suspicious activity. Click here to verify your identity immediately: http://bit.ly/scam-link'
-        }
+        detail: { sender, body }
     });
     document.dispatchEvent(event);
   };
@@ -66,16 +76,24 @@ export default function SmsSafetyPage() {
       return (
         <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquareWarning />
-              {t('smsSafety.cardTitle')}
-            </CardTitle>
-            <CardDescription>
-              {t('smsSafety.cardDescription')}
-              {process.env.NODE_ENV === 'development' && (
-                <Button onClick={simulateSms} variant="outline" size="sm" className="ml-4">Simulate High-Risk SMS</Button>
+             <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquareWarning />
+                  {t('smsSafety.cardTitle')}
+                </CardTitle>
+                <CardDescription>
+                  {t('smsSafety.cardDescription')}
+                </CardDescription>
+              </div>
+               {process.env.NODE_ENV === 'development' && (
+                <div className="flex flex-col gap-2">
+                    <Button onClick={() => simulateSms('low')} variant="outline" size="sm">Simulate Low-Risk</Button>
+                    <Button onClick={() => simulateSms('medium')} variant="outline" size="sm">Simulate Medium-Risk</Button>
+                    <Button onClick={() => simulateSms('high')} variant="destructive" size="sm">Simulate High-Risk</Button>
+                </div>
               )}
-            </CardDescription>
+            </div>
           </CardHeader>
           <CardContent>
             {messages.length > 0 ? (
@@ -114,8 +132,12 @@ export default function SmsSafetyPage() {
       );
     }
     
-    if (permissionStatus === 'prompt' || permissionStatus === 'denied') {
+    if (permissionStatus === 'prompt') {
         return <SmsPermissionCard status={permissionStatus} onGrant={requestSmsPermission} />;
+    }
+
+    if (permissionStatus === 'denied') {
+        return <SmsPermissionDeniedCard />;
     }
 
     // For 'unavailable' or any other state, show nothing while checking.

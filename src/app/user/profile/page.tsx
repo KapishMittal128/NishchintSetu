@@ -6,13 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAppState, UserProfile, PairedContact } from '@/hooks/use-app-state';
+import { useAppState, UserProfile } from '@/hooks/use-app-state';
 import { generateUID } from '@/lib/uid';
-import { Copy, Trash2 } from 'lucide-react';
+import { Trash2, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useTranslation } from '@/context/translation-context';
+import { Separator } from '@/components/ui/separator';
+import { useSmsPermission } from '@/hooks/use-sms-permission';
+import { capitalize } from '@/lib/utils';
+
 
 export default function UserProfilePage() {
   const router = useRouter();
@@ -33,6 +37,7 @@ export default function UserProfilePage() {
   const [emergencyNumber, setEmergencyNumber] = useState('');
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { permissionStatus, requestSmsPermission } = useSmsPermission();
 
   const isEditMode = !!userUID && !!userProfile;
 
@@ -72,13 +77,6 @@ export default function UserProfilePage() {
         description: t('userProfile.createSuccessDescription'),
       });
        router.replace('/dashboard');
-    }
-  };
-  
-  const handleCopyToClipboard = () => {
-    if (userUID) {
-      navigator.clipboard.writeText(userUID);
-      toast({ title: t('dashboard.connectProtect.copySuccess'), description: t('dashboard.connectProtect.copyDescription') });
     }
   };
 
@@ -158,10 +156,31 @@ export default function UserProfilePage() {
                     placeholder={t('userProfile.emergencyPhonePlaceholder')}
                 />
             </div>
-            <Button type="submit" className="w-full">
+            
+            {isEditMode && (
+                <>
+                <Separator />
+                <div className="space-y-2 pt-2">
+                    <Label className="flex items-center gap-2 text-base font-semibold">{t('userProfile.appPermissions')}</Label>
+                    <div className="p-4 border rounded-lg flex items-center justify-between">
+                        <div>
+                            <p className="font-semibold">SMS Safety</p>
+                            <p className="text-sm text-muted-foreground">{t('userProfile.smsPermissionStatus', { values: { status: capitalize(permissionStatus) }})}</p>
+                        </div>
+                        {permissionStatus !== 'granted' && permissionStatus !== 'unavailable' && (
+                            <Button type="button" onClick={requestSmsPermission} data-trackable-id="grant-sms-permission-profile">
+                                {t('userProfile.grantPermission')}
+                            </Button>
+                        )}
+                    </div>
+                </div>
+                </>
+            )}
+
+            <Button type="submit" className="w-full !mt-8">
               {isEditMode ? t('userProfile.updateButton') : t('userProfile.createButton')}
             </Button>
-            {isEditMode && (
+             {isEditMode && (
                  <Button type="button" className="w-full" variant="outline" onClick={() => router.push('/dashboard')}>
                     {t('userProfile.cancel')}
                 </Button>
@@ -198,5 +217,3 @@ export default function UserProfilePage() {
     </div>
   );
 }
-
-    

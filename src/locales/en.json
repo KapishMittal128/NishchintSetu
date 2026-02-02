@@ -79,7 +79,10 @@
     "updateSuccess": "Profile Updated!",
     "updateSuccessDescription": "Your information has been saved.",
     "deleteSuccess": "Profile Deleted",
-    "deleteSuccessDescription": "Your profile and all associated data have been removed."
+    "deleteSuccessDescription": "Your profile and all associated data have been removed.",
+    "appPermissions": "App Permissions",
+    "smsPermissionStatus": "SMS Permission Status: {{status}}",
+    "grantPermission": "Grant Permission"
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}!",
@@ -194,7 +197,10 @@
       "point2": "Message content is never sent to our servers.",
       "point3": "You can revoke this permission at any time.",
       "grantButton": "Grant Permission",
-      "denied": "Permission was denied. To use this feature, please enable SMS permissions in your device's settings for this app."
+      "denied": "Permission was denied. To use this feature, please enable SMS permissions in your device's settings for this app.",
+      "deniedTitle": "SMS Permission Denied",
+      "deniedDescription": "You have previously denied SMS permissions. To use this feature, please grant permission from your profile settings.",
+      "goToSettingsButton": "Go to Profile Settings"
     }
   },
   "chatbot": {
