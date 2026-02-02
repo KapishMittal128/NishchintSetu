@@ -44,10 +44,19 @@ export type AssistanceEvent = {
   reason: string; // 'repeated_navigation', 'repeated_clicks', 'inactivity'
 };
 
+export type SmsMessage = {
+  sender: string;
+  body: string;
+  timestamp: string;
+  riskScore: number;
+  sentiment: 'calm' | 'urgent' | 'threatening';
+};
+
 type Notifications = Record<string, Notification[]>;
 type AllUserProfiles = Record<string, UserProfile>;
 type MoodHistory = Record<string, MoodEntry[]>;
 type AssistanceHistory = Record<string, AssistanceEvent[]>;
+type SmsHistory = Record<string, SmsMessage[]>;
 
 export type ConfusionTracker = {
   repeatedNav: { path: string; timestamps: number[] };
@@ -100,6 +109,7 @@ export const useAppState = () => {
   const [notifications, setNotifications] = useLocalStorage<Notifications>('notifications', {});
   const [moodHistory, setMoodHistory] = useLocalStorage<MoodHistory>('moodHistory', {});
   const [assistanceHistory, setAssistanceHistory] = useLocalStorage<AssistanceHistory>('assistanceHistory', {});
+  const [smsHistory, setSmsHistory] = useLocalStorage<SmsHistory>('smsHistory', {});
   const [confusionTracker, setConfusionTracker] = useLocalStorage<ConfusionTracker>('confusionTracker', {
     repeatedNav: { path: '', timestamps: [] },
     repeatedClick: { id: '', timestamps: [] },
@@ -205,6 +215,24 @@ export const useAppState = () => {
     });
   }, [setAssistanceHistory]);
 
+  const addSmsMessage = useCallback((uid: string, sender: string, body: string, riskScore: number, sentiment: SmsMessage['sentiment']) => {
+    const newSms: SmsMessage = {
+      sender,
+      body,
+      timestamp: new Date().toISOString(),
+      riskScore,
+      sentiment,
+    };
+    
+    setSmsHistory(prev => {
+        const userSms = prev[uid] || [];
+        return {
+            ...prev,
+            [uid]: [newSms, ...userSms]
+        };
+    });
+  }, [setSmsHistory]);
+
   const resetConfusionTracker = useCallback(() => {
     setConfusionTracker({
         repeatedNav: { path: '', timestamps: [] },
@@ -234,9 +262,14 @@ export const useAppState = () => {
         delete newHistory[uid];
         return newHistory;
     });
+    setSmsHistory(prev => {
+        const newSms = { ...prev };
+        delete newSms[uid];
+        return newSms;
+    });
     // Use the full delete function on profile removal
     deletePersistentState();
-  }, [setAllUserProfiles, setNotifications, setMoodHistory, setAssistanceHistory, deletePersistentState]);
+  }, [setAllUserProfiles, setNotifications, setMoodHistory, setAssistanceHistory, setSmsHistory, deletePersistentState]);
 
   const removeEmergencyContactProfile = useCallback(() => {
     if (emergencyContactProfile && emergencyContactProfile.pairedUserUID && emergencyContactProfile.email) {
@@ -272,6 +305,8 @@ export const useAppState = () => {
     pairEmergencyContact,
     assistanceHistory,
     addAssistanceEvent,
+    smsHistory,
+    addSmsMessage,
     // Session State
     role,
     setRole,

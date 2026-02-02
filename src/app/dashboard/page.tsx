@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, Activity, Lightbulb } from 'lucide-react';
+import { Home, Shield, LogOut, Users, Copy, HeartPulse, Bot, Settings, Activity, Lightbulb, MessageSquareWarning } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { SmsListener } from '@/components/app/sms-listener';
 
 export default function DashboardPage() {
   const { signOut, userUID, allUserProfiles } = useAppState();
@@ -37,6 +38,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen">
+      <SmsListener />
       <GuidedAssistanceManager />
       <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
         <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
@@ -58,6 +60,12 @@ export default function DashboardPage() {
                 <Activity className="mr-2 h-5 w-5" />
                 Activity Log
                 </Button>
+            </Link>
+            <Link href="/sms-safety" passHref>
+              <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-sms-safety">
+                <MessageSquareWarning className="mr-2 h-5 w-5" />
+                SMS Safety
+              </Button>
             </Link>
             <Link href="/chatbot" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-chatbot">

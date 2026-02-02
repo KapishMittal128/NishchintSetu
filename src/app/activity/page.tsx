@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, Shield, LogOut, Bot, Settings, Activity, AlertTriangle, Smile, Meh, Frown } from 'lucide-react';
+import { Home, Shield, LogOut, Bot, Settings, Activity, AlertTriangle, Smile, Meh, Frown, MessageSquareWarning } from 'lucide-react';
 import { useAppState, Notification, MoodEntry } from '@/hooks/use-app-state';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { GuidedAssistanceManager } from '@/components/app/guided-assistance-manager';
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
+import { SmsListener } from '@/components/app/sms-listener';
 
 type ActivityItem = (Omit<Notification, 'transcript'> & { type: 'notification' }) | (MoodEntry & { type: 'mood' });
 
@@ -54,6 +55,7 @@ export default function ActivityPage() {
 
   return (
     <div className="flex min-h-screen">
+      <SmsListener />
       <GuidedAssistanceManager />
       <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
         <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
@@ -75,6 +77,12 @@ export default function ActivityPage() {
                 <Activity className="mr-2 h-5 w-5" />
                 Activity Log
                 </Button>
+            </Link>
+             <Link href="/sms-safety" passHref>
+              <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-sms-safety">
+                <MessageSquareWarning className="mr-2 h-5 w-5" />
+                SMS Safety
+              </Button>
             </Link>
             <Link href="/chatbot" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-chatbot">
