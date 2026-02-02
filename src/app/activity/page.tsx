@@ -12,6 +12,9 @@ import { GuidedAssistanceManager } from '@/components/app/guided-assistance-mana
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
 import { SmsListener } from '@/components/app/sms-listener';
+import { useTranslation } from '@/context/translation-context';
+import { capitalize } from '@/lib/utils';
+
 
 type ActivityItem = (Omit<Notification, 'transcript'> & { type: 'notification' }) | (MoodEntry & { type: 'mood' });
 
@@ -19,6 +22,7 @@ export default function ActivityPage() {
   const { signOut, userUID, notifications, moodHistory } = useAppState();
   const router = useRouter();
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (userUID) {
@@ -48,8 +52,8 @@ export default function ActivityPage() {
   }
 
   const ActivityText = ({item}: {item: ActivityItem}) => {
-     if (item.type === 'notification') return <>High-risk alert sent (Score: <span className="font-bold">{item.riskScore}</span>)</>;
-     if (item.type === 'mood') return <>You recorded your mood as <span className="font-bold capitalize">{item.mood}</span></>;
+     if (item.type === 'notification') return <>{t('activityLog.notificationText', { values: { score: item.riskScore } })}</>;
+     if (item.type === 'mood') return <>{t('activityLog.moodText', { values: { mood: item.mood } })}</>;
      return null;
   }
 
@@ -58,36 +62,36 @@ export default function ActivityPage() {
       <SmsListener />
       <GuidedAssistanceManager />
       <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
-        <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
+        <h1 className="text-2xl font-semibold mb-8">{t('appName')}</h1>
         <nav className="flex-1 space-y-2">
             <Link href="/dashboard" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-dashboard">
                 <Home className="mr-2 h-5 w-5" />
-                Dashboard
+                {t('nav.dashboard')}
                 </Button>
             </Link>
             <Link href="/monitoring" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-monitoring">
                 <Shield className="mr-2 h-5 w-5" />
-                Monitoring
+                {t('nav.monitoring')}
                 </Button>
             </Link>
             <Link href="/activity" passHref>
                 <Button variant="secondary" className="w-full justify-start text-base" data-trackable-id="nav-activity">
                 <Activity className="mr-2 h-5 w-5" />
-                Activity Log
+                {t('nav.activityLog')}
                 </Button>
             </Link>
              <Link href="/sms-safety" passHref>
               <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-sms-safety">
                 <MessageSquareWarning className="mr-2 h-5 w-5" />
-                SMS Safety
+                {t('nav.smsSafety')}
               </Button>
             </Link>
             <Link href="/chatbot" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-chatbot">
                     <Bot className="mr-2 h-5 w-5" />
-                    AI Chatbot
+                    {t('nav.aiChatbot')}
                 </Button>
             </Link>
         </nav>
@@ -95,18 +99,18 @@ export default function ActivityPage() {
             <Link href="/user/profile" passHref>
                 <Button variant="outline" className="w-full justify-start text-base" data-trackable-id="nav-profile-settings">
                     <Settings className="mr-2 h-5 w-5" />
-                    Profile Settings
+                    {t('nav.profileSettings')}
                 </Button>
             </Link>
             <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut} data-trackable-id="nav-signout">
                 <LogOut className="mr-2 h-5 w-5" />
-                Sign Out
+                {t('nav.signOut')}
             </Button>
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto bg-muted/20">
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
-          <h1 className="text-2xl font-semibold">Activity Log</h1>
+          <h1 className="text-2xl font-semibold">{t('activityLog.title')}</h1>
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <ThemeToggle />
@@ -115,8 +119,8 @@ export default function ActivityPage() {
         <div className="p-6">
             <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Activity />Your Account Activity</CardTitle>
-                    <CardDescription>Here are all the updates from your account, from newest to oldest.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Activity />{t('activityLog.cardTitle')}</CardTitle>
+                    <CardDescription>{t('activityLog.cardDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {activity.length > 0 ? (
@@ -125,14 +129,17 @@ export default function ActivityPage() {
                                 <div key={item.timestamp} className="flex items-center gap-4 border-b pb-4 last:border-b-0 last:pb-0">
                                     <ActivityIcon item={item} />
                                     <div className="flex-1">
-                                        <p className="text-sm"><ActivityText item={item} /></p>
+                                        <p className="text-sm">
+                                            {item.type === 'notification' && t('activityLog.notificationText', { values: { score: item.riskScore } })}
+                                            {item.type === 'mood' && t('activityLog.moodText', { values: { mood: t(`dashboard.moodTracker.${item.mood}`) } })}
+                                        </p>
                                         <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                         <p className="text-sm text-muted-foreground text-center py-4">No activity to show yet.</p>
+                         <p className="text-sm text-muted-foreground text-center py-4">{t('activityLog.noActivity')}</p>
                     )}
                 </CardContent>
             </Card>
@@ -141,3 +148,5 @@ export default function ActivityPage() {
     </div>
   );
 }
+
+    

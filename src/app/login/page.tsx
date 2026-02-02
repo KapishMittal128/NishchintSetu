@@ -6,9 +6,11 @@ import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { LogIn } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/context/translation-context';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSignIn = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -26,25 +28,25 @@ export default function LoginPage() {
                         <LogIn className="h-12 w-12" />
                     </div>
                     <CardTitle className="text-3xl lg:text-4xl font-bold tracking-wide text-center md:text-left">
-                        Sign In
+                        {t('login.title')}
                     </CardTitle>
                     <CardDescription className="text-base lg:text-lg text-muted-foreground pt-3 text-center md:text-left">
-                        Welcome back. Let's keep you safe.
+                        {t('login.description')}
                     </CardDescription>
                 </div>
                 <div className="p-8 sm:p-12 flex items-center">
                     <div className="w-full">
                         <form onSubmit={handleSignIn} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" placeholder="you@example.com" required />
+                                <Label htmlFor="email">{t('login.emailLabel')}</Label>
+                                <Input id="email" type="email" placeholder={t('login.emailPlaceholder')} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password">{t('login.passwordLabel')}</Label>
                                 <Input id="password" type="password" required />
                             </div>
                             <Button type="submit" size="lg" className="w-full mt-4 bg-gradient-to-br from-primary to-[#8deeb7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                                Sign In
+                                {t('login.signInButton')}
                             </Button>
                         </form>
                         <div className="relative my-6">
@@ -53,12 +55,12 @@ export default function LoginPage() {
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
                                 <span className="bg-card px-2 text-muted-foreground">
-                                Or continue with
+                                {t('login.orContinue')}
                                 </span>
                             </div>
                         </div>
                          <Button variant="outline" size="lg" className="w-full transition-all duration-300 transform hover:scale-105" onClick={() => handleSignIn()}>
-                            Sign In with Google
+                            {t('login.googleSignIn')}
                         </Button>
                     </div>
                 </div>
@@ -67,3 +69,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

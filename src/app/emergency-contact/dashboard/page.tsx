@@ -8,14 +8,18 @@ import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
+import { useTranslation } from '@/context/translation-context';
+import { capitalize } from '@/lib/utils';
 
 export default function EmergencyContactDashboard() {
   const { pairedUserUID, allUserProfiles, notifications, moodHistory } = useAppState();
+  const { t } = useTranslation();
   
   const [localNotifications, setLocalNotifications] = useState<Notification[]>([]);
   const [latestMood, setLatestMood] = useState<MoodEntry | null>(null);
 
   const pairedUser = pairedUserUID ? allUserProfiles[pairedUserUID] : null;
+  const name = pairedUser?.name || t('common.user');
 
   useEffect(() => {
     // Initial load
@@ -54,7 +58,7 @@ export default function EmergencyContactDashboard() {
     <>
       <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
         <h1 className="text-2xl font-semibold">
-          Dashboard for <span className="text-primary">{pairedUser?.name || 'User'}</span>
+            {t('ecDashboard.title', { values: { name } })}
         </h1>
         <div className="flex items-center gap-2">
           <LanguageToggle />
@@ -66,8 +70,8 @@ export default function EmergencyContactDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 h-full">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><AlertTriangle/> Risk Alerts</CardTitle>
-              <CardDescription>High-risk conversations from {pairedUser?.name || 'the user'} are logged here.</CardDescription>
+              <CardTitle className="flex items-center gap-2"><AlertTriangle/> {t('ecDashboard.riskAlerts.title')}</CardTitle>
+              <CardDescription>{t('ecDashboard.riskAlerts.description', { values: { name } })}</CardDescription>
             </CardHeader>
             <CardContent>
               {localNotifications.length > 0 ? (
@@ -78,15 +82,15 @@ export default function EmergencyContactDashboard() {
                         <AlertTriangle className="h-6 w-6 text-destructive" />
                       </div>
                       <div>
-                        <p className="font-semibold">High Risk Detected!</p>
+                        <p className="font-semibold">{t('ecDashboard.riskAlerts.highRiskDetected')}</p>
                         <p className="text-sm text-muted-foreground">
-                          On {format(new Date(notification.timestamp), "PPP 'at' p")}
+                          {t('ecDashboard.riskAlerts.onDate', { values: { date: format(new Date(notification.timestamp), "PPP 'at' p") } })}
                         </p>
-                        <p className="mt-1">A risk score of <span className="font-bold">{notification.riskScore}</span> was detected.</p>
+                        <p className="mt-1">{t('ecDashboard.riskAlerts.riskScoreWas', { values: { score: notification.riskScore } })}</p>
                         {notification.transcript && (
                           <Accordion type="single" collapsible className="w-full mt-2">
                             <AccordionItem value="item-1">
-                              <AccordionTrigger className="text-sm py-2">View Transcript</AccordionTrigger>
+                              <AccordionTrigger className="text-sm py-2">{t('ecDashboard.riskAlerts.viewTranscript')}</AccordionTrigger>
                               <AccordionContent>
                                 <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md max-h-40 overflow-y-auto">{notification.transcript}</p>
                               </AccordionContent>
@@ -100,8 +104,8 @@ export default function EmergencyContactDashboard() {
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <ShieldCheck className="mx-auto h-12 w-12 mb-4 text-success" />
-                  <h3 className="text-xl font-semibold">All Clear</h3>
-                  <p>No high-risk alerts have been detected.</p>
+                  <h3 className="text-xl font-semibold">{t('ecDashboard.riskAlerts.allClear')}</h3>
+                  <p>{t('ecDashboard.riskAlerts.allClearDescription')}</p>
                 </div>
               )}
             </CardContent>
@@ -112,22 +116,22 @@ export default function EmergencyContactDashboard() {
         <div className="space-y-6">
           <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><HeartPulse/> Latest Mood</CardTitle>
-              <CardDescription>How {pairedUser?.name || 'they'} are feeling.</CardDescription>
+              <CardTitle className="flex items-center gap-2"><HeartPulse/> {t('ecDashboard.latestMood.title')}</CardTitle>
+              <CardDescription>{t('ecDashboard.latestMood.description', { values: { name } })}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center text-center">
               {latestMood ? (
                 <>
                   <MoodIcon mood={latestMood.mood} />
-                  <p className="text-2xl font-bold capitalize mt-2">{latestMood.mood}</p>
+                  <p className="text-2xl font-bold capitalize mt-2">{t(`dashboard.moodTracker.${latestMood.mood}`)}</p>
                   <p className="text-sm text-muted-foreground">
-                    Recorded on {format(new Date(latestMood.timestamp), 'PPP p')}
+                    {t('ecDashboard.latestMood.recordedOn', { values: { date: format(new Date(latestMood.timestamp), 'PPP p') } })}
                   </p>
                 </>
               ) : (
                 <div className="py-8 text-muted-foreground">
                   <HeartPulse className="mx-auto h-10 w-10 mb-2" />
-                  <p>No mood recorded yet.</p>
+                  <p>{t('ecDashboard.latestMood.noMood')}</p>
                 </div>
               )}
             </CardContent>
@@ -135,26 +139,26 @@ export default function EmergencyContactDashboard() {
           
           <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><User/> User Details</CardTitle>
+                <CardTitle className="flex items-center gap-2"><User/> {t('ecDashboard.userDetails.title')}</CardTitle>
              </CardHeader>
              <CardContent className="space-y-2 text-sm">
                 {pairedUser ? (
                     <>
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">Name:</span>
+                            <span className="text-muted-foreground">{t('ecDashboard.userDetails.name')}</span>
                             <span className="font-semibold">{pairedUser.name}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">Age:</span>
+                            <span className="text-muted-foreground">{t('ecDashboard.userDetails.age')}</span>
                             <span className="font-semibold">{pairedUser.age}</span>
                         </div>
                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Gender:</span>
-                            <span className="font-semibold capitalize">{pairedUser.gender}</span>
+                            <span className="text-muted-foreground">{t('ecDashboard.userDetails.gender')}</span>
+                            <span className="font-semibold capitalize">{t(`userProfile.${pairedUser.gender}`)}</span>
                         </div>
                     </>
                 ) : (
-                    <p className="text-muted-foreground text-center">User details not found.</p>
+                    <p className="text-muted-foreground text-center">{t('ecPairedProfile.loadError')}</p>
                 )}
              </CardContent>
           </Card>
@@ -163,3 +167,5 @@ export default function EmergencyContactDashboard() {
     </>
   );
 }
+
+    

@@ -15,6 +15,7 @@ import { ThemeToggle } from '@/components/app/theme-toggle';
 import { chat, ChatInput } from '@/ai/flows/chatbot';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SmsListener } from '@/components/app/sms-listener';
+import { useTranslation } from '@/context/translation-context';
 
 type Message = {
     role: 'user' | 'model';
@@ -24,15 +25,20 @@ type Message = {
 export default function ChatbotPage() {
     const { signOut } = useAppState();
     const router = useRouter();
+    const { t } = useTranslation();
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'model',
-            content: "Hello! I'm Nishchint, your personal safety assistant. How can I help you stay safe today?"
+            content: t('chatbot.initialMessage')
         }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setMessages([{ role: 'model', content: t('chatbot.initialMessage') }]);
+    }, [t]);
 
     const handleSignOut = () => {
         signOut();
@@ -58,7 +64,7 @@ export default function ChatbotPage() {
             setMessages(prev => [...prev, modelMessage]);
         } catch (error) {
             console.error('Error calling chatbot flow:', error);
-            const errorMessage: Message = { role: 'model', content: "I'm sorry, I'm having trouble connecting right now. Please try again later." };
+            const errorMessage: Message = { role: 'model', content: t('chatbot.errorMessage') };
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);
@@ -79,36 +85,36 @@ export default function ChatbotPage() {
             <SmsListener />
             <GuidedAssistanceManager />
             <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
-                <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
+                <h1 className="text-2xl font-semibold mb-8">{t('appName')}</h1>
                 <nav className="flex-1 space-y-2">
                     <Link href="/dashboard" passHref>
                         <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-dashboard">
                             <Home className="mr-2 h-5 w-5" />
-                            Dashboard
+                            {t('nav.dashboard')}
                         </Button>
                     </Link>
                     <Link href="/monitoring" passHref>
                         <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-monitoring">
                             <Shield className="mr-2 h-5 w-5" />
-                            Monitoring
+                            {t('nav.monitoring')}
                         </Button>
                     </Link>
                     <Link href="/activity" passHref>
                         <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-activity">
                             <Activity className="mr-2 h-5 w-5" />
-                            Activity Log
+                            {t('nav.activityLog')}
                         </Button>
                     </Link>
                     <Link href="/sms-safety" passHref>
                         <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-sms-safety">
                             <MessageSquareWarning className="mr-2 h-5 w-5" />
-                            SMS Safety
+                            {t('nav.smsSafety')}
                         </Button>
                     </Link>
                     <Link href="/chatbot" passHref>
                         <Button variant="secondary" className="w-full justify-start text-base" data-trackable-id="nav-chatbot">
                             <Bot className="mr-2 h-5 w-5" />
-                            AI Chatbot
+                            {t('nav.aiChatbot')}
                         </Button>
                     </Link>
                 </nav>
@@ -116,18 +122,18 @@ export default function ChatbotPage() {
                     <Link href="/user/profile" passHref>
                         <Button variant="outline" className="w-full justify-start text-base" data-trackable-id="nav-profile-settings">
                             <Settings className="mr-2 h-5 w-5" />
-                            Profile Settings
+                            {t('nav.profileSettings')}
                         </Button>
                     </Link>
                     <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut} data-trackable-id="nav-signout">
                         <LogOut className="mr-2 h-5 w-5" />
-                        Sign Out
+                        {t('nav.signOut')}
                     </Button>
                 </div>
             </aside>
             <main className="flex-1 flex flex-col overflow-hidden bg-muted/20">
                 <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
-                    <h1 className="text-2xl font-semibold">AI Safety Chatbot</h1>
+                    <h1 className="text-2xl font-semibold">{t('chatbot.title')}</h1>
                     <div className="flex items-center gap-2">
                         <LanguageToggle />
                         <ThemeToggle />
@@ -136,8 +142,8 @@ export default function ChatbotPage() {
                 <div className="flex-1 flex flex-col p-6 gap-6">
                     <Card className="flex-1 flex flex-col animate-in fade-in-0">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Bot /> Nishchint Assistant</CardTitle>
-                            <CardDescription>Your personal AI assistant to help you with scam prevention.</CardDescription>
+                            <CardTitle className="flex items-center gap-2"><Bot /> {t('chatbot.cardTitle')}</CardTitle>
+                            <CardDescription>{t('chatbot.cardDescription')}</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1 flex flex-col gap-4">
                             <ScrollArea className="flex-1 pr-4 -mr-4" ref={scrollAreaRef}>
@@ -175,13 +181,13 @@ export default function ChatbotPage() {
                                 <Input 
                                     value={input}
                                     onChange={e => setInput(e.target.value)}
-                                    placeholder="Ask about a scam or for safety tips..." 
+                                    placeholder={t('chatbot.inputPlaceholder')}
                                     className="flex-1" 
                                     disabled={isLoading}
                                 />
                                 <Button type="submit" disabled={isLoading || !input.trim()} data-trackable-id="send-chat-message">
                                     <Send className="h-5 w-5" />
-                                    <span className="sr-only">Send</span>
+                                    <span className="sr-only">{t('chatbot.send')}</span>
                                 </Button>
                             </form>
                         </CardContent>
@@ -191,3 +197,5 @@ export default function ChatbotPage() {
         </div>
     );
 }
+
+    

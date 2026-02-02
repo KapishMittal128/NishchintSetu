@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import React, { memo } from 'react';
+import { useTranslation } from '@/context/translation-context';
 
 type TranscriptDisplayProps = {
   chunks: string[];
@@ -34,12 +35,13 @@ HighlightedChunk.displayName = 'HighlightedChunk';
 
 
 export function TranscriptDisplay({ chunks, keywords }: TranscriptDisplayProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4 text-lg leading-relaxed">
       {chunks.map((chunk, index) => (
         <div key={index} className="animate-in fade-in duration-700">
           <p>
-            <span className="font-semibold text-muted-foreground mr-2">{index % 2 === 0 ? 'Caller:' : 'You:'}</span>
+            <span className="font-semibold text-muted-foreground mr-2">{index % 2 === 0 ? t('monitoring.client.caller') : t('monitoring.client.you')}</span>
             <HighlightedChunk chunk={chunk} keywords={keywords} />
           </p>
         </div>
@@ -47,3 +49,5 @@ export function TranscriptDisplay({ chunks, keywords }: TranscriptDisplayProps) 
     </div>
   );
 }
+
+    

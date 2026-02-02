@@ -8,12 +8,16 @@ import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
+import { useTranslation } from '@/context/translation-context';
+import { capitalize } from '@/lib/utils';
 
 export default function MoodHistoryPage() {
   const { pairedUserUID, allUserProfiles, moodHistory } = useAppState();
   const [localMoodHistory, setLocalMoodHistory] = useState<MoodEntry[]>([]);
+  const { t } = useTranslation();
 
   const pairedUser = pairedUserUID ? allUserProfiles[pairedUserUID] : null;
+  const name = pairedUser?.name || t('common.user');
 
   useEffect(() => {
     const userMoods = moodHistory[pairedUserUID || ''] || [];
@@ -38,7 +42,7 @@ export default function MoodHistoryPage() {
     <>
        <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
         <h1 className="text-2xl font-semibold">
-          Mood History for <span className="text-primary">{pairedUser?.name || 'User'}</span>
+          {t('ecMoodHistory.title', { values: { name } })}
         </h1>
         <div className="flex items-center gap-2">
           <LanguageToggle />
@@ -48,16 +52,16 @@ export default function MoodHistoryPage() {
       <div className="p-6">
         <Card className="animate-in fade-in-0">
           <CardHeader>
-            <CardTitle>Mood Log</CardTitle>
-            <CardDescription>A complete history of moods recorded by {pairedUser?.name || 'the user'}.</CardDescription>
+            <CardTitle>{t('ecMoodHistory.logTitle')}</CardTitle>
+            <CardDescription>{t('ecMoodHistory.logDescription', { values: { name } })}</CardDescription>
           </CardHeader>
           <CardContent>
             {localMoodHistory.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date & Time</TableHead>
-                    <TableHead className="text-center">Mood</TableHead>
+                    <TableHead>{t('ecMoodHistory.table.date')}</TableHead>
+                    <TableHead className="text-center">{t('ecMoodHistory.table.mood')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -67,7 +71,7 @@ export default function MoodHistoryPage() {
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-2">
                           <MoodIcon mood={entry.mood} className="h-6 w-6" />
-                          <span className="capitalize">{entry.mood}</span>
+                          <span className="capitalize">{t(`dashboard.moodTracker.${entry.mood}`)}</span>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -77,8 +81,8 @@ export default function MoodHistoryPage() {
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <HeartPulse className="mx-auto h-12 w-12 mb-4" />
-                <h3 className="text-xl font-semibold">No Mood History</h3>
-                <p>Mood entries from {pairedUser?.name || 'the user'} will appear here.</p>
+                <h3 className="text-xl font-semibold">{t('ecMoodHistory.empty')}</h3>
+                <p>{t('ecMoodHistory.emptyDescription', { values: { name } })}</p>
               </div>
             )}
           </CardContent>
@@ -87,3 +91,5 @@ export default function MoodHistoryPage() {
     </>
   );
 }
+
+    

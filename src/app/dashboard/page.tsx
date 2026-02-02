@@ -17,12 +17,14 @@ import { Label } from '@/components/ui/label';
 import { SmsListener } from '@/components/app/sms-listener';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/context/translation-context';
 
 export default function DashboardPage() {
   const { signOut, userUID, allUserProfiles, updateUserProfile } = useAppState();
   const router = useRouter();
   const { toast } = useToast();
   const [emergencyPhone, setEmergencyPhone] = useState('');
+  const { t } = useTranslation();
   
   const currentUser = userUID ? allUserProfiles[userUID] : null;
   const pairedContactsCount = currentUser?.pairedContacts?.length || 0;
@@ -35,17 +37,17 @@ export default function DashboardPage() {
   const handleCopyToClipboard = () => {
     if (userUID) {
       navigator.clipboard.writeText(userUID);
-      toast({ title: 'Copied!', description: 'Your UID has been copied to the clipboard.' });
+      toast({ title: t('dashboard.connectProtect.copySuccess'), description: t('dashboard.connectProtect.copyDescription') });
     }
   };
 
   const handleSaveEmergencyNumber = () => {
     if (userUID && emergencyPhone.trim()) {
         updateUserProfile(userUID, { emergencyContactNumber: emergencyPhone.trim() });
-        toast({ title: 'Emergency number saved!', description: 'You can now call your emergency contact with one tap.' });
+        toast({ title: t('dashboard.emergencyCall.setup.saveSuccess'), description: t('dashboard.emergencyCall.setup.saveSuccessDescription') });
         setEmergencyPhone('');
     } else {
-        toast({ variant: 'destructive', title: 'Invalid Number', description: 'Please enter a valid phone number.' });
+        toast({ variant: 'destructive', title: t('dashboard.emergencyCall.setup.invalidNumber'), description: t('dashboard.emergencyCall.setup.invalidNumberDescription') });
     }
   };
 
@@ -53,7 +55,7 @@ export default function DashboardPage() {
       if (currentUser?.emergencyContactNumber) {
           window.location.href = `tel:${currentUser.emergencyContactNumber}`;
       } else {
-          toast({ variant: 'destructive', title: 'No Number Set', description: 'Please save an emergency contact number first.' });
+          toast({ variant: 'destructive', title: t('dashboard.emergencyCall.noNumberSet'), description: t('dashboard.emergencyCall.noNumberSetDescription') });
       }
   };
 
@@ -62,36 +64,36 @@ export default function DashboardPage() {
       <SmsListener />
       <GuidedAssistanceManager />
       <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
-        <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
+        <h1 className="text-2xl font-semibold mb-8">{t('appName')}</h1>
         <nav className="flex-1 space-y-2">
             <Link href="/dashboard" passHref>
                 <Button variant="secondary" className="w-full justify-start text-base" data-trackable-id="nav-dashboard">
                 <Home className="mr-2 h-5 w-5" />
-                Dashboard
+                {t('nav.dashboard')}
                 </Button>
             </Link>
             <Link href="/monitoring" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-monitoring">
                 <Shield className="mr-2 h-5 w-5" />
-                Monitoring
+                {t('nav.monitoring')}
                 </Button>
             </Link>
             <Link href="/activity" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-activity">
                 <Activity className="mr-2 h-5 w-5" />
-                Activity Log
+                {t('nav.activityLog')}
                 </Button>
             </Link>
             <Link href="/sms-safety" passHref>
               <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-sms-safety">
                 <MessageSquareWarning className="mr-2 h-5 w-5" />
-                SMS Safety
+                {t('nav.smsSafety')}
               </Button>
             </Link>
             <Link href="/chatbot" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-chatbot">
                     <Bot className="mr-2 h-5 w-5" />
-                    AI Chatbot
+                    {t('nav.aiChatbot')}
                 </Button>
             </Link>
         </nav>
@@ -99,18 +101,18 @@ export default function DashboardPage() {
             <Link href="/user/profile" passHref>
                 <Button variant="outline" className="w-full justify-start text-base" data-trackable-id="nav-profile-settings">
                     <Settings className="mr-2 h-5 w-5" />
-                    Profile Settings
+                    {t('nav.profileSettings')}
                 </Button>
             </Link>
             <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut} data-trackable-id="nav-signout">
                 <LogOut className="mr-2 h-5 w-5" />
-                Sign Out
+                {t('nav.signOut')}
             </Button>
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto bg-muted/20">
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
-          <h1 className="text-2xl font-semibold">Welcome, {currentUser?.name || 'User'}!</h1>
+          <h1 className="text-2xl font-semibold">{t('dashboard.welcome', { values: { name: currentUser?.name || t('common.user') }})}</h1>
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <ThemeToggle />
@@ -121,12 +123,12 @@ export default function DashboardPage() {
             <div className="lg:col-span-2 space-y-6">
                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Users />Connect & Protect</CardTitle>
-                        <CardDescription>Share your Unique ID with emergency contacts so they can look out for you.</CardDescription>
+                        <CardTitle className="flex items-center gap-2"><Users />{t('dashboard.connectProtect.title')}</CardTitle>
+                        <CardDescription>{t('dashboard.connectProtect.description')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div>
-                             <Label htmlFor="uid-display">Your Unique ID</Label>
+                             <Label htmlFor="uid-display">{t('dashboard.connectProtect.uidLabel')}</Label>
                             <div id="uid-display" className="mt-2 p-3 bg-muted rounded-lg flex items-center justify-between">
                                 <span className="font-mono text-lg text-foreground">{userUID}</span>
                                 <Button variant="ghost" size="icon" onClick={handleCopyToClipboard} data-trackable-id="copy-uid">
@@ -136,7 +138,7 @@ export default function DashboardPage() {
                         </div>
                         <Separator />
                         <div>
-                             <h4 className="font-semibold text-foreground/90">Paired Contacts ({pairedContactsCount})</h4>
+                             <h4 className="font-semibold text-foreground/90">{t('dashboard.connectProtect.pairedContacts', { values: { count: pairedContactsCount }})}</h4>
                              {pairedContactsCount > 0 ? (
                                 <div className="mt-4 space-y-2 text-left">
                                     <ul className="list-disc list-inside text-muted-foreground text-sm space-y-1">
@@ -146,14 +148,14 @@ export default function DashboardPage() {
                                     </ul>
                                 </div>
                              ) : (
-                                <p className="text-sm text-muted-foreground mt-2">Your paired contacts will appear here once they add your UID.</p>
+                                <p className="text-sm text-muted-foreground mt-2">{t('dashboard.connectProtect.noPairedContacts')}</p>
                              )}
                         </div>
                     </CardContent>
                 </Card>
                  <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Lightbulb />Safety Tip of the Day</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><Lightbulb />{t('dashboard.safetyTip.title')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <SafetyTip />
@@ -165,30 +167,30 @@ export default function DashboardPage() {
             <div className="space-y-6">
                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><PhoneForwarded /> Emergency Call</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><PhoneForwarded /> {t('dashboard.emergencyCall.title')}</CardTitle>
                         <CardDescription>
-                            {currentUser?.emergencyContactNumber ? 'Tap to call your emergency contact.' : 'Set up your one-tap emergency call.'}
+                            {currentUser?.emergencyContactNumber ? t('dashboard.emergencyCall.descriptionWithNumber') : t('dashboard.emergencyCall.descriptionWithoutNumber')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {currentUser?.emergencyContactNumber ? (
                             <Button size="lg" className="w-full text-lg py-7" onClick={handleCallEmergencyContact}>
-                                <PhoneForwarded className="mr-2 h-5 w-5" /> Call Emergency Contact
+                                <PhoneForwarded className="mr-2 h-5 w-5" /> {t('dashboard.emergencyCall.buttonText')}
                             </Button>
                         ) : (
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="emergency-phone">Contact's Phone Number</Label>
+                                    <Label htmlFor="emergency-phone">{t('dashboard.emergencyCall.setup.label')}</Label>
                                     <Input 
                                         id="emergency-phone"
                                         type="tel"
                                         value={emergencyPhone}
                                         onChange={(e) => setEmergencyPhone(e.target.value)}
-                                        placeholder="Enter phone number"
+                                        placeholder={t('dashboard.emergencyCall.setup.placeholder')}
                                     />
                                 </div>
                                 <Button className="w-full" onClick={handleSaveEmergencyNumber}>
-                                    <Save className="mr-2 h-5 w-5" /> Save Number
+                                    <Save className="mr-2 h-5 w-5" /> {t('dashboard.emergencyCall.setup.saveButton')}
                                 </Button>
                             </div>
                         )}
@@ -196,8 +198,8 @@ export default function DashboardPage() {
                 </Card>
                 <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-450">
                     <CardHeader>
-                         <CardTitle className="flex items-center gap-2"><HeartPulse/> Mood Tracker</CardTitle>
-                        <CardDescription>How are you feeling today?</CardDescription>
+                         <CardTitle className="flex items-center gap-2"><HeartPulse/> {t('dashboard.moodTracker.title')}</CardTitle>
+                        <CardDescription>{t('dashboard.moodTracker.description')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                        <MoodTracker />
@@ -209,3 +211,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

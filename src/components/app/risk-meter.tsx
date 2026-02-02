@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+import { useTranslation } from '@/context/translation-context';
 
 type RiskMeterProps = {
   value: number; // 0-100
@@ -9,6 +10,7 @@ type RiskMeterProps = {
 
 export function RiskMeter({ value }: RiskMeterProps) {
   const [displayValue, setDisplayValue] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const timeoutId = setTimeout(() => setDisplayValue(value), 100);
@@ -27,10 +29,10 @@ export function RiskMeter({ value }: RiskMeterProps) {
 
   const riskLabel =
     displayValue < 30
-      ? 'Low Risk'
+      ? t('monitoring.client.riskLabels.low')
       : displayValue < 70
-      ? 'Medium Risk'
-      : 'High Risk';
+      ? t('monitoring.client.riskLabels.medium')
+      : t('monitoring.client.riskLabels.high');
 
   return (
     <div className="relative flex flex-col items-center justify-center">
@@ -68,3 +70,5 @@ export function RiskMeter({ value }: RiskMeterProps) {
     </div>
   );
 }
+
+    

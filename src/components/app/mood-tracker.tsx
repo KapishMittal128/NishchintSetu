@@ -6,6 +6,7 @@ import { useAppState } from '@/hooks/use-app-state';
 import { Smile, Meh, Frown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/context/translation-context';
 
 type Mood = 'happy' | 'neutral' | 'sad';
 
@@ -13,6 +14,7 @@ export function MoodTracker() {
   const { addMoodEntry, userUID } = useAppState();
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleMoodSelect = (mood: Mood) => {
     if (!userUID) return;
@@ -20,8 +22,8 @@ export function MoodTracker() {
     addMoodEntry(userUID, mood);
     setSelectedMood(mood);
     toast({
-      title: 'Mood Recorded',
-      description: `We've noted that you're feeling ${mood}.`,
+      title: t('dashboard.moodTracker.recordedToastTitle'),
+      description: t('dashboard.moodTracker.recordedToastDescription', { values: { mood: t(`dashboard.moodTracker.${mood}`) } }),
     });
 
     // Reset after a short delay for feedback
@@ -37,7 +39,7 @@ export function MoodTracker() {
         onClick={() => handleMoodSelect('happy')}
       >
         <Smile className="h-10 w-10 text-success" />
-        <span className="text-sm">Happy</span>
+        <span className="text-sm">{t('dashboard.moodTracker.happy')}</span>
       </Button>
       <Button
         variant="ghost"
@@ -46,7 +48,7 @@ export function MoodTracker() {
         onClick={() => handleMoodSelect('neutral')}
       >
         <Meh className="h-10 w-10 text-warning" />
-        <span className="text-sm">Neutral</span>
+        <span className="text-sm">{t('dashboard.moodTracker.neutral')}</span>
       </Button>
       <Button
         variant="ghost"
@@ -55,8 +57,10 @@ export function MoodTracker() {
         onClick={() => handleMoodSelect('sad')}
       >
         <Frown className="h-10 w-10 text-destructive" />
-        <span className="text-sm">Sad</span>
+        <span className="text-sm">{t('dashboard.moodTracker.sad')}</span>
       </Button>
     </div>
   );
 }
+
+    

@@ -3,24 +3,19 @@
 import { useEffect, useState } from 'react';
 import { Lightbulb } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const TIPS = [
-  "Never share your OTP (One-Time Password) with anyone, not even bank employees.",
-  "If someone pressures you to act immediately, it's a red flag. A legitimate organization will give you time to think.",
-  "Be skeptical of unsolicited calls or messages asking for personal or financial information.",
-  "Government agencies like the IRS or Social Security Administration will not call you to demand immediate payment.",
-  "Never click on suspicious links sent via text or email, especially those related to refunds or account verification.",
-  "If a deal seems too good to be true, it probably is. Always verify offers with the official company.",
-  "Do not install any apps or software on your phone or computer at the request of an unknown caller."
-];
+import { useTranslation } from '@/context/translation-context';
 
 export function SafetyTip() {
+  const { t } = useTranslation();
   const [tip, setTip] = useState('');
 
   useEffect(() => {
     // This runs only on the client, after hydration, to avoid server/client mismatch
-    setTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
-  }, []);
+    const tips = t('safetyTips', { returnObjects: true }) as string[];
+    if (tips && Array.isArray(tips)) {
+      setTip(tips[Math.floor(Math.random() * tips.length)]);
+    }
+  }, [t]);
 
   if (!tip) {
     return (
@@ -43,3 +38,5 @@ export function SafetyTip() {
     </div>
   );
 }
+
+    

@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useAppState } from '@/hooks/use-app-state';
+import { useTranslation } from '@/context/translation-context';
 
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
@@ -34,6 +35,7 @@ export default function MonitoringClient() {
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const { userUID, addNotification } = useAppState();
+  const { t, language } = useTranslation();
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -41,14 +43,14 @@ export default function MonitoringClient() {
       setIsBrowserSupported(false);
       toast({
         variant: 'destructive',
-        title: 'Browser Not Supported',
-        description: 'Local transcription is not supported on this browser. Please use Google Chrome.',
+        title: t('monitoring.client.browserNotSupported'),
+        description: t('monitoring.client.browserNotSupportedDescription'),
       });
     } else {
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
-        recognition.lang = 'en-US';
+        recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
 
         recognition.onresult = (event: any) => {
             setCycleStatus('Processing...');
@@ -56,7 +58,7 @@ export default function MonitoringClient() {
             if (newChunkText && newChunkText.trim()) {
                 setFullTranscript(prev => [...prev, newChunkText]);
             } else {
-                toast({ title: 'Empty Transcription', description: 'No clear speech was detected.' });
+                toast({ title: t('monitoring.client.emptyTranscription'), description: t('monitoring.client.emptyTranscriptionDescription') });
                 setIsProcessing(false);
                 setCycleStatus('Ready');
             }
@@ -64,14 +66,14 @@ export default function MonitoringClient() {
 
         recognition.onerror = (event: any) => {
             console.error('Speech recognition error:', event.error);
-            let errorMessage = `An error occurred: ${event.error}`;
+            let errorMessage = t('monitoring.client.genericError', { values: { error: event.error }});
             if (event.error === 'no-speech') {
-                errorMessage = 'No speech was detected. Please try speaking clearly.';
+                errorMessage = t('monitoring.client.noSpeechError');
             } else if (event.error === 'not-allowed') {
-                errorMessage = 'Microphone access was denied. Please check your browser settings.';
+                errorMessage = t('monitoring.client.micDeniedToastDescription');
                 setHasPermission(false);
             }
-            toast({ variant: 'destructive', title: 'Transcription Error', description: errorMessage });
+            toast({ variant: 'destructive', title: t('monitoring.client.transcriptionError'), description: errorMessage });
             setIsProcessing(false);
             setCycleStatus('Idle');
         };
@@ -84,19 +86,19 @@ export default function MonitoringClient() {
 
         recognitionRef.current = recognition;
     }
-  }, [toast, isProcessing]);
+  }, [toast, isProcessing, t, language]);
   
   const runSingleCycle = async () => {
     if (!isBrowserSupported) {
-      toast({ variant: 'destructive', title: 'Unsupported Browser' });
+      toast({ variant: 'destructive', title: t('monitoring.client.browserNotSupported') });
       return;
     }
 
     if (hasPermission === false) {
       toast({
         variant: 'destructive',
-        title: 'Microphone Access Denied',
-        description: 'Please enable microphone permissions in your browser settings to continue.',
+        title: t('monitoring.client.micDeniedToast'),
+        description: t('monitoring.client.micDeniedToastDescription'),
       });
       return;
     }
@@ -114,8 +116,8 @@ export default function MonitoringClient() {
       setHasPermission(false);
       toast({
         variant: 'destructive',
-        title: 'Microphone Access Denied',
-        description: 'Please enable microphone permissions in your browser settings to continue.',
+        title: t('monitoring.client.micDeniedToast'),
+        description: t('monitoring.client.micDeniedToastDescription'),
       });
       setIsProcessing(false);
       setCycleStatus('Idle');
@@ -158,8 +160,8 @@ export default function MonitoringClient() {
               transcript: currentTranscript,
             });
              toast({
-                title: 'Alert Sent!',
-                description: 'A high-risk notification has been sent to your emergency contact.',
+                title: t('monitoring.client.alertSent'),
+                description: t('monitoring.client.alertSentDescription'),
                 variant: 'destructive'
             });
         }
@@ -168,12 +170,12 @@ export default function MonitoringClient() {
         setScamIndicators(indicators);
         
         setIsLoadingExplanation(true);
-        let explanationText = 'The conversation appears to be safe. No significant risks detected.';
+        let explanationText = t('monitoring.client.riskExplanations.safe');
         if (finalScore > 75) {
             setIsEmergency(true);
-            explanationText = `High risk detected! The conversation contains multiple scam indicators like: ${indicators.join(', ')}. It is strongly advised to end the call.`;
+            explanationText = t('monitoring.client.riskExplanations.high', { values: { indicators: indicators.join(', ') } });
         } else if (finalScore > 30) {
-            explanationText = `Medium risk detected. The conversation contains potential scam indicators such as: ${indicators.join(', ')}. Please be cautious.`;
+            explanationText = t('monitoring.client.riskExplanations.medium', { values: { indicators: indicators.join(', ') } });
         }
         setRiskExplanation(explanationText);
         
@@ -186,7 +188,7 @@ export default function MonitoringClient() {
         runLocalAnalysis();
     }
     
-  }, [fullTranscript, cycleStatus, userUID, addNotification, toast]);
+  }, [fullTranscript, cycleStatus, userUID, addNotification, toast, t]);
   
   return (
     <div className="w-full space-y-8 animate-in fade-in-0">
@@ -195,9 +197,9 @@ export default function MonitoringClient() {
         {hasPermission === false && (
             <Alert variant="destructive" className="animate-in fade-in-0">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Microphone Access Required</AlertTitle>
+                <AlertTitle>{t('monitoring.client.micPermissionError')}</AlertTitle>
                 <AlertDescription>
-                    Nishchint Setu requires access to your microphone. Please grant permission in your browser settings to continue.
+                    {t('monitoring.client.micPermissionErrorDescription')}
                 </AlertDescription>
             </Alert>
         )}
@@ -207,9 +209,9 @@ export default function MonitoringClient() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                         {isProcessing ? <Mic className="text-primary"/> : <MicOff/>}
-                        Status
+                        {t('monitoring.client.statusTitle')}
                     </CardTitle>
-                     <CardDescription>{cycleStatus}</CardDescription>
+                     <CardDescription>{t('monitoring.client.status', { values: { status: cycleStatus } })}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center gap-4">
                     <RiskMeter value={riskScore} />
@@ -221,15 +223,15 @@ export default function MonitoringClient() {
                         data-trackable-id="start-analysis"
                     >
                         {isProcessing ? <Loader2 className="mr-2 animate-spin" /> : <Mic className="mr-2" />}
-                        {isProcessing ? cycleStatus : 'Start Analysis'}
+                        {isProcessing ? t('monitoring.client.status', { values: { status: cycleStatus } }) : t('monitoring.client.startAnalysis')}
                     </Button>
                 </CardContent>
             </Card>
 
             <Card className="md:col-span-2 animate-in fade-in-0 slide-in-from-right-8 duration-1000 ease-out delay-100">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-xl"><Info /> Risk Details</CardTitle>
-                    <CardDescription>An explanation of the current risk level.</CardDescription>
+                    <CardTitle className="flex items-center gap-2 text-xl"><Info /> {t('monitoring.client.riskDetailsTitle')}</CardTitle>
+                    <CardDescription>{t('monitoring.client.riskDetailsDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent className="text-base leading-relaxed space-y-4">
                     {isLoadingExplanation ? (
@@ -239,11 +241,11 @@ export default function MonitoringClient() {
                             <Skeleton className="h-4 w-3/4" />
                         </div>
                     ) : (
-                        <p>{riskExplanation || 'Click "Start Analysis" to begin.'}</p>
+                        <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p>
                     )}
                     {scamIndicators.length > 0 && (
                         <div>
-                            <h4 className="font-semibold mb-2">Detected Indicators:</h4>
+                            <h4 className="font-semibold mb-2">{t('monitoring.client.indicatorsTitle')}</h4>
                             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                                 {scamIndicators.map((indicator, i) => <li key={i} className="capitalize">{indicator}</li>)}
                             </ul>
@@ -255,8 +257,8 @@ export default function MonitoringClient() {
         
         <Card className="animate-in fade-in-0 slide-in-from-bottom-8 duration-1000 ease-out delay-200">
           <CardHeader>
-            <CardTitle className="text-xl">Live Transcript</CardTitle>
-            <CardDescription>A real-time transcription of the conversation.</CardDescription>
+            <CardTitle className="text-xl">{t('monitoring.client.transcriptTitle')}</CardTitle>
+            <CardDescription>{t('monitoring.client.transcriptDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             {fullTranscript.length > 0 ? (
@@ -264,7 +266,7 @@ export default function MonitoringClient() {
             ) : (
                 <div className="text-center py-12 text-muted-foreground">
                      <MicOff className="mx-auto h-8 w-8 mb-2" />
-                    <p>Analysis has not started. Press "Start Analysis" to begin.</p>
+                    <p>{t('monitoring.client.transcriptPlaceholder')}</p>
                 </div>
             )}
           </CardContent>
@@ -272,3 +274,5 @@ export default function MonitoringClient() {
     </div>
   );
 }
+
+    

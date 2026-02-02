@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/app/theme-provider';
+import { TranslationProvider } from '@/context/translation-context';
 
 export const metadata: Metadata = {
   title: 'Nishchint Setu',
@@ -24,13 +25,17 @@ export default function RootLayout({
         )}
       >
         <ThemeProvider storageKey="nishchint-setu-theme">
-          <div className="aurora-bg"></div>
-          <main className="relative flex flex-col min-h-screen">
-            {children}
-          </main>
-          <Toaster />
+          <TranslationProvider>
+            <div className="aurora-bg"></div>
+            <main className="relative flex flex-col min-h-screen">
+              {children}
+            </main>
+            <Toaster />
+          </TranslationProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+
+    

@@ -14,21 +14,23 @@ import { Notification } from '@/hooks/use-app-state';
 import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/context/translation-context";
 
 type HistoryTableProps = {
   data: Notification[];
 };
 
 export function HistoryTable({ data }: HistoryTableProps) {
+    const { t } = useTranslation();
     const sortedData = [...data].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Date & Time</TableHead>
-          <TableHead className="text-center">Risk Score</TableHead>
-          <TableHead className="text-right">Transcript</TableHead>
+          <TableHead>{t('ecRiskHistory.table.date')}</TableHead>
+          <TableHead className="text-center">{t('ecRiskHistory.table.score')}</TableHead>
+          <TableHead className="text-right">{t('ecRiskHistory.table.transcript')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -53,13 +55,13 @@ export function HistoryTable({ data }: HistoryTableProps) {
                         {notification.transcript ? (
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" size="sm">View</Button>
+                                    <Button variant="outline" size="sm">{t('ecRiskHistory.table.view')}</Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
-                                        <DialogTitle>Conversation Transcript</DialogTitle>
+                                        <DialogTitle>{t('monitoring.client.transcriptTitle')}</DialogTitle>
                                         <DialogDescription>
-                                            Recorded on {format(new Date(notification.timestamp), "PPP 'at' p")}
+                                            {t('ecDashboard.latestMood.recordedOn', { values: { date: format(new Date(notification.timestamp), "PPP 'at' p") }})}
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="mt-4 max-h-96 overflow-y-auto p-4 bg-muted/50 rounded-lg">
@@ -68,7 +70,7 @@ export function HistoryTable({ data }: HistoryTableProps) {
                                 </DialogContent>
                             </Dialog>
                         ) : (
-                            <span className="text-xs text-muted-foreground">N/A</span>
+                            <span className="text-xs text-muted-foreground">{t('common.na')}</span>
                         )}
                     </TableCell>
                 </TableRow>
@@ -78,3 +80,5 @@ export function HistoryTable({ data }: HistoryTableProps) {
     </Table>
   );
 }
+
+    

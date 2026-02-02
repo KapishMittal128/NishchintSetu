@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useAppState, EmergencyContactProfile } from '@/hooks/use-app-state';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useTranslation } from '@/context/translation-context';
 
 export default function EmergencyContactProfilePage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function EmergencyContactProfilePage() {
     allUserProfiles,
     pairEmergencyContact
   } = useAppState();
+  const { t } = useTranslation();
 
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
@@ -46,12 +48,12 @@ export default function EmergencyContactProfilePage() {
       setEmergencyContactProfileComplete(true);
       
       toast({
-        title: 'Successfully Paired!',
-        description: `You are now connected to ${userToPair.name}.`,
+        title: t('emergencyContactProfile.pairSuccess'),
+        description: t('emergencyContactProfile.pairSuccessDescription', { values: { name: userToPair.name } }),
       });
       router.push('/emergency-contact/dashboard');
     } else {
-      setError('This User UID does not exist. Please check with the user and try again.');
+      setError(t('emergencyContactProfile.uidError'));
     }
   };
 
@@ -59,36 +61,36 @@ export default function EmergencyContactProfilePage() {
     <div className="flex flex-1 items-center justify-center p-6">
       <Card className="w-full max-w-md z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <CardHeader>
-          <CardTitle>Complete Your Profile</CardTitle>
+          <CardTitle>{t('emergencyContactProfile.title')}</CardTitle>
           <CardDescription>
-            Enter your details and the unique ID of the person you want to protect.
+            {t('emergencyContactProfile.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Your Full Name</Label>
+              <Label htmlFor="name">{t('emergencyContactProfile.nameLabel')}</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Jane Smith"
+                placeholder={t('emergencyContactProfile.namePlaceholder')}
                 required
               />
             </div>
              <div className="space-y-2">
-              <Label htmlFor="age">Your Age</Label>
+              <Label htmlFor="age">{t('emergencyContactProfile.ageLabel')}</Label>
               <Input
                 id="age"
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                placeholder="e.g., 35"
+                placeholder={t('emergencyContactProfile.agePlaceholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label>Your Gender</Label>
+              <Label>{t('emergencyContactProfile.genderLabel')}</Label>
               <RadioGroup
                 value={gender}
                 onValueChange={setGender}
@@ -97,31 +99,31 @@ export default function EmergencyContactProfilePage() {
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="male" id="male-ec" />
-                  <Label htmlFor="male-ec">Male</Label>
+                  <Label htmlFor="male-ec">{t('userProfile.male')}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="female" id="female-ec" />
-                  <Label htmlFor="female-ec">Female</Label>
+                  <Label htmlFor="female-ec">{t('userProfile.female')}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="other" id="other-ec" />
-                  <Label htmlFor="other-ec">Other</Label>
+                  <Label htmlFor="other-ec">{t('userProfile.other')}</Label>
                 </div>
               </RadioGroup>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Your Email</Label>
+              <Label htmlFor="email">{t('emergencyContactProfile.emailLabel')}</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g., jane@example.com"
+                placeholder={t('emergencyContactProfile.emailPlaceholder')}
                 required
               />
             </div>
             <div className="space-y-2 pt-4 border-t">
-              <Label htmlFor="uid">User's Unique ID</Label>
+              <Label htmlFor="uid">{t('emergencyContactProfile.uidLabel')}</Label>
               <Input
                 id="uid"
                 value={uidToPair}
@@ -129,13 +131,13 @@ export default function EmergencyContactProfilePage() {
                   setError('');
                   setUidToPair(e.target.value);
                 }}
-                placeholder="e.g., 123-456-789"
+                placeholder={t('emergencyContactProfile.uidPlaceholder')}
                 required
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full">
-              Pair and Continue
+              {t('emergencyContactProfile.submitButton')}
             </Button>
           </form>
         </CardContent>
@@ -143,3 +145,5 @@ export default function EmergencyContactProfilePage() {
     </div>
   );
 }
+
+    

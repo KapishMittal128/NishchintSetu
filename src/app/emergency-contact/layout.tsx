@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { LayoutDashboard, LogOut, User, HeartPulse, History, Settings, FileText, BookOpen, HandHelping } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTranslation } from '@/context/translation-context';
 
 export default function EmergencyContactLayout({ children }: { children: React.ReactNode }) {
   const { signOut } = useAppState();
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   const handleSignOut = () => {
     signOut();
@@ -17,20 +19,20 @@ export default function EmergencyContactLayout({ children }: { children: React.R
   };
 
   const navLinks = [
-    { href: '/emergency-contact/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/emergency-contact/history', label: 'Risk History', icon: History },
-    { href: '/emergency-contact/mood', label: 'Mood History', icon: HeartPulse },
-    { href: '/emergency-contact/assistance', label: 'Assistance Log', icon: HandHelping },
-    { href: '/emergency-contact/reports', label: 'Monthly Reports', icon: FileText },
-    { href: '/emergency-contact/resources', label: 'Scam Resources', icon: BookOpen },
-    { href: '/emergency-contact/user-profile', label: 'Paired User Profile', icon: User },
+    { href: '/emergency-contact/dashboard', label: t('nav.guardianDashboard'), icon: LayoutDashboard },
+    { href: '/emergency-contact/history', label: t('nav.riskHistory'), icon: History },
+    { href: '/emergency-contact/mood', label: t('nav.moodHistory'), icon: HeartPulse },
+    { href: '/emergency-contact/assistance', label: t('nav.assistanceLog'), icon: HandHelping },
+    { href: '/emergency-contact/reports', label: t('nav.monthlyReports'), icon: FileText },
+    { href: '/emergency-contact/resources', label: t('nav.scamResources'), icon: BookOpen },
+    { href: '/emergency-contact/user-profile', label: t('nav.pairedUserProfile'), icon: User },
   ];
 
   return (
     <div className="flex min-h-screen">
       <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
-        <h1 className="text-2xl font-semibold mb-2">Nishchint Setu</h1>
-        <p className="text-sm text-muted-foreground mb-8">Guardian Dashboard</p>
+        <h1 className="text-2xl font-semibold mb-2">{t('appName')}</h1>
+        <p className="text-sm text-muted-foreground mb-8">{t('nav.guardianDashboard')}</p>
         <nav className="flex-1 space-y-2">
           {navLinks.map(link => (
             <Link key={link.href} href={link.href} passHref>
@@ -51,12 +53,12 @@ export default function EmergencyContactLayout({ children }: { children: React.R
                     className="w-full justify-start text-base"
                 >
                     <Settings className="mr-2 h-5 w-5" />
-                    Settings
+                    {t('nav.settings')}
                 </Button>
             </Link>
             <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut}>
                 <LogOut className="mr-2 h-5 w-5" />
-                Sign Out
+                {t('nav.signOut')}
             </Button>
         </div>
       </aside>
@@ -66,3 +68,5 @@ export default function EmergencyContactLayout({ children }: { children: React.R
     </div>
   );
 }
+
+    

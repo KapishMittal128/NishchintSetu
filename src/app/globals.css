@@ -90,4 +90,23 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  .aurora-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(ellipse at 25% 25%, hsl(var(--primary) / 0.1), transparent 50%),
+      radial-gradient(ellipse at 75% 75%, hsl(var(--primary) / 0.1), transparent 50%);
+    animation: aurora 20s linear infinite;
+    z-index: -1;
+    opacity: 0.5;
+  }
+  .dark .aurora-bg {
+      opacity: 1;
+      background: radial-gradient(ellipse at 25% 25%, hsl(var(--primary) / 0.2), transparent 50%),
+      radial-gradient(ellipse at 75% 75%, hsl(var(--primary) / 0.2), transparent 50%);
+  }
 }
+
+    

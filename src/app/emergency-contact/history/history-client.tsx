@@ -6,10 +6,12 @@ import { HistoryChart } from '@/components/app/history-chart';
 import { HistoryTable } from '@/components/app/history-table';
 import { ShieldX } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from '@/context/translation-context';
 
 export default function HistoryClient() {
   const { pairedUserUID, notifications } = useAppState();
   const [userNotifications, setUserNotifications] = useState(pairedUserUID ? notifications[pairedUserUID] || [] : []);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const userNotifs = pairedUserUID ? notifications[pairedUserUID] || [] : [];
@@ -28,8 +30,8 @@ export default function HistoryClient() {
     return (
       <div className="text-center py-16 text-muted-foreground animate-in fade-in-0">
         <ShieldX className="mx-auto h-12 w-12 mb-4" />
-        <h3 className="text-xl font-semibold">No History Yet</h3>
-        <p>High-risk notifications from your paired user will appear here.</p>
+        <h3 className="text-xl font-semibold">{t('ecRiskHistory.empty')}</h3>
+        <p>{t('ecRiskHistory.emptyDescription')}</p>
       </div>
     );
   }
@@ -38,9 +40,9 @@ export default function HistoryClient() {
     <div className="space-y-8">
       <Card className="animate-in fade-in-0">
         <CardHeader>
-          <CardTitle>Risk Score Over Time</CardTitle>
+          <CardTitle>{t('ecRiskHistory.chart.title')}</CardTitle>
           <CardDescription>
-            A visual representation of detected risk levels during your paired user's conversations.
+            {t('ecRiskHistory.chart.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -51,9 +53,9 @@ export default function HistoryClient() {
       </Card>
       <Card className="animate-in fade-in-0 delay-100">
         <CardHeader>
-          <CardTitle>Notification Log</CardTitle>
+          <CardTitle>{t('ecRiskHistory.log.title')}</CardTitle>
           <CardDescription>
-            A detailed log of all high-risk alerts that have been triggered for the user.
+            {t('ecRiskHistory.log.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -63,3 +65,5 @@ export default function HistoryClient() {
     </div>
   );
 }
+
+    

@@ -12,6 +12,7 @@ import { Copy, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useTranslation } from '@/context/translation-context';
 
 export default function UserProfilePage() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function UserProfilePage() {
   const [gender, setGender] = useState('');
   const [emergencyNumber, setEmergencyNumber] = useState('');
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const isEditMode = !!userUID && !!userProfile;
 
@@ -51,8 +53,8 @@ export default function UserProfilePage() {
       const updatedProfileData = { name, age, gender, emergencyContactNumber: emergencyNumber };
       updateUserProfile(userUID, updatedProfileData);
       toast({
-        title: 'Profile Updated!',
-        description: 'Your information has been saved.',
+        title: t('userProfile.updateSuccess'),
+        description: t('userProfile.updateSuccessDescription'),
       });
       router.push('/dashboard');
     } else {
@@ -66,8 +68,8 @@ export default function UserProfilePage() {
       addUserProfile(profile);
       
       toast({
-        title: 'Profile Created!',
-        description: 'You can now share your UID with your emergency contact.',
+        title: t('userProfile.createSuccess'),
+        description: t('userProfile.createSuccessDescription'),
       });
        router.replace('/dashboard');
     }
@@ -76,7 +78,7 @@ export default function UserProfilePage() {
   const handleCopyToClipboard = () => {
     if (userUID) {
       navigator.clipboard.writeText(userUID);
-      toast({ title: 'Copied!', description: 'Your UID has been copied to the clipboard.' });
+      toast({ title: t('dashboard.connectProtect.copySuccess'), description: t('dashboard.connectProtect.copyDescription') });
     }
   };
 
@@ -84,8 +86,8 @@ export default function UserProfilePage() {
     if (userUID) {
         removeUserProfile(userUID);
         toast({
-            title: 'Profile Deleted',
-            description: 'Your profile and all associated data have been removed.',
+            title: t('userProfile.deleteSuccess'),
+            description: t('userProfile.deleteSuccessDescription'),
             variant: 'destructive',
         });
         router.push('/landing');
@@ -96,36 +98,36 @@ export default function UserProfilePage() {
     <div className="flex flex-1 items-center justify-center p-6">
       <Card className="w-full max-w-md z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <CardHeader>
-          <CardTitle>{isEditMode ? 'Edit Your Profile' : 'Complete Your Profile'}</CardTitle>
+          <CardTitle>{isEditMode ? t('userProfile.editTitle') : t('userProfile.createTitle')}</CardTitle>
           <CardDescription>
-            This information helps identify you to your emergency contacts.
+            {t('userProfile.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t('userProfile.nameLabel')}</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., John Doe"
+                placeholder={t('userProfile.namePlaceholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="age">Age</Label>
+              <Label htmlFor="age">{t('userProfile.ageLabel')}</Label>
               <Input
                 id="age"
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                placeholder="e.g., 65"
+                placeholder={t('userProfile.agePlaceholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label>Gender</Label>
+              <Label>{t('userProfile.genderLabel')}</Label>
               <RadioGroup
                 value={gender}
                 onValueChange={setGender}
@@ -134,34 +136,34 @@ export default function UserProfilePage() {
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="male" id="male" />
-                  <Label htmlFor="male">Male</Label>
+                  <Label htmlFor="male">{t('userProfile.male')}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="female" id="female" />
-                  <Label htmlFor="female">Female</Label>
+                  <Label htmlFor="female">{t('userProfile.female')}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="other" id="other" />
-                  <Label htmlFor="other">Other</Label>
+                  <Label htmlFor="other">{t('userProfile.other')}</Label>
                 </div>
               </RadioGroup>
             </div>
             <div className="space-y-2">
-                <Label htmlFor="emergency-number">Emergency Contact Phone</Label>
+                <Label htmlFor="emergency-number">{t('userProfile.emergencyPhoneLabel')}</Label>
                 <Input
                     id="emergency-number"
                     type="tel"
                     value={emergencyNumber}
                     onChange={(e) => setEmergencyNumber(e.target.value)}
-                    placeholder="Optional: e.g., 123-456-7890"
+                    placeholder={t('userProfile.emergencyPhonePlaceholder')}
                 />
             </div>
             <Button type="submit" className="w-full">
-              {isEditMode ? 'Save Changes' : 'Save and Continue'}
+              {isEditMode ? t('userProfile.updateButton') : t('userProfile.createButton')}
             </Button>
             {isEditMode && (
                  <Button type="button" className="w-full" variant="outline" onClick={() => router.push('/dashboard')}>
-                    Cancel
+                    {t('userProfile.cancel')}
                 </Button>
             )}
           </form>
@@ -171,21 +173,20 @@ export default function UserProfilePage() {
                     <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive" className="w-full">
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete Profile
+                        <Trash2 className="mr-2 h-4 w-4" /> {t('userProfile.deleteProfile')}
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>{t('userProfile.deleteConfirmTitle')}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your
-                            profile, risk history, and mood data from this device.
+                           {t('userProfile.deleteConfirmDescription')}
                         </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDeleteProfile}>
-                            Yes, delete my profile
+                            {t('userProfile.deleteConfirmAction')}
                         </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -197,3 +198,5 @@ export default function UserProfilePage() {
     </div>
   );
 }
+
+    

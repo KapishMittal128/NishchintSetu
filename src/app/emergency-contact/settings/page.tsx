@@ -9,17 +9,21 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
+import { useTranslation } from '@/context/translation-context';
 
 export default function EmergencyContactSettingsPage() {
   const { emergencyContactProfile, removeEmergencyContactProfile } = useAppState();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  const name = emergencyContactProfile?.name || t('common.user');
 
   const handleDeleteProfile = () => {
     removeEmergencyContactProfile();
     toast({
-        title: 'Profile Deleted',
-        description: 'Your emergency contact profile has been removed.',
+        title: t('ecSettings.deleteSuccess'),
+        description: t('ecSettings.deleteSuccessDescription'),
         variant: 'destructive',
     });
     router.push('/landing');
@@ -29,7 +33,7 @@ export default function EmergencyContactSettingsPage() {
     <>
       <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
         <h1 className="text-2xl font-semibold">
-            Your Profile Settings
+            {t('ecSettings.title')}
         </h1>
         <div className="flex items-center gap-2">
           <LanguageToggle />
@@ -42,54 +46,53 @@ export default function EmergencyContactSettingsPage() {
              <div className="p-4 bg-primary/10 rounded-full mb-4">
                  <UserCircle className="h-12 w-12 text-primary" />
              </div>
-            <CardTitle className="text-3xl">{emergencyContactProfile?.name || 'Contact'}</CardTitle>
-            <CardDescription>This is the information on file for your profile.</CardDescription>
+            <CardTitle className="text-3xl">{t('ecSettings.cardTitle', { values: { name } })}</CardTitle>
+            <CardDescription>{t('ecSettings.cardDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             {emergencyContactProfile ? (
                 <div className="space-y-4 text-lg">
                     <div className="flex items-center gap-4 p-3 border rounded-lg">
                         <div className="flex-1">
-                            <p className="text-sm text-muted-foreground">Email</p>
+                            <p className="text-sm text-muted-foreground">{t('ecSettings.email')}</p>
                             <p className="font-semibold">{emergencyContactProfile.email}</p>
                         </div>
                     </div>
                      <div className="flex items-center gap-4 p-3 border rounded-lg">
                         <div className="flex-1">
-                            <p className="text-sm text-muted-foreground">Age</p>
+                            <p className="text-sm text-muted-foreground">{t('ecSettings.age')}</p>
                             <p className="font-semibold">{emergencyContactProfile.age}</p>
                         </div>
                     </div>
                      <div className="flex items-center gap-4 p-3 border rounded-lg">
                         <div className="flex-1">
-                            <p className="text-sm text-muted-foreground">Paired User ID</p>
+                            <p className="text-sm text-muted-foreground">{t('ecSettings.pairedUid')}</p>
                             <p className="font-mono text-base">{emergencyContactProfile.pairedUserUID}</p>
                         </div>
                     </div>
                 </div>
             ) : (
-              <p className="text-center text-muted-foreground py-8">Could not load your profile details.</p>
+              <p className="text-center text-muted-foreground py-8">{t('ecSettings.loadError')}</p>
             )}
 
             <div className="mt-6 border-t pt-6">
                 <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="w-full">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete Profile
+                    <Trash2 className="mr-2 h-4 w-4" /> {t('ecSettings.deleteProfile')}
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>{t('ecSettings.deleteConfirmTitle')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your
-                        emergency contact profile from this device and unpair you from the user.
+                        {t('ecSettings.deleteConfirmDescription')}
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDeleteProfile}>
-                        Yes, delete my profile
+                        {t('ecSettings.deleteConfirmAction')}
                     </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -102,3 +105,5 @@ export default function EmergencyContactSettingsPage() {
     </>
   );
 }
+
+    

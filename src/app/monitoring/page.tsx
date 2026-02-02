@@ -10,10 +10,12 @@ import { GuidedAssistanceManager } from '@/components/app/guided-assistance-mana
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
 import { SmsListener } from '@/components/app/sms-listener';
+import { useTranslation } from '@/context/translation-context';
 
 export default function MonitoringPage() {
   const { signOut } = useAppState();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSignOut = () => {
     signOut();
@@ -25,36 +27,36 @@ export default function MonitoringPage() {
       <SmsListener />
       <GuidedAssistanceManager />
        <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
-        <h1 className="text-2xl font-semibold mb-8">Nishchint Setu</h1>
+        <h1 className="text-2xl font-semibold mb-8">{t('appName')}</h1>
         <nav className="flex-1 space-y-2">
             <Link href="/dashboard" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-dashboard">
                 <Home className="mr-2 h-5 w-5" />
-                Dashboard
+                {t('nav.dashboard')}
                 </Button>
             </Link>
             <Link href="/monitoring" passHref>
                 <Button variant="secondary" className="w-full justify-start text-base" data-trackable-id="nav-monitoring">
                 <Shield className="mr-2 h-5 w-5" />
-                Monitoring
+                {t('nav.monitoring')}
                 </Button>
             </Link>
              <Link href="/activity" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-activity">
                 <Activity className="mr-2 h-5 w-5" />
-                Activity Log
+                {t('nav.activityLog')}
                 </Button>
             </Link>
             <Link href="/sms-safety" passHref>
               <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-sms-safety">
                 <MessageSquareWarning className="mr-2 h-5 w-5" />
-                SMS Safety
+                {t('nav.smsSafety')}
               </Button>
             </Link>
             <Link href="/chatbot" passHref>
                 <Button variant="ghost" className="w-full justify-start text-base" data-trackable-id="nav-chatbot">
                     <Bot className="mr-2 h-5 w-5" />
-                    AI Chatbot
+                    {t('nav.aiChatbot')}
                 </Button>
             </Link>
         </nav>
@@ -62,18 +64,18 @@ export default function MonitoringPage() {
             <Link href="/user/profile" passHref>
                 <Button variant="outline" className="w-full justify-start text-base" data-trackable-id="nav-profile-settings">
                     <Settings className="mr-2 h-5 w-5" />
-                    Profile Settings
+                    {t('nav.profileSettings')}
                 </Button>
             </Link>
             <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut} data-trackable-id="nav-signout">
                 <LogOut className="mr-2 h-5 w-5" />
-                Sign Out
+                {t('nav.signOut')}
             </Button>
         </div>
       </aside>
       <main className="flex-1 overflow-y-auto bg-muted/20">
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
-          <h1 className="text-2xl font-semibold">Conversation Monitoring</h1>
+          <h1 className="text-2xl font-semibold">{t('monitoring.title')}</h1>
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <ThemeToggle />
@@ -86,3 +88,5 @@ export default function MonitoringPage() {
     </div>
   );
 }
+
+    

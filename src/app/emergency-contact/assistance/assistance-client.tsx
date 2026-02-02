@@ -6,10 +6,12 @@ import { HandHelping, History } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTranslation } from '@/context/translation-context';
 
 export default function AssistanceClient() {
   const { pairedUserUID, assistanceHistory } = useAppState();
   const [userHistory, setUserHistory] = useState<AssistanceEvent[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const history = pairedUserUID ? assistanceHistory[pairedUserUID] || [] : [];
@@ -24,20 +26,17 @@ export default function AssistanceClient() {
   }, [pairedUserUID, assistanceHistory]);
 
   const reasonText = (reason: string) => {
-    switch(reason) {
-        case 'repeated_navigation': return 'Repeatedly visited the same page.';
-        case 'repeated_clicks': return 'Clicked the same button multiple times.';
-        case 'inactivity': return 'Was inactive on a page for a while.';
-        default: return 'Needed a little help.';
-    }
+    const key = `ecAssistanceLog.reasons.${reason}`;
+    const translatedReason = t(key);
+    return translatedReason === key ? t('ecAssistanceLog.reasons.default') : translatedReason;
   }
 
   if (userHistory.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground animate-in fade-in-0">
         <History className="mx-auto h-12 w-12 mb-4" />
-        <h3 className="text-xl font-semibold">No Assistance History Yet</h3>
-        <p>Events where your paired user received automated help will appear here.</p>
+        <h3 className="text-xl font-semibold">{t('ecAssistanceLog.empty')}</h3>
+        <p>{t('ecAssistanceLog.emptyDescription')}</p>
       </div>
     );
   }
@@ -46,18 +45,18 @@ export default function AssistanceClient() {
     <div className="space-y-8">
       <Card className="animate-in fade-in-0">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><HandHelping/> Assistance Event Log</CardTitle>
+          <CardTitle className="flex items-center gap-2"><HandHelping/> {t('ecAssistanceLog.logTitle')}</CardTitle>
           <CardDescription>
-            A log of times where the app provided automated assistance to the user when it detected they might be stuck.
+            {t('ecAssistanceLog.logDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
            <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>Date & Time</TableHead>
-                <TableHead>Page</TableHead>
-                <TableHead>Reason for Assistance</TableHead>
+                <TableHead>{t('ecAssistanceLog.table.date')}</TableHead>
+                <TableHead>{t('ecAssistanceLog.table.page')}</TableHead>
+                <TableHead>{t('ecAssistanceLog.table.reason')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,3 +74,5 @@ export default function AssistanceClient() {
     </div>
   );
 }
+
+    
