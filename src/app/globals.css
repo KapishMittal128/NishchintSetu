@@ -34,7 +34,7 @@
     --radius: 0.75rem;
 
     /* Spotlight effect variables */
-    --spotlight-color: hsla(0, 0%, 100%, 0.1);
+    --spotlight-color: hsla(0, 0%, 0%, 0.05);
   }
 
   .dark {
@@ -81,11 +81,11 @@
   .animated-gradient {
     background: linear-gradient(
       -45deg,
-      #2dd4bf, /* teal */
-      #38bdf8, /* sky blue */
-      #a7f3d0, /* mint green */
-      #fcd34d, /* warm yellow */
-      #fda4af /* subtle coral */
+      hsl(var(--primary) / 0.1),
+      hsl(var(--primary) / 0.05),
+      hsl(var(--secondary) / 0.2),
+      hsl(var(--accent) / 0.1),
+      hsl(var(--primary) / 0.15)
     );
     background-size: 400% 400%;
     animation: gradient-animation 45s ease infinite;

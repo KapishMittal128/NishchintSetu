@@ -8,12 +8,22 @@ import { cn } from '@/lib/utils';
 import { Heart, ShieldCheck, Eye, Zap, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/context/translation-context';
 import placeholderImages from '@/lib/placeholder-images.json';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
+import { useTheme } from '@/components/app/theme-provider';
 
 // --- Components ---
 
 const AnimatedBackground = () => {
   const spotlightRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
 
+  useEffect(() => {
+    // Set default spotlight color based on theme
+    const defaultColor = theme === 'dark' ? 'hsla(0, 0%, 100%, 0.1)' : 'hsla(0, 0%, 0%, 0.05)';
+    document.documentElement.style.setProperty('--spotlight-color', defaultColor);
+  }, [theme]);
+  
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (spotlightRef.current) {
@@ -42,15 +52,20 @@ const Header = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
             <div className="p-2 bg-primary/10 rounded-lg">
                 <ShieldCheck className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-800 tracking-tight">{t('appName')}</h2>
+            <h2 className="text-3xl font-bold text-foreground tracking-tight">{t('appName')}</h2>
         </div>
-        <Button 
-          onClick={onGetStartedClick} 
-          size="lg"
-          className="rounded-full bg-gray-800 text-white hover:bg-gray-700 text-lg px-8 py-6 transition-transform duration-300 ease-in-out hover:scale-105"
-        >
-          {t('landing.cta')}
-        </Button>
+        <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ThemeToggle />
+             <Button 
+              onClick={onGetStartedClick} 
+              size="lg"
+              className="rounded-full bg-foreground text-background hover:bg-foreground/80 text-lg px-8 py-6 transition-transform duration-300 ease-in-out hover:scale-105 hidden sm:flex"
+              data-trackable-id="landing-get-started-header"
+            >
+              {t('landing.cta')}
+            </Button>
+        </div>
       </div>
     </header>
   );
@@ -64,10 +79,10 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
         <section className="relative min-h-screen flex items-center overflow-hidden">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-gray-900">
+                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-foreground">
                         A gentle guardian for your phone calls.
                     </h1>
-                    <p className="text-xl md:text-2xl text-gray-600 max-w-xl mx-auto md:mx-0">
+                    <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mx-auto md:mx-0">
                         Protecting your independence with on-device AI that detects scams while keeping your conversations private.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -75,6 +90,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                             size="lg"
                             className="text-lg px-8 py-7 pulse-button"
                             onClick={onGetStartedClick}
+                            data-trackable-id="landing-get-started-hero"
                         >
                             Get Started Now <ArrowRight className="ml-2"/>
                         </Button>
@@ -88,7 +104,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[450px] h-[600px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105">
+                    <div className="w-[450px] h-[600px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-black/10 dark:border-white/10">
                          <Image
                             src={heroImage.src}
                             alt="AI assistant helping an elderly person"
@@ -111,13 +127,13 @@ const StatsSection = () => {
         { value: '24/7', label: 'Guardian Watch' },
     ];
     return (
-        <section className="py-20 bg-white/50 backdrop-blur-sm">
+        <section className="py-20 bg-background/50 backdrop-blur-sm">
             <div className="container mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                     {stats.map((stat) => (
                         <div key={stat.label} className="p-6 rounded-2xl animate-in fade-in-0 zoom-in-95 duration-500">
                             <p className="text-5xl font-bold text-primary">{stat.value}</p>
-                            <p className="mt-2 text-lg text-gray-600">{stat.label}</p>
+                            <p className="mt-2 text-lg text-muted-foreground">{stat.label}</p>
                         </div>
                     ))}
                 </div>
@@ -127,11 +143,13 @@ const StatsSection = () => {
 }
 
 const FeaturesSection = () => {
+  const { theme } = useTheme();
+
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-500', bg: 'bg-rose-50', spotlightColor: 'hsla(346, 84%, 60%, 0.2)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-500', bg: 'bg-sky-50', spotlightColor: 'hsla(199, 89%, 55%, 0.2)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-500', bg: 'bg-teal-50', spotlightColor: 'hsla(165, 76%, 42%, 0.2)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-amber-500', bg: 'bg-amber-50', spotlightColor: 'hsla(45, 93%, 47%, 0.2)' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-500 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/50', spotlightColor: 'hsla(346, 84%, 60%, 0.2)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-500 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-950/50', spotlightColor: 'hsla(199, 89%, 55%, 0.2)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-500 dark:text-teal-400', bg: 'bg-teal-50 dark:bg-teal-950/50', spotlightColor: 'hsla(165, 76%, 42%, 0.2)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/50', spotlightColor: 'hsla(45, 93%, 47%, 0.2)' },
   ];
 
   const handleMouseEnter = (color: string) => {
@@ -139,12 +157,13 @@ const FeaturesSection = () => {
   };
   
   const handleMouseLeave = () => {
-    document.documentElement.style.setProperty('--spotlight-color', 'hsla(0, 0%, 100%, 0.1)');
+    const defaultColor = theme === 'dark' ? 'hsla(0, 0%, 100%, 0.1)' : 'hsla(0, 0%, 0%, 0.05)';
+    document.documentElement.style.setProperty('--spotlight-color', defaultColor);
   };
 
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-background">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
             <h2 className="text-4xl font-bold">A Guardian Angel for Your Digital Life</h2>
@@ -154,15 +173,15 @@ const FeaturesSection = () => {
           {features.map((item, i) => (
              <div 
                 key={i} 
-                className="group relative text-center p-8 rounded-2xl bg-gray-50/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                className="group relative text-center p-8 rounded-2xl bg-secondary/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
                 onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
                 onMouseLeave={handleMouseLeave}
               >
                 <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full", item.bg)}>
                   <item.icon className={cn("h-8 w-8", item.color)} />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800">{item.title}</h3>
-                <p className="mt-2 text-lg text-gray-600">{item.description}</p>
+                <h3 className="text-2xl font-bold text-foreground">{item.title}</h3>
+                <p className="mt-2 text-lg text-muted-foreground">{item.description}</p>
               </div>
           ))}
         </div>
@@ -173,13 +192,14 @@ const FeaturesSection = () => {
 
 const FinalCTASection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
     return (
-        <section className="py-32 sm:py-48 text-center">
+        <section className="py-32 sm:py-48 text-center bg-background/50">
             <div className="container mx-auto px-8 space-y-10">
-                <h2 className="text-5xl md:text-6xl font-bold text-gray-900">Begin Your Journey to Peace of Mind</h2>
+                <h2 className="text-5xl md:text-6xl font-bold text-foreground">Begin Your Journey to Peace of Mind</h2>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Join thousands of users who are protecting themselves and their loved ones from the growing threat of phone scams.</p>
                 <Button 
                   onClick={onGetStartedClick}
-                  className="pulse-button rounded-full bg-gray-800 text-white text-xl md:text-2xl px-12 py-8 transition-transform duration-300 ease-in-out hover:scale-105"
+                  className="pulse-button rounded-full bg-foreground text-background text-xl md:text-2xl px-12 py-8 transition-transform duration-300 ease-in-out hover:scale-105"
+                  data-trackable-id="landing-get-started-final"
                 >
                   Get Started for Free
                 </Button>
@@ -203,13 +223,12 @@ export default function LandingPage() {
   }, []);
 
   // To prevent hydration mismatch, we only render the full page on the client
-  // after the initial render. The server and initial client render will be null.
   if (!isClient) {
     return null;
   }
 
   return (
-    <div className="bg-white min-h-screen w-full overflow-x-hidden">
+    <div className="bg-background min-h-screen w-full overflow-x-hidden">
       <AnimatedBackground />
       <Header onGetStartedClick={handleGetStarted} />
       <main className="relative z-10">
