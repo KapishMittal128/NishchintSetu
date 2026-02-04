@@ -1,1 +1,8 @@
-{}
+{
+  "landingHero": {
+    "src": "https://picsum.photos/seed/elderly-tech/800/1000",
+    "width": 800,
+    "height": 1000,
+    "hint": "robot elderly"
+  }
+}
