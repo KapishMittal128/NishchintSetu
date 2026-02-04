@@ -88,7 +88,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[450px] h-[600px] rounded-3xl overflow-hidden shadow-2xl transform rotate-3 transition-transform duration-500 hover:rotate-0 hover:scale-105">
+                    <div className="w-[450px] h-[600px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105">
                          <Image
                             src={heroImage.src}
                             alt="AI assistant helping an elderly person"
@@ -128,11 +128,20 @@ const StatsSection = () => {
 
 const FeaturesSection = () => {
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-500', bg: 'bg-rose-50' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-500', bg: 'bg-sky-50' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-500', bg: 'bg-teal-50' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-amber-500', bg: 'bg-amber-50' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-500', bg: 'bg-rose-50', spotlightColor: 'hsla(346, 84%, 60%, 0.2)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-500', bg: 'bg-sky-50', spotlightColor: 'hsla(199, 89%, 55%, 0.2)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-500', bg: 'bg-teal-50', spotlightColor: 'hsla(165, 76%, 42%, 0.2)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-amber-500', bg: 'bg-amber-50', spotlightColor: 'hsla(45, 93%, 47%, 0.2)' },
   ];
+
+  const handleMouseEnter = (color: string) => {
+    document.documentElement.style.setProperty('--spotlight-color', color);
+  };
+  
+  const handleMouseLeave = () => {
+    document.documentElement.style.setProperty('--spotlight-color', 'hsla(0, 0%, 100%, 0.1)');
+  };
+
 
   return (
     <section className="py-24 bg-white">
@@ -143,7 +152,12 @@ const FeaturesSection = () => {
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((item, i) => (
-             <div key={i} className="group relative text-center p-8 rounded-2xl bg-gray-50/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+             <div 
+                key={i} 
+                className="group relative text-center p-8 rounded-2xl bg-gray-50/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
+                onMouseLeave={handleMouseLeave}
+              >
                 <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full", item.bg)}>
                   <item.icon className={cn("h-8 w-8", item.color)} />
                 </div>

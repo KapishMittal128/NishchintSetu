@@ -32,6 +32,9 @@
     --chart-4: 0 84.2% 60.2%;
     --chart-5: 290 80% 60%;
     --radius: 0.75rem;
+
+    /* Spotlight effect variables */
+    --spotlight-color: hsla(0, 0%, 100%, 0.1);
   }
 
   .dark {
@@ -57,6 +60,9 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 215 20.2% 65.1%;
+
+    /* Spotlight effect variables */
+    --spotlight-color: hsla(0, 0%, 100%, 0.1);
   }
 }
 
@@ -88,7 +94,7 @@
   .spotlight-effect {
     background: radial-gradient(
       400px circle at var(--x) var(--y),
-      hsla(0, 0%, 100%, 0.15),
+      var(--spotlight-color),
       transparent 80%
     );
     transition: background 0.3s ease-out;
