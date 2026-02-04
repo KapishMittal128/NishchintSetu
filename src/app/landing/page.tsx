@@ -152,11 +152,11 @@ const FeaturesSection = () => {
     { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/50', spotlightColor: 'hsla(45, 93%, 47%, 0.2)' },
   ];
 
-  const handleMouseEnter = (color: string) => {
+  const handleInteractionStart = (color: string) => {
     document.documentElement.style.setProperty('--spotlight-color', color);
   };
-  
-  const handleMouseLeave = () => {
+
+  const handleInteractionEnd = () => {
     const defaultColor = theme === 'dark' ? 'hsla(0, 0%, 100%, 0.1)' : 'hsla(0, 0%, 0%, 0.05)';
     document.documentElement.style.setProperty('--spotlight-color', defaultColor);
   };
@@ -174,8 +174,10 @@ const FeaturesSection = () => {
              <div 
                 key={i} 
                 className="group relative text-center p-8 rounded-2xl bg-secondary/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-                onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
-                onMouseLeave={handleMouseLeave}
+                onMouseEnter={() => handleInteractionStart(item.spotlightColor)}
+                onMouseLeave={handleInteractionEnd}
+                onTouchStart={() => handleInteractionStart(item.spotlightColor)}
+                onTouchEnd={handleInteractionEnd}
               >
                 <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full", item.bg)}>
                   <item.icon className={cn("h-8 w-8", item.color)} />
