@@ -23,6 +23,7 @@
     "cta": "Get Started Now",
     "backToHome": "Back to Home",
     "features": {
+      "title": "A Guardian Angel for Your Digital Life",
       "risk": {
         "title": "Real-Time Risk Analysis",
         "description": "Analyzes conversations live on your device to detect suspicious keywords and patterns associated with common scams."
@@ -39,6 +40,46 @@
         "title": "Guided Assistance",
         "description": "Detects if you're stuck and offers simple, clear options to get you back on track, ensuring a stress-free experience."
       }
+    },
+    "howItWorks": {
+      "title": "Simple Setup, Powerful Protection",
+      "step1": {
+        "title": "Create & Pair",
+        "description": "Set up your profile and share your unique ID with a trusted family member or friend."
+      },
+      "step2": {
+        "title": "Live Monitoring",
+        "description": "Our AI analyzes calls and messages for scam risks, privately on your device."
+      },
+      "step3": {
+        "title": "Instant Alerts",
+        "description": "If a high-risk situation is detected, your guardian is notified instantly to help."
+      }
+    },
+    "testimonials": {
+      "title": "Trusted by Families Everywhere",
+      "items": [
+        {
+          "quote": "Nishchint Setu gave my mom her confidence back. I feel so much better knowing she has this extra layer of protection. It's a must-have for any family with elderly parents.",
+          "author": "Anjali S.",
+          "location": "Mumbai"
+        },
+        {
+          "quote": "I was skeptical at first, but this app is amazing. It flagged a scam call that sounded very convincing. The privacy focus is what really sold me. Highly recommended!",
+          "author": "Rajesh K.",
+          "location": "Delhi"
+        },
+        {
+          "quote": "The setup was so simple. My son helped me get it running in minutes. Now I feel safer answering the phone. It's like having a helpful friend watching over me.",
+          "author": "Sunita M.",
+          "location": "Bengaluru"
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Ready to Secure Your Peace of Mind?",
+      "description": "Join thousands of users who are protecting themselves and their loved ones from the growing threat of phone scams. It’s simple, private, and effective.",
+      "button": "Get Started for Free"
     }
   },
   "roleSelection": {
