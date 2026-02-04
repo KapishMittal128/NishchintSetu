@@ -69,7 +69,70 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  .spotlight {
-    background: radial-gradient(300px circle at var(--x) var(--y), hsl(var(--primary) / 0.1), transparent 40%);
+}
+
+@layer utilities {
+  .animated-gradient {
+    background: linear-gradient(
+      -45deg,
+      #2dd4bf, /* teal */
+      #38bdf8, /* sky blue */
+      #a7f3d0, /* mint green */
+      #fcd34d, /* warm yellow */
+      #fda4af /* subtle coral */
+    );
+    background-size: 400% 400%;
+    animation: gradient-animation 45s ease infinite;
+  }
+
+  .spotlight-effect {
+    background: radial-gradient(
+      400px circle at var(--x) var(--y),
+      hsla(0, 0%, 100%, 0.15),
+      transparent 80%
+    );
+    transition: background 0.3s ease-out;
+  }
+
+  .floating-icon {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .pulse-button {
+    animation: pulse-glow 5s ease-in-out infinite;
+  }
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 0px hsl(var(--primary) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px 8px hsl(var(--primary) / 0.1);
   }
 }
