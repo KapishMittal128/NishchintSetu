@@ -2,130 +2,128 @@
 
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, AlertTriangle, Lock, HandHelping, Bot, Users } from 'lucide-react';
+import { ShieldCheck, Cpu, Users, Globe, PlayCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslation } from '@/context/translation-context';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useEffect, useRef } from 'react';
 
-const features = [
+const stats = [
   {
-    icon: AlertTriangle,
-    key: "risk",
-    color: "text-red-400",
-    bgColor: "bg-red-950/50"
+    icon: Users,
+    value: '10K+',
+    label: 'Protected Users'
   },
   {
-    icon: Lock,
-    key: "privacy",
-    color: "text-green-400",
-    bgColor: "bg-green-950/50"
+    icon: Cpu,
+    value: '99.8%',
+    label: 'AI Accuracy'
   },
   {
-    icon: ShieldCheck,
-    key: "alerts",
-    color: "text-blue-400",
-    bgColor: "bg-blue-950/50"
-  },
-  {
-    icon: HandHelping,
-    key: "assistance",
-    color: "text-yellow-400",
-    bgColor: "bg-yellow-950/50"
-  },
+    icon: Globe,
+    value: '50+',
+    label: 'Countries'
+  }
 ];
-
-const StatCard = ({ title, value, icon: Icon, className }: {title: string, value: string, icon: React.ElementType, className?: string}) => (
-    <Card className={cn("text-center", className)}>
-        <CardContent className="p-4">
-            <Icon className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <p className="text-2xl font-bold">{value}</p>
-            <p className="text-xs text-muted-foreground">{title}</p>
-        </CardContent>
-    </Card>
-)
 
 export default function LandingPage() {
   const router = useRouter();
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleGetStarted = () => {
     router.push('/role-selection');
   };
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        containerRef.current.style.setProperty('--x', `${e.clientX - rect.left}px`);
+        containerRef.current.style.setProperty('--y', `${e.clientY - rect.top}px`);
+      }
+    };
+
+    const currentRef = containerRef.current;
+    currentRef?.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      currentRef?.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   return (
-    <div className="dark text-foreground min-h-screen w-full overflow-y-auto overflow-x-hidden">
-      <div className="aurora-bg"></div>
+    <div className="dark text-foreground min-h-screen w-full overflow-hidden bg-background">
+      <div 
+        ref={containerRef}
+        className="spotlight absolute inset-0 z-0 transition-all duration-300"
+      />
       
-      <header className="fixed top-0 left-0 w-full z-30 p-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">{t('appName')}</h2>
+      <header className="relative z-10 p-6 flex justify-between items-center container mx-auto">
+        <div className="flex items-center gap-2">
+            <ShieldCheck className="h-7 w-7 text-blue-400" />
+            <h2 className="text-2xl font-bold">{t('appName')}</h2>
+        </div>
+        <Button onClick={handleGetStarted} className="bg-white text-black hover:bg-white/90">
+            Get Started Now <span className="ml-2">→</span>
+        </Button>
       </header>
 
-      <main className="relative container mx-auto px-6 pt-32 pb-12">
+      <main className="relative container mx-auto px-6 pt-16 md:pt-24 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Left: Hero Text */}
             <div className="text-center lg:text-left animate-in fade-in slide-in-from-left-12 duration-700">
-                <h1 
-                    className={cn(
-                        "text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-br from-white via-white/80 to-primary/60 bg-clip-text text-transparent",
-                        "animate-background-shine bg-[200%_auto]"
-                    )}
-                >
-                    {t('landing.title')}
+                <div className="inline-flex items-center bg-gray-800/80 border border-gray-700 text-blue-300 text-sm font-medium px-4 py-1.5 rounded-full mb-4">
+                    <Cpu className="h-4 w-4 mr-2"/>
+                    AI-Powered Protection
+                </div>
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white">
+                    Nishchint <span className="text-blue-400">Setu</span>
                 </h1>
-                <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 text-foreground/80">
+                <p className="mt-6 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 text-foreground/70">
                     {t('landing.subtitle')}
                 </p>
-                <div className="mt-10">
-                    <Button size="lg" className="text-lg py-7 px-10" onClick={handleGetStarted}>
-                    {t('landing.cta')}
+                <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <Button size="lg" className="text-lg py-7 px-8 bg-blue-500 hover:bg-blue-600 text-white" onClick={handleGetStarted}>
+                        Get Started Now <span className="ml-2">→</span>
+                    </Button>
+                    <Button size="lg" variant="outline" className="text-lg py-7 px-8 bg-transparent border-gray-600 hover:bg-gray-800/50">
+                        <PlayCircle className="h-5 w-5 mr-2" />
+                        Watch Demo
                     </Button>
                 </div>
+                <div className="mt-12 grid grid-cols-3 gap-4 text-center">
+                    {stats.map((stat) => (
+                        <div key={stat.label}>
+                            <p className="text-3xl font-bold text-white">{stat.value}</p>
+                            <p className="text-sm text-foreground/60">{stat.label}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
+            
             {/* Right: Visuals */}
-            <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-right-12 duration-700">
-                <Card className="col-span-2 row-span-1 relative overflow-hidden h-64">
-                     <Image
-                        alt="Bot assisting an elderly person"
-                        src="https://picsum.photos/seed/assist/600/400"
-                        data-ai-hint="futuristic robot elderly person"
-                        fill
-                        objectFit="cover"
-                        className="opacity-70"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"/>
-                    <div className="absolute bottom-4 left-4">
-                        <h3 className="text-lg font-bold">Your Digital Guardian</h3>
-                        <p className="text-sm text-foreground/70">Always by your side.</p>
-                    </div>
+            <div className="relative animate-in fade-in slide-in-from-right-12 duration-700">
+                 <Card className="bg-gray-900/40 p-2 rounded-2xl border-gray-800/80 shadow-2xl shadow-blue-500/10">
+                    <CardContent className="p-0 relative overflow-hidden rounded-lg">
+                        <Image
+                            alt="A friendly robot protecting an elderly person from scams"
+                            src="https://picsum.photos/seed/friendlyrobot/800/600"
+                            data-ai-hint="friendly robot elderly man"
+                            width={800}
+                            height={600}
+                            className="w-full"
+                        />
+                         <div className="absolute top-4 left-4 inline-flex items-center bg-green-500/10 border border-green-400/30 text-green-300 text-xs font-medium px-2.5 py-1 rounded-full">
+                            <ShieldCheck className="h-3 w-3 mr-1.5"/>
+                            Safe
+                        </div>
+                         <div className="absolute bottom-4 right-4 inline-flex items-center bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs font-medium px-2.5 py-1 rounded-full">
+                            Protected
+                        </div>
+                    </CardContent>
                 </Card>
-                 <StatCard title="On-Device Analysis" value="99.9%" icon={Lock} />
-                 <StatCard title="Guardian Network" value="Family" icon={Users} />
-            </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="mt-24 animate-in fade-in slide-in-from-bottom-12 duration-700 delay-300">
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {features.map((feature) => {
-                    const title = t(`landing.features.${feature.key}.title`);
-                    const description = t(`landing.features.${feature.key}.description`);
-                    return (
-                        <Card key={feature.key} className="p-1">
-                            <CardHeader>
-                                <div className="flex items-center gap-4">
-                                    <div className={cn("p-2 rounded-lg", feature.bgColor)}>
-                                        <feature.icon className={cn("h-6 w-6", feature.color)} />
-                                    </div>
-                                    <CardTitle className="text-lg">{title}</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-0">
-                                <p className="text-sm text-foreground/70">{description}</p>
-                            </CardContent>
-                        </Card>
-                    )
-                })}
             </div>
         </div>
       </main>

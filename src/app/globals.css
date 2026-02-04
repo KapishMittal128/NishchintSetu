@@ -46,38 +46,38 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 145 70% 55%;
-    --primary-foreground: 145 90% 5%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
     
     --success: 140 80% 55%;
 
     --warning: 45 93% 47%;
     --warning-foreground: 35 91% 3%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 145 70% 55%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 215 20.2% 65.1%;
   }
 }
 
@@ -90,22 +90,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  .aurora-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(ellipse at 25% 25%, hsl(var(--primary) / 0.1), transparent 50%),
-      radial-gradient(ellipse at 75% 75%, hsl(var(--primary) / 0.1), transparent 50%);
-    animation: aurora 20s linear infinite;
-    z-index: -1;
-    opacity: 0.5;
-  }
-  .dark .aurora-bg {
-      opacity: 1;
-      background: radial-gradient(ellipse at 25% 25%, hsl(var(--primary) / 0.2), transparent 50%),
-      radial-gradient(ellipse at 75% 75%, hsl(var(--primary) / 0.2), transparent 50%);
+  .spotlight {
+    background: radial-gradient(300px circle at var(--x) var(--y), hsl(var(--primary) / 0.15), transparent 40%);
   }
 }
 

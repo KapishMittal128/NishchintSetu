@@ -91,24 +91,10 @@ export default {
             height: '0',
           },
         },
-        'aurora': {
-          from: {
-            transform: 'rotate(0deg)',
-          },
-          to: {
-            transform: 'rotate(360deg)',
-          },
-        },
-        'background-shine': {
-          'from': { backgroundPosition: '0 0' },
-          'to': { backgroundPosition: '-200% 0' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'aurora': 'aurora 20s linear infinite',
-        'background-shine': 'background-shine 2s linear infinite',
       },
     },
   },
