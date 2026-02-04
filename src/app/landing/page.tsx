@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { HeartHand, ShieldCheck, Eye, Zap, BookUser, Smartphone, BellRing, Shield } from 'lucide-react';
+import { Heart, ShieldCheck, Eye, Zap, Shield } from 'lucide-react';
 import { useTranslation } from '@/context/translation-context';
 
 // Component 1: AnimatedBackgroundCanvas
@@ -57,7 +57,7 @@ const HeroSection = () => {
         <div className="relative mx-auto w-fit">
           <div className="floating-icon absolute -top-16 -left-16 flex h-28 w-28 items-center justify-center rounded-full bg-teal-400/20">
              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-teal-400/40">
-                <HeartHand className="h-10 w-10 text-white" />
+                <Heart className="h-10 w-10 text-white" />
              </div>
           </div>
            <div className="floating-icon absolute -bottom-12 -right-16 flex h-24 w-24 items-center justify-center rounded-full bg-sky-400/20" style={{animationDelay: '1.5s'}}>
@@ -127,7 +127,7 @@ const AssuranceCard = ({ icon: Icon, title, description, color, delay }: { icon:
 
 const AssuranceGrid = () => {
   const assuranceItems = [
-    { icon: HeartHand, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'bg-teal-400/20', delay: '0ms' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'bg-teal-400/20', delay: '0ms' },
     { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'bg-sky-400/20', delay: '100ms' },
     { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'bg-yellow-300/20', delay: '200ms' },
     { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'bg-rose-300/20', delay: '300ms' },
@@ -145,7 +145,7 @@ const AssuranceGrid = () => {
 }
 
 // Component 5: HowItWorksSteps
-const HowItWorksStep = ({ icon: Icon, title, description, index }: { icon: React.ElementType, title: string, description: string, index: number }) => {
+const HowItWorksStep = ({ title, description, index }: { title: string, description: string, index: number }) => {
     const [ref, entry] = useIntersectionObserver({ threshold: 0.5 });
     const isVisible = entry?.isIntersecting;
     return (
@@ -167,9 +167,9 @@ const HowItWorksStep = ({ icon: Icon, title, description, index }: { icon: React
 
 const HowItWorksSteps = () => {
     const steps = [
-        { icon: BookUser, title: "Pair with a Loved One", description: "Share a simple, private code to connect with a family member or friend who can help." },
-        { icon: Smartphone, title: "Let It Listen, Privately", description: "The app gently monitors calls on your phone, and only on your phone. Nothing is shared." },
-        { icon: BellRing, title: "Get Help, Not Hassle", description: "If a scam is likely, your loved one gets a simple alert so they can check in with you." },
+        { title: "Pair with a Loved One", description: "Share a simple, private code to connect with a family member or friend who can help." },
+        { title: "Let It Listen, Privately", description: "The app gently monitors calls on your phone, and only on your phone. Nothing is shared." },
+        { title: "Get Help, Not Hassle", description: "If a scam is likely, your loved one gets a simple alert so they can check in with you." },
     ]
     return (
         <section className="py-24 sm:py-32">
