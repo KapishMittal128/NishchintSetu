@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Heart, ShieldCheck, Eye, Zap, Shield, ArrowRight, Bot } from 'lucide-react';
+import { Heart, ShieldCheck, Eye, Zap, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/context/translation-context';
 import placeholderImages from '@/lib/placeholder-images.json';
 
@@ -181,6 +181,18 @@ export default function LandingPage() {
   const handleGetStarted = () => {
     router.push('/role-selection');
   };
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // To prevent hydration mismatch, we only render the full page on the client
+  // after the initial render. The server and initial client render will be null.
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className="bg-white min-h-screen w-full overflow-x-hidden">
