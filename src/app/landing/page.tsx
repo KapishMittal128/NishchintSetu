@@ -19,7 +19,7 @@ import {
 // --- Components ---
 
 const SpaceBackground = () => (
-  <div className="fixed inset-0 -z-20 h-full w-full bg-black overflow-hidden">
+  <div className="fixed inset-0 -z-20 h-full w-full bg-slate-950 overflow-hidden">
     <div id="stars1" className="stars-bg" />
     <div id="stars2" className="stars-bg" />
     <div id="stars3" className="stars-bg" />
@@ -34,7 +34,7 @@ const Header = () => {
             <div className="p-2 bg-primary/10 rounded-lg">
                 <ShieldCheck className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="text-3xl font-bold text-white tracking-tight">Nishchint Setu</h2>
+            <h2 className="text-3xl font-bold text-white tracking-tight">Nishchint <span className="text-primary">Setu</span></h2>
         </div>
       </div>
     </header>
@@ -60,7 +60,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-white">
-                        A gentle guardian for your phone calls.
+                        A <span className="text-primary">gentle guardian</span> for your phone calls.
                     </h1>
                     <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto md:mx-0">
                         Protecting your independence with on-device AI that detects scams while keeping your conversations private.
@@ -101,25 +101,34 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     )
 }
 
-const FeatureCard = ({ item }: { item: any }) => {
+const FeatureCard = ({ item, setBloomColor }: { item: any, setBloomColor: (color: string) => void }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <div
+          onMouseEnter={() => setBloomColor(item.bloomColor)}
+          onMouseLeave={() => setBloomColor('hsla(55, 100%, 70%, 0.3)')}
           className={cn(
-            "group relative p-8 rounded-2xl border border-white/10 bg-secondary transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col text-left",
-            "hover:-translate-y-2 hover:border-white/20",
+            "group relative p-8 rounded-2xl bg-secondary transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col text-left",
+            "hover:-translate-y-2",
             item.cardClass
           )}
         >
-          <div className="flex-1">
+          <div
+            className={cn(
+              "absolute inset-0 transition-colors duration-300",
+              "group-hover:bg-[var(--hover-bg)]"
+            )}
+            style={{ '--hover-bg': item.hoverBg } as React.CSSProperties}
+          ></div>
+          <div className="relative flex-1">
             <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
               <item.icon className={cn("h-6 w-6", item.iconColor)} />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
             <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
           </div>
-          <div className="mt-6 flex items-center text-sm font-medium text-sky-400 group-hover:text-sky-300 transition-colors">
+          <div className="relative mt-6 flex items-center text-sm font-medium text-sky-400 group-hover:text-sky-300 transition-colors">
             Learn more <ArrowRight className="ml-2 h-4 w-4" />
           </div>
         </div>
@@ -141,7 +150,7 @@ const FeatureCard = ({ item }: { item: any }) => {
   );
 };
 
-const FeaturesSection = () => {
+const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => void }) => {
   const features = [
     {
       icon: Shield,
@@ -150,7 +159,9 @@ const FeaturesSection = () => {
       longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
       iconBg: 'bg-red-900/40',
       iconColor: 'text-red-400',
-      cardClass: "border-red-900/30 hover:border-red-500/50 hover:bg-red-900/20"
+      cardClass: "border-red-900/30",
+      bloomColor: 'hsla(0, 100%, 70%, 0.4)',
+      hoverBg: 'hsla(0, 100%, 70%, 0.05)'
     },
     {
       icon: Lock,
@@ -159,7 +170,9 @@ const FeaturesSection = () => {
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
       iconBg: 'bg-purple-900/40',
       iconColor: 'text-purple-400',
-      cardClass: "border-purple-900/50 hover:border-purple-500/50 hover:bg-purple-900/20"
+      cardClass: "border-purple-900/50",
+      bloomColor: 'hsla(280, 100%, 70%, 0.4)',
+      hoverBg: 'hsla(280, 100%, 70%, 0.05)'
     },
     {
       icon: ShieldCheck,
@@ -168,7 +181,9 @@ const FeaturesSection = () => {
       longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
-      cardClass: "border-green-900/50 hover:border-green-500/50 hover:bg-green-900/20"
+      cardClass: "border-green-900/50",
+      bloomColor: 'hsla(140, 100%, 70%, 0.4)',
+      hoverBg: 'hsla(140, 100%, 70%, 0.05)'
     },
     {
       icon: HandHelping,
@@ -177,7 +192,9 @@ const FeaturesSection = () => {
       longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
       iconBg: 'bg-sky-900/40',
       iconColor: 'text-sky-400',
-      cardClass: "border-sky-900/50 hover:border-sky-500/50 hover:bg-sky-900/20"
+      cardClass: "border-sky-900/50",
+      bloomColor: 'hsla(200, 100%, 70%, 0.4)',
+      hoverBg: 'hsla(200, 100%, 70%, 0.05)'
     },
   ];
 
@@ -193,7 +210,7 @@ const FeaturesSection = () => {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((item, i) => (
             <div key={i} className="animate-in fade-in-0 slide-in-from-bottom-12 duration-1000" style={{ animationDelay: `${i * 150}ms` }}>
-              <FeatureCard item={item} />
+              <FeatureCard item={item} setBloomColor={setBloomColor} />
             </div>
           ))}
         </div>
@@ -202,17 +219,6 @@ const FeaturesSection = () => {
   );
 }
 
-
-const FinalCTASection = () => {
-    return (
-        <section className="py-32 sm:py-48 text-center bg-black/50">
-            <div className="container mx-auto px-8 space-y-10">
-                <h2 className="text-5xl md:text-6xl font-bold text-white">Begin Your Journey to Peace of Mind</h2>
-                <p className="text-xl text-gray-400 max-w-2xl mx-auto">Join thousands of users who are protecting themselves and their loved ones from the growing threat of phone scams.</p>
-            </div>
-        </section>
-    )
-}
 
 // --- Main Page Component ---
 
@@ -249,7 +255,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-black">
+    <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-slate-950">
       <SpaceBackground />
        <div 
         ref={mainRef}
@@ -264,8 +270,7 @@ export default function LandingPage() {
         <Header />
         <main>
           <HeroSection onGetStartedClick={handleGetStarted} />
-          <FeaturesSection />
-          <FinalCTASection />
+          <FeaturesSection setBloomColor={setBloomColor}/>
         </main>
       </div>
     </div>

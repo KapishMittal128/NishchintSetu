@@ -106,19 +106,19 @@
 
   #stars1 {
     background-image: radial-gradient(1px, hsla(0,0%,100%,0.5) 1px, transparent 0);
-    background-size: 50px 50px;
+    background-size: 100px 100px;
     animation: move-stars 200s linear infinite;
   }
 
   #stars2 {
     background-image: radial-gradient(1.5px, hsla(0,0%,100%,0.7) 1.5px, transparent 0);
-    background-size: 100px 100px;
+    background-size: 200px 200px;
     animation: move-stars 250s linear infinite;
   }
 
   #stars3 {
     background-image: radial-gradient(2.5px, white 2.5px, transparent 0);
-    background-size: 150px 150px;
+    background-size: 300px 300px;
     animation: move-stars 300s linear infinite;
   }
 }
