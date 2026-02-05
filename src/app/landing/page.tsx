@@ -197,9 +197,9 @@ const FeaturesSection = () => {
       title: "100% Private",
       description: "No audio or transcript data is ever sent to the cloud. All analysis...",
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
-      iconBg: 'bg-purple-900/40',
-      iconColor: 'text-purple-400',
-      gradient: 'from-purple-500/20',
+      iconBg: 'bg-green-900/40',
+      iconColor: 'text-green-400',
+      gradient: 'from-green-500/20',
     },
     {
       icon: ShieldCheck,
