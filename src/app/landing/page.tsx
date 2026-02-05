@@ -68,8 +68,8 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 text-center animate-in fade-in slide-in-from-left-12 duration-700">
                     
-                    <h1 className="text-6xl md:text-8xl font-bold text-white tracking-wider whitespace-nowrap">
-                        Nishchint Setu
+                    <h1 className="text-6xl md:text-7xl font-bold text-white tracking-wider">
+                        Nishchint <span className="text-primary">Setu</span>
                     </h1>
 
                     <div className="inline-block bg-yellow-400/10 text-yellow-300 text-sm font-medium px-4 py-1.5 rounded-full border border-yellow-400/30 backdrop-blur-sm">
@@ -77,7 +77,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                         AI POWERED
                     </div>
 
-                    <h2 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white !mt-8">
+                    <h2 className="text-2xl md:text-3xl font-extrabold tracking-tighter text-white !mt-8">
                         A <span className="text-primary">gentle guardian</span> for your phone calls.
                     </h2>
                     <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto">
