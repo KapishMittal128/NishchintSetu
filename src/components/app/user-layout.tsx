@@ -54,9 +54,9 @@ export function UserLayout({ children, title }: { children: React.ReactNode; tit
           <SidebarMenu>
             {navLinks.map(link => (
               <SidebarMenuItem key={link.href}>
-                <Link href={link.href} passHref legacyBehavior>
-                  <SidebarMenuButton asChild isActive={pathname === link.href} tooltip={link.label} data-trackable-id={link['data-trackable-id']}>
-                    <a><link.icon /><span>{link.label}</span></a>
+                <Link href={link.href}>
+                  <SidebarMenuButton isActive={pathname === link.href} tooltip={link.label} data-trackable-id={link['data-trackable-id']}>
+                    <link.icon /><span>{link.label}</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -66,9 +66,9 @@ export function UserLayout({ children, title }: { children: React.ReactNode; tit
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <Link href="/user/profile" passHref legacyBehavior>
-                <SidebarMenuButton asChild isActive={pathname.startsWith('/user/profile')} tooltip={t('nav.profileSettings')} data-trackable-id="nav-profile-settings">
-                    <a><Settings /><span>{t('nav.profileSettings')}</span></a>
+              <Link href="/user/profile">
+                <SidebarMenuButton isActive={pathname.startsWith('/user/profile')} tooltip={t('nav.profileSettings')} data-trackable-id="nav-profile-settings">
+                    <Settings /><span>{t('nav.profileSettings')}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

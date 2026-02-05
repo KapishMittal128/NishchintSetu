@@ -50,16 +50,13 @@ export default function EmergencyContactLayout({ children }: { children: React.R
           <SidebarMenu>
             {navLinks.map(link => (
               <SidebarMenuItem key={link.href}>
-                <Link href={link.href} passHref legacyBehavior>
+                <Link href={link.href}>
                   <SidebarMenuButton
-                    asChild
                     isActive={pathname === link.href}
                     tooltip={link.label}
                   >
-                    <a>
-                      <link.icon />
-                      <span>{link.label}</span>
-                    </a>
+                    <link.icon />
+                    <span>{link.label}</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -69,16 +66,13 @@ export default function EmergencyContactLayout({ children }: { children: React.R
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <Link href="/emergency-contact/settings" passHref legacyBehavior>
+              <Link href="/emergency-contact/settings">
                   <SidebarMenuButton 
-                      asChild
                       isActive={pathname === '/emergency-contact/settings'}
                       tooltip={t('nav.settings')}
                   >
-                    <a>
-                      <Settings />
-                      <span>{t('nav.settings')}</span>
-                    </a>
+                    <Settings />
+                    <span>{t('nav.settings')}</span>
                   </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
