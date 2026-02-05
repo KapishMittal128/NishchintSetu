@@ -91,15 +91,10 @@ export default {
             height: '0',
           },
         },
-        'breathing-glow': {
-            '0%, 100%': { filter: 'drop-shadow(0 0 1px hsl(var(--primary)))', transform: 'scale(1)' },
-            '50%': { filter: 'drop-shadow(0 0 5px hsl(var(--primary)))', transform: 'scale(1.1)' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'breathing-glow': 'breathing-glow 3s ease-in-out infinite',
       },
     },
   },

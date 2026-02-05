@@ -70,9 +70,9 @@
     --chart-4: 45 95% 55%;
     --chart-5: 210 90% 55%;
 
-    --sidebar-background: 224 71% 8% / 0.6;
+    --sidebar-background: 224 71% 6% / 0.75;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9% / 0.5;
+    --sidebar-border: 240 3.7% 15.9% / 0.7;
     --sidebar-accent: 262 85% 65% / 0.2;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-ring: 215 20.2% 65.1%;
@@ -88,8 +88,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  [data-sidebar="menu-button"][data-active="true"] > svg {
-      animation: breathing-glow 3s ease-in-out infinite;
+  [data-sidebar='menu-button'][data-active='true'] {
+    @apply relative bg-sidebar-accent text-sidebar-accent-foreground font-medium;
+  }
+  [data-sidebar='menu-button'][data-active='true']::before {
+    content: '';
+    @apply absolute left-0 top-1/4 h-1/2 w-1 rounded-full bg-primary;
   }
 }
 
@@ -174,15 +178,4 @@
   to {
     background-position-y: -10000px;
   }
-}
-
-@keyframes breathing-glow {
-    0%, 100% {
-        filter: drop-shadow(0 0 1px hsl(var(--primary)));
-        transform: scale(1);
-    }
-    50% {
-        filter: drop-shadow(0 0 5px hsl(var(--primary)));
-        transform: scale(1.1);
-    }
 }
