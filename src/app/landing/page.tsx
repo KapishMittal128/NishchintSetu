@@ -59,7 +59,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-4 text-center animate-in fade-in slide-in-from-left-12 duration-700">
                     
-                    <h1 className="text-5xl md:text-6xl font-bold text-white tracking-wider">
+                    <h1 className="text-6xl md:text-7xl font-bold text-white tracking-wider">
                         Nishchint <span className="text-primary">Setu</span>
                     </h1>
 
