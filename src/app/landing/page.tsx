@@ -11,27 +11,9 @@ import placeholderImages from '@/lib/placeholder-images.json';
 
 // --- Components ---
 
-const AnimatedBackground = () => {
-  const spotlightRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (spotlightRef.current) {
-        spotlightRef.current.style.setProperty('--x', `${e.clientX}px`);
-        spotlightRef.current.style.setProperty('--y', `${e.clientY}px`);
-      }
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  return (
-    <div className="fixed inset-0 h-full w-full">
-        <div className="stars-bg absolute inset-0 -z-20" />
-        <div ref={spotlightRef} className="spotlight-effect absolute inset-0 -z-10" />
-    </div>
-  );
-};
+const SpaceBackground = () => (
+  <div className="stars-bg fixed inset-0 -z-20 h-full w-full" />
+);
 
 const Header = () => {
   const { t } = useTranslation();
@@ -57,10 +39,10 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
         <section className="relative min-h-screen flex items-center overflow-hidden">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-white">
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-white">
                         A gentle guardian for your phone calls.
                     </h1>
-                    <p className="text-xl md:text-2xl text-gray-300 max-w-xl mx-auto md:mx-0">
+                    <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto md:mx-0">
                         Protecting your independence with on-device AI that detects scams while keeping your conversations private.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -75,7 +57,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[320px] h-[420px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
+                    <div className="w-[280px] h-[380px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
                          <Image
                             src={heroImage.src}
                             alt="An actual robot assistant"
@@ -113,30 +95,50 @@ const StatsSection = () => {
     )
 }
 
-const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteractionStart: (color: string) => void, onInteractionEnd: () => void }) => {
-  const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'hsla(346, 84%, 60%, 0.4)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'hsla(199, 91%, 60%, 0.4)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'hsla(165, 76%, 42%, 0.4)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'hsla(39, 92%, 50%, 0.4)' },
-  ];
+const FeatureCard = ({ item }: { item: any }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseEnter = (color: string) => {
-    onInteractionStart(color);
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      cardRef.current.style.setProperty('--x', `${x}px`);
+      cardRef.current.style.setProperty('--y', `${y}px`);
+      cardRef.current.style.setProperty('--spotlight-color', item.spotlightColor);
+    }
   };
 
   const handleMouseLeave = () => {
-    onInteractionEnd();
+    if (cardRef.current) {
+      cardRef.current.style.setProperty('--spotlight-color', 'transparent');
+    }
   };
 
-  const handleTouchStart = (color: string) => {
-    onInteractionStart(color);
-  };
-  
-  const handleTouchEnd = () => {
-    onInteractionEnd();
-  };
+  return (
+    <div
+      ref={cardRef}
+      className="spotlight-card group relative text-center p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5")}>
+        <item.icon className={cn("h-8 w-8", item.color)} />
+      </div>
+      <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+      <p className="mt-2 text-lg text-gray-400">{item.description}</p>
+    </div>
+  );
+};
 
+
+const FeaturesSection = () => {
+  const features = [
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'hsla(346, 84%, 60%, 0.6)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'hsla(199, 91%, 60%, 0.6)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'hsla(165, 76%, 42%, 0.6)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'hsla(39, 92%, 50%, 0.6)' },
+  ];
 
   return (
     <section className="py-24 bg-transparent">
@@ -147,20 +149,7 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((item, i) => (
-             <div 
-                key={i} 
-                className="group relative text-center p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300"
-                onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
-                onMouseLeave={handleMouseLeave}
-                onTouchStart={() => handleTouchStart(item.spotlightColor)}
-                onTouchEnd={handleTouchEnd}
-              >
-                <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5")}>
-                  <item.icon className={cn("h-8 w-8", item.color)} />
-                </div>
-                <h3 className="text-2xl font-bold text-white">{item.title}</h3>
-                <p className="mt-2 text-lg text-gray-400">{item.description}</p>
-              </div>
+             <FeatureCard key={i} item={item} />
           ))}
         </div>
       </div>
@@ -183,24 +172,10 @@ const FinalCTASection = () => {
 
 export default function LandingPage() {
   const router = useRouter();
-  const defaultSpotlightColor = 'hsla(39, 92%, 50%, 0.25)'; // Soft orange
-
+  
   const handleGetStarted = () => {
     router.push('/role-selection');
   };
-
-  const handleInteractionStart = useCallback((color: string) => {
-    document.documentElement.style.setProperty('--spotlight-color', color);
-  }, []);
-
-  const handleInteractionEnd = useCallback(() => {
-    document.documentElement.style.setProperty('--spotlight-color', defaultSpotlightColor);
-  }, [defaultSpotlightColor]);
-
-  useEffect(() => {
-    // Set the default spotlight color on initial load
-    document.documentElement.style.setProperty('--spotlight-color', defaultSpotlightColor);
-  }, [defaultSpotlightColor]);
 
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -212,16 +187,13 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden text-white isolate">
-      <AnimatedBackground />
+    <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-black">
+      <SpaceBackground />
       <Header />
       <main className="relative z-10">
         <HeroSection onGetStartedClick={handleGetStarted} />
         <StatsSection />
-        <FeaturesSection 
-            onInteractionStart={handleInteractionStart}
-            onInteractionEnd={handleInteractionEnd}
-        />
+        <FeaturesSection />
         <FinalCTASection />
       </main>
     </div>

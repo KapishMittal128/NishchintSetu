@@ -78,16 +78,6 @@
 }
 
 @layer utilities {
-  .spotlight-effect {
-    background: radial-gradient(
-      1000px circle at var(--x) var(--y),
-      var(--spotlight-color),
-      transparent 40%
-    );
-    transition: background 0.5s ease-out; /* Slower fade for trail effect */
-    pointer-events: none;
-  }
-
   .floating-icon {
     animation: float 6s ease-in-out infinite;
   }
@@ -98,13 +88,43 @@
 
   .stars-bg {
     background-color: black;
-    background-image:
-      radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
-      radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
-      radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px),
-      radial-gradient(rgba(255,255,255,.4), rgba(255,255,255,.1) 2px, transparent 30px);
-    background-size: 550px 550px, 350px 350px, 250px 250px, 150px 150px;
-    background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
+    background-image: 
+      /* Nebulae layer */
+      radial-gradient(ellipse at 70% 30%, hsla(210, 60%, 40%, 0.25), transparent 60%),
+      radial-gradient(ellipse at 30% 80%, hsla(300, 50%, 40%, 0.25), transparent 60%),
+      /* Star layers */
+      radial-gradient(1px 1px at 10% 20%, white, transparent),
+      radial-gradient(1.5px 1.5px at 40% 30%, white, transparent),
+      radial-gradient(1px 1px at 80% 10%, #DDD, transparent),
+      radial-gradient(1.5px 1.5px at 90% 60%, #EEE, transparent),
+      radial-gradient(1px 1px at 25% 55%, #FFF, transparent),
+      radial-gradient(2px 2px at 55% 75%, white, transparent),
+      radial-gradient(2.5px 2.5px at 5% 90%, white, transparent);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+
+  .spotlight-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .spotlight-card::before {
+    content: "";
+    position: absolute;
+    top: var(--y, 0px);
+    left: var(--x, 0px);
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--spotlight-color) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    pointer-events: none;
+  }
+
+  .spotlight-card:hover::before {
+    opacity: 1;
   }
 }
 
