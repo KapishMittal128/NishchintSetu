@@ -81,7 +81,7 @@
   }
 
   .stars-bg {
-    background-color: black;
+    background-color: hsl(220, 40%, 4%);
     background-image: 
       /* Star layers */
       radial-gradient(1px 1px at 10% 20%, white, transparent),
@@ -90,32 +90,31 @@
       radial-gradient(1.5px 1.5px at 90% 60%, #EEE, transparent),
       radial-gradient(1px 1px at 25% 55%, #FFF, transparent),
       radial-gradient(2px 2px at 55% 75%, white, transparent),
-      radial-gradient(2.5px 2.5px at 5% 90%, white, transparent);
+      radial-gradient(2.5px 2.5px at 5% 90%, white, transparent),
+      radial-gradient(1px 1px at 95% 5%, white, transparent),
+      radial-gradient(1.5px 1.5px at 5% 35%, white, transparent),
+      radial-gradient(1px 1px at 60% 90%, #DDD, transparent),
+      radial-gradient(1.5px 1.5px at 20% 80%, #EEE, transparent),
+      radial-gradient(1px 1px at 75% 45%, #FFF, transparent),
+      radial-gradient(2px 2px at 35% 65%, white, transparent),
+      radial-gradient(2.5px 2.5px at 85% 25%, white, transparent);
     background-repeat: no-repeat;
     background-size: 100% 100%;
   }
 
-  .spotlight-card-container {
-    position: relative;
-    overflow: hidden;
-  }
-
   .spotlight-card-bloom {
-    content: "";
+    --x: 50%;
+    --y: 50%;
+    --bloom-color: hsla(55, 100%, 70%, 0.3);
     position: absolute;
-    top: var(--y, 0px);
-    left: var(--x, 0px);
+    left: var(--x);
+    top: var(--y);
     transform: translate(-50%, -50%);
-    width: 500px;
-    height: 500px;
-    opacity: 0;
-    transition: opacity 0.4s ease-in-out, background 0.3s ease-in-out;
-    pointer-events: none;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--bloom-color) 0%, transparent 60%);
+    transition: background 0.3s ease-in-out;
     filter: blur(40px);
-  }
-  
-  .spotlight-card-container:hover .spotlight-card-bloom {
-    opacity: 0.5;
   }
 }
 

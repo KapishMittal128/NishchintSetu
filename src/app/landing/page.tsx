@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Heart, ShieldCheck, Eye, Zap, ArrowRight, Target, Clock } from 'lucide-react';
-import { useTranslation } from '@/context/translation-context';
-import placeholderImages from '@/lib/placeholder-images.json';
 
 // --- Components ---
 
@@ -16,7 +14,6 @@ const SpaceBackground = () => (
 );
 
 const Header = () => {
-  const { t } = useTranslation();
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
       <div className="container mx-auto flex h-24 items-center justify-between px-6">
@@ -24,7 +21,7 @@ const Header = () => {
             <div className="p-2 bg-primary/10 rounded-lg">
                 <ShieldCheck className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="text-3xl font-bold text-white tracking-tight">{t('appName')}</h2>
+            <h2 className="text-3xl font-bold text-white tracking-tight">Nishchint Setu</h2>
         </div>
       </div>
     </header>
@@ -32,8 +29,13 @@ const Header = () => {
 };
 
 const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
-    const { t } = useTranslation();
-    const heroImage = placeholderImages.landingHero;
+    const heroImage = {
+        "src": "https://picsum.photos/seed/actual-robot/600/600",
+        "width": 600,
+        "height": 600,
+        "hint": "actual robot"
+    };
+
     const stats = [
         { icon: ShieldCheck, text: "100% Privacy" },
         { icon: Target, text: "Highly Accurate" },
@@ -62,7 +64,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     </div>
                      <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
                         {stats.map((stat, index) => (
-                            <div key={index} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
+                             <div key={index} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
                                 <stat.icon className="h-5 w-5 text-gray-300" />
                                 <span className="text-sm font-medium text-gray-200">{stat.text}</span>
                             </div>
@@ -70,7 +72,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[400px] h-[450px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
+                    <div className="w-[450px] h-[450px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
                          <Image
                             src={heroImage.src}
                             alt="An actual robot assistant"
@@ -86,34 +88,12 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     )
 }
 
-const FeatureCard = ({ item }: { item: any }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (cardRef.current) {
-      const rect = cardRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      cardRef.current.style.setProperty('--x', `${x}px`);
-      cardRef.current.style.setProperty('--y', `${y}px`);
-    }
-  };
-
+const FeatureCard = ({ item, onMouseEnter }: { item: any, onMouseEnter: () => void }) => {
   return (
     <div
-      ref={cardRef}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseMove={handleMouseMove}
-      className="spotlight-card-container group relative p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300"
+      onMouseEnter={onMouseEnter}
+      className="group relative p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300 overflow-hidden"
     >
-      <div 
-        className="spotlight-card-bloom"
-        style={{
-            background: isHovered ? item.spotlightColor : 'transparent',
-        }}
-      />
       <div className={cn("relative z-10 text-center")}>
         <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5")}>
           <item.icon className={cn("h-8 w-8", item.color)} />
@@ -126,16 +106,16 @@ const FeatureCard = ({ item }: { item: any }) => {
 };
 
 
-const FeaturesSection = () => {
+const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => void }) => {
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'radial-gradient(circle, hsla(346, 84%, 60%, 0.6) 0%, transparent 60%)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'radial-gradient(circle, hsla(199, 91%, 60%, 0.6) 0%, transparent 60%)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'radial-gradient(circle, hsla(175, 76%, 42%, 0.6) 0%, transparent 60%)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'radial-gradient(circle, hsla(39, 92%, 50%, 0.6) 0%, transparent 60%)' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'hsla(346, 84%, 60%, 0.5)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'hsla(199, 91%, 60%, 0.5)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'hsla(175, 76%, 42%, 0.5)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'hsla(39, 92%, 50%, 0.5)' },
   ];
 
   return (
-    <section className="py-24 bg-transparent">
+    <section className="py-24 bg-transparent" onMouseLeave={() => setBloomColor('hsla(55, 100%, 70%, 0.3)')}>
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white">A Guardian Angel for Your Digital Life</h2>
@@ -143,7 +123,11 @@ const FeaturesSection = () => {
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((item, i) => (
-             <FeatureCard key={i} item={item} />
+             <FeatureCard 
+                key={i} 
+                item={item} 
+                onMouseEnter={() => setBloomColor(item.spotlightColor)}
+            />
           ))}
         </div>
       </div>
@@ -166,6 +150,22 @@ const FinalCTASection = () => {
 
 export default function LandingPage() {
   const router = useRouter();
+  const mainRef = useRef<HTMLDivElement>(null);
+  const [bloomColor, setBloomColor] = useState('hsla(55, 100%, 70%, 0.3)');
+  const [spotlightStyle, setSpotlightStyle] = useState({});
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (mainRef.current) {
+        const rect = mainRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        setSpotlightStyle({
+            '--x': `${x}px`,
+            '--y': `${y}px`,
+            '--bloom-color': bloomColor,
+        });
+    }
+  };
   
   const handleGetStarted = () => {
     router.push('/role-selection');
@@ -183,12 +183,23 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-black">
       <SpaceBackground />
-      <Header />
-      <main className="relative z-10">
-        <HeroSection onGetStartedClick={handleGetStarted} />
-        <FeaturesSection />
-        <FinalCTASection />
-      </main>
+       <div 
+        ref={mainRef}
+        onMouseMove={handleMouseMove}
+        className="relative z-10 w-full"
+      >
+        <div 
+            className="spotlight-card-bloom pointer-events-none fixed inset-0 z-30 transition-colors duration-300"
+            style={spotlightStyle as React.CSSProperties}
+        />
+
+        <Header />
+        <main>
+          <HeroSection onGetStartedClick={handleGetStarted} />
+          <FeaturesSection setBloomColor={setBloomColor}/>
+          <FinalCTASection />
+        </main>
+      </div>
     </div>
   );
 }
