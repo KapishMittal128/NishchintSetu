@@ -42,7 +42,7 @@ const SpotlightEffect = () => {
 
 
 const SpaceBackground = () => (
-  <div className="fixed inset-0 -z-20 h-full w-full overflow-hidden" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7 / 0.96)' }}>
+  <div className="fixed inset-0 -z-20 h-full w-full overflow-hidden" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
     <div id="stars1" className="stars-bg" />
     <div id="stars2" className="stars-bg" />
     <div id="stars3" className="stars-bg" />
@@ -64,14 +64,14 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     ];
 
     return (
-        <section className="relative min-h-screen flex flex-col justify-center overflow-hidden py-20 sm:py-24">
+        <section className="relative min-h-screen flex flex-col justify-center py-20 sm:py-24">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-12 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <ShieldCheck className="h-7 w-7 text-primary" />
                         </div>
-                        <h2 className="text-6xl font-bold text-white tracking-tight">NISHCHINT <span className="text-primary">SETU</span></h2>
+                        <h2 className="text-8xl font-bold text-white tracking-tight">NISHCHINT <span className="text-primary">SETU</span></h2>
                     </div>
 
                     <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-white">
@@ -252,7 +252,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden text-white isolate" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2 7 21 / 0.96)' }}>
+    <div className="min-h-screen w-full overflow-x-hidden text-white isolate" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
       <SpotlightEffect />
       <SpaceBackground />
        <div 
