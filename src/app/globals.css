@@ -34,7 +34,7 @@
     --radius: 0.75rem;
 
     /* Spotlight effect variables */
-    --spotlight-color: hsla(0, 0%, 0%, 0.05);
+    --spotlight-color: hsla(45, 93%, 47%, 0.1);
   }
 
   .dark {
@@ -62,7 +62,7 @@
     --ring: 215 20.2% 65.1%;
 
     /* Spotlight effect variables */
-    --spotlight-color: hsla(0, 0%, 100%, 0.1);
+    --spotlight-color: hsla(45, 93%, 47%, 0.1);
   }
 }
 
@@ -78,22 +78,9 @@
 }
 
 @layer utilities {
-  .animated-gradient {
-    background: linear-gradient(
-      -45deg,
-      hsl(var(--primary) / 0.1),
-      hsl(var(--primary) / 0.05),
-      hsl(var(--secondary) / 0.2),
-      hsl(var(--accent) / 0.1),
-      hsl(var(--primary) / 0.15)
-    );
-    background-size: 400% 400%;
-    animation: gradient-animation 45s ease infinite;
-  }
-
   .spotlight-effect {
     background: radial-gradient(
-      400px circle at var(--x) var(--y),
+      500px circle at var(--x) var(--y),
       var(--spotlight-color),
       transparent 80%
     );
@@ -106,18 +93,6 @@
   
   .pulse-button {
     animation: pulse-glow 5s ease-in-out infinite;
-  }
-}
-
-@keyframes gradient-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
   }
 }
 
