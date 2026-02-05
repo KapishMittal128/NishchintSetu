@@ -19,7 +19,7 @@ import {
 // --- Components ---
 
 const SpaceBackground = () => (
-  <div className="fixed inset-0 -z-20 h-full w-full bg-slate-950 overflow-hidden">
+  <div className="fixed inset-0 -z-20 h-full w-full bg-slate-950 overflow-hidden" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(10 25 47 / var(--tw-bg-opacity))' }}>
     <div id="stars1" className="stars-bg" />
     <div id="stars2" className="stars-bg" />
     <div id="stars3" className="stars-bg" />
@@ -43,10 +43,10 @@ const Header = () => {
 
 const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
     const heroImage = {
-        "src": "https://picsum.photos/seed/actual-robot/600/600",
+        "src": "https://picsum.photos/seed/robot-elderly-illustration/600/600",
         "width": 600,
         "height": 600,
-        "hint": "actual robot"
+        "hint": "robot helping elderly person illustration"
     };
 
     const stats = [
@@ -75,7 +75,10 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                             Get Started Now <ArrowRight className="ml-2"/>
                         </Button>
                     </div>
-                     <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+
+                    <div className="w-full my-6 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+
+                     <div className="flex flex-wrap justify-center md:justify-start gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
                         {stats.map((stat, index) => (
                              <div key={index} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
                                 <stat.icon className="h-5 w-5 text-gray-300" />
@@ -83,24 +86,28 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                             </div>
                         ))}
                     </div>
+                    
+                    <div className="w-full mt-6 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="relative w-[450px] h-[450px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
-                         <Image
-                            src={heroImage.src}
-                            alt="An actual robot assistant"
-                            width={heroImage.width}
-                            height={heroImage.height}
-                            data-ai-hint={heroImage.hint}
-                            className="object-cover w-full h-full"
-                        />
-                        <div className="absolute top-6 -left-10 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white -rotate-12">
-                            <Sparkles className="h-5 w-5 text-yellow-400" />
-                            <span>AI Powered</span>
+                    <div className="relative w-[500px] h-[450px] transition-transform duration-500 hover:scale-105">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-slate-950 rounded-3xl p-2 shadow-2xl border border-white/10">
+                            <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
+                                <Image
+                                    src={heroImage.src}
+                                    alt="A friendly robot with an elderly person"
+                                    width={heroImage.width}
+                                    height={heroImage.height}
+                                    data-ai-hint={heroImage.hint}
+                                    className="object-contain w-full h-full"
+                                />
+                            </div>
                         </div>
-                        <div className="absolute bottom-6 -right-8 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white rotate-12">
-                            <Target className="h-5 w-5 text-sky-400" />
-                            <span>Accurate</span>
+                        <div className="absolute top-5 left-0 bg-green-500 text-white rounded-lg px-4 py-1.5 text-sm font-semibold shadow-lg">
+                            Safe
+                        </div>
+                        <div className="absolute bottom-5 right-0 bg-blue-500 text-white rounded-lg px-4 py-1.5 text-sm font-semibold shadow-lg">
+                            Protected
                         </div>
                     </div>
                 </div>
@@ -109,17 +116,14 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     )
 }
 
-const FeatureCard = ({ item, setBloomColor }: { item: any, setBloomColor: (color: string) => void }) => {
+const FeatureCard = ({ item }: { item: any }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <div
-          onMouseEnter={() => setBloomColor(item.bloomColor)}
-          onMouseLeave={() => setBloomColor('hsla(55, 100%, 70%, 0.3)')}
           className={cn(
             "group relative p-8 rounded-2xl bg-secondary transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col text-left",
-            "hover:-translate-y-2",
-            item.cardClass
+            "hover:-translate-y-2"
           )}
         >
           <div
@@ -158,7 +162,7 @@ const FeatureCard = ({ item, setBloomColor }: { item: any, setBloomColor: (color
   );
 };
 
-const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => void }) => {
+const FeaturesSection = () => {
   const features = [
     {
       icon: Shield,
@@ -167,8 +171,6 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
       iconBg: 'bg-red-900/40',
       iconColor: 'text-red-400',
-      cardClass: "border-red-900/30",
-      bloomColor: 'hsla(0, 100%, 70%, 0.4)',
       hoverBg: 'hsla(0, 100%, 70%, 0.1)'
     },
     {
@@ -178,8 +180,6 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
       iconBg: 'bg-purple-900/40',
       iconColor: 'text-purple-400',
-      cardClass: "border-purple-900/50",
-      bloomColor: 'hsla(280, 100%, 70%, 0.4)',
       hoverBg: 'hsla(280, 100%, 70%, 0.1)'
     },
     {
@@ -189,8 +189,6 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
-      cardClass: "border-green-900/50",
-      bloomColor: 'hsla(140, 100%, 70%, 0.4)',
       hoverBg: 'hsla(140, 100%, 70%, 0.1)'
     },
     {
@@ -200,8 +198,6 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
       iconBg: 'bg-sky-900/40',
       iconColor: 'text-sky-400',
-      cardClass: "border-sky-900/50",
-      bloomColor: 'hsla(200, 100%, 70%, 0.4)',
       hoverBg: 'hsla(200, 100%, 70%, 0.1)'
     },
   ];
@@ -209,16 +205,16 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
   return (
     <section className="py-24 bg-transparent">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-12 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000">
-          <h2 className="text-4xl font-bold text-white">Powerful Features</h2>
+        <div className="text-center mb-16 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000">
+          <h2 className="text-4xl font-bold text-white">Powerful Features, Total Peace of Mind</h2>
           <p className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">
-            Comprehensive protection powered by advanced AI technology
+            Comprehensive protection powered by advanced on-device AI technology
           </p>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((item, i) => (
             <div key={i} className="animate-in fade-in-0 slide-in-from-bottom-12 duration-1000" style={{ animationDelay: `${i * 150}ms` }}>
-              <FeatureCard item={item} setBloomColor={setBloomColor} />
+              <FeatureCard item={item} />
             </div>
           ))}
         </div>
@@ -232,22 +228,6 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
 
 export default function LandingPage() {
   const router = useRouter();
-  const mainRef = useRef<HTMLDivElement>(null);
-  const [bloomColor, setBloomColor] = useState('hsla(55, 100%, 70%, 0.3)');
-  const [spotlightStyle, setSpotlightStyle] = useState({});
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (mainRef.current) {
-        const rect = mainRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        setSpotlightStyle({
-            '--x': `${x}px`,
-            '--y': `${y}px`,
-            '--bloom-color': bloomColor,
-        });
-    }
-  };
   
   const handleGetStarted = () => {
     router.push('/role-selection');
@@ -266,19 +246,12 @@ export default function LandingPage() {
     <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-slate-950" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2 7 21 / var(--tw-bg-opacity))' }}>
       <SpaceBackground />
        <div 
-        ref={mainRef}
-        onMouseMove={handleMouseMove}
         className="relative z-10 w-full"
       >
-        <div 
-            className="spotlight-card-bloom pointer-events-none fixed inset-0 z-30 transition-colors duration-300"
-            style={spotlightStyle as React.CSSProperties}
-        />
-
         <Header />
         <main>
           <HeroSection onGetStartedClick={handleGetStarted} />
-          <FeaturesSection setBloomColor={setBloomColor}/>
+          <FeaturesSection />
         </main>
       </div>
     </div>
