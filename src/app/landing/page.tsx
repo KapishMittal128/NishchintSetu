@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Shield, Lock, ShieldCheck, HandHelping, ArrowRight, Target, Clock } from 'lucide-react';
+import { Shield, Lock, ShieldCheck, HandHelping, ArrowRight, Target, Clock, Sparkles } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -85,7 +85,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[450px] h-[450px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
+                    <div className="relative w-[450px] h-[450px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
                          <Image
                             src={heroImage.src}
                             alt="An actual robot assistant"
@@ -94,6 +94,14 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                             data-ai-hint={heroImage.hint}
                             className="object-cover w-full h-full"
                         />
+                        <div className="absolute top-6 -left-10 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white -rotate-12">
+                            <Sparkles className="h-5 w-5 text-yellow-400" />
+                            <span>AI Powered</span>
+                        </div>
+                        <div className="absolute bottom-6 -right-8 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white rotate-12">
+                            <Target className="h-5 w-5 text-sky-400" />
+                            <span>Accurate</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -161,7 +169,7 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       iconColor: 'text-red-400',
       cardClass: "border-red-900/30",
       bloomColor: 'hsla(0, 100%, 70%, 0.4)',
-      hoverBg: 'hsla(0, 100%, 70%, 0.05)'
+      hoverBg: 'hsla(0, 100%, 70%, 0.1)'
     },
     {
       icon: Lock,
@@ -172,7 +180,7 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       iconColor: 'text-purple-400',
       cardClass: "border-purple-900/50",
       bloomColor: 'hsla(280, 100%, 70%, 0.4)',
-      hoverBg: 'hsla(280, 100%, 70%, 0.05)'
+      hoverBg: 'hsla(280, 100%, 70%, 0.1)'
     },
     {
       icon: ShieldCheck,
@@ -183,7 +191,7 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       iconColor: 'text-green-400',
       cardClass: "border-green-900/50",
       bloomColor: 'hsla(140, 100%, 70%, 0.4)',
-      hoverBg: 'hsla(140, 100%, 70%, 0.05)'
+      hoverBg: 'hsla(140, 100%, 70%, 0.1)'
     },
     {
       icon: HandHelping,
@@ -194,14 +202,14 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
       iconColor: 'text-sky-400',
       cardClass: "border-sky-900/50",
       bloomColor: 'hsla(200, 100%, 70%, 0.4)',
-      hoverBg: 'hsla(200, 100%, 70%, 0.05)'
+      hoverBg: 'hsla(200, 100%, 70%, 0.1)'
     },
   ];
 
   return (
     <section className="py-24 bg-transparent">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000">
+        <div className="text-center mb-12 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000">
           <h2 className="text-4xl font-bold text-white">Powerful Features</h2>
           <p className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">
             Comprehensive protection powered by advanced AI technology
@@ -255,7 +263,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-slate-950">
+    <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-slate-950" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2 7 21 / var(--tw-bg-opacity))' }}>
       <SpaceBackground />
        <div 
         ref={mainRef}
