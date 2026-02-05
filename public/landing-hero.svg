@@ -1,4 +1,7 @@
 <svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="600" height="600" fill="#1A202C"/>
-<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="36px" fill="#E2E8F0">Your Image Here</text>
+<rect width="600" height="600" fill="#222738"/>
+<rect x="100" y="100" width="400" height="400" rx="20" fill="#333A55"/>
+<path d="M200 300L275 225L350 300L425 225" stroke="#4F5B8A" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="250" cy="350" r="20" fill="#4F5B8A"/>
+<circle cx="350" cy="350" r="20" fill="#4F5B8A"/>
 </svg>

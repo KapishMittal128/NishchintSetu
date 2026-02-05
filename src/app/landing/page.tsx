@@ -112,6 +112,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                                     width={heroImage.width}
                                     height={heroImage.height}
                                     className="object-contain w-full h-full"
+                                    priority
                                 />
                             </div>
                         </div>
@@ -173,7 +174,7 @@ const FeaturesSection = () => {
     {
       icon: Shield,
       title: "Real-Time Risk Analysis",
-      description: "Live on-device analysis to detect suspicious keywords and patterns.",
+      description: "Live analysis to detect suspicious keywords and patterns.",
       longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
       iconBg: 'bg-red-900/40',
       iconColor: 'text-red-400',
@@ -182,7 +183,7 @@ const FeaturesSection = () => {
     {
       icon: Lock,
       title: "100% Private",
-      description: "No audio data ever leaves your phone. All analysis happens locally.",
+      description: "No audio data ever leaves your phone. All analysis is local.",
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
@@ -191,7 +192,7 @@ const FeaturesSection = () => {
     {
       icon: ShieldCheck,
       title: "Guardian Alerts",
-      description: "If a threat is identified, your chosen emergency contact is alerted.",
+      description: "If a threat is identified, your chosen contact is alerted.",
       longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
@@ -200,7 +201,7 @@ const FeaturesSection = () => {
     {
       icon: HandHelping,
       title: "Guided Assistance",
-      description: "App detects if you're stuck and offers simple options to get back on track.",
+      description: "App detects if you're stuck and offers simple help.",
       longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
       iconBg: 'bg-sky-900/40',
       iconColor: 'text-sky-400',
