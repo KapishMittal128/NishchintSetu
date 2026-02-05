@@ -170,8 +170,14 @@
     "title": "Conversation Monitoring",
     "client": {
       "statusTitle": "Status",
-      "status": "{{status}}",
+      "status": {
+        "idle": "Ready to start analysis.",
+        "listening": "Listening for conversation...",
+        "analyzing": "Analyzing conversation...",
+        "complete": "Analysis complete."
+      },
       "startAnalysis": "Start Analysis",
+      "stopAnalysis": "Stop & Assess Risk",
       "riskDetailsTitle": "Analysis Details",
       "riskDetailsDescription": "An AI-powered analysis of the conversation.",
       "initialExplanation": "Click \"Start Analysis\" to begin.",
@@ -198,6 +204,11 @@
         "low": "Low Risk",
         "medium": "Medium Risk",
         "high": "High Risk"
+      },
+      "riskExplanation": {
+        "high": "High risk detected due to keywords related to financial pressure or security threats.",
+        "medium": "Medium risk detected due to urgent language or requests for information.",
+        "low": "No significant risk indicators detected in the conversation so far."
       },
       "aiError": "The AI analysis could not be completed. Please try again.",
       "toneAnalysis": "Tone Analysis"
