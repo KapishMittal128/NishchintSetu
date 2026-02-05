@@ -46,6 +46,8 @@ const SpaceBackground = () => (
     <div id="stars1" className="stars-bg" />
     <div id="stars2" className="stars-bg" />
     <div id="stars3" className="stars-bg" />
+    <div id="stars4" className="stars-bg" />
+    <div id="stars5" className="stars-bg" />
   </div>
 );
 
