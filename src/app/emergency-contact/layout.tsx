@@ -63,9 +63,11 @@ export default function EmergencyContactLayout({ children }: { children: React.R
       <Sidebar collapsible="icon">
         <SidebarRail />
         <SidebarHeader>
-          <h1 className="text-2xl font-semibold px-2 group-data-[state=expanded]:block hidden">{t('appName')}</h1>
-          <ShieldCheck className="h-7 w-7 text-primary mx-auto group-data-[state=collapsed]:block hidden" />
-          <p className="text-sm text-muted-foreground px-2 group-data-[state=expanded]:block hidden">{t('nav.guardianDashboard')}</p>
+          <div className="relative flex h-8 items-center justify-center">
+            <h1 className="absolute text-2xl font-semibold px-2 transition-opacity duration-300 group-data-[state=expanded]:opacity-100 group-data-[state=collapsed]:opacity-0">{t('appName')}</h1>
+            <ShieldCheck className="absolute h-7 w-7 text-primary transition-opacity duration-300 group-data-[state=collapsed]:opacity-100 group-data-[state=expanded]:opacity-0" />
+          </div>
+          <p className="text-sm text-muted-foreground px-2 transition-opacity duration-300 group-data-[state=expanded]:opacity-100 group-data-[state=collapsed]:opacity-0">{t('nav.guardianDashboard')}</p>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
