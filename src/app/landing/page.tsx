@@ -81,10 +81,10 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[380px] h-[500px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
+                    <div className="w-[320px] h-[420px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
                          <Image
                             src={heroImage.src}
-                            alt="AI assistant helping an elderly person"
+                            alt="An actual robot assistant"
                             width={heroImage.width}
                             height={heroImage.height}
                             data-ai-hint={heroImage.hint}
@@ -155,7 +155,7 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
           {features.map((item, i) => (
              <div 
                 key={i} 
-                className="group relative text-center p-8 rounded-2xl bg-gray-900/50 border border-gray-800 hover:shadow-xl hover:border-gray-700 hover:-translate-y-2 transition-all duration-300"
+                className="group relative text-center p-8 rounded-2xl bg-black/30 border border-gray-800 hover:border-gray-600 hover:-translate-y-2 transition-all duration-300"
                 onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
                 onMouseLeave={handleMouseLeave}
                 onTouchStart={() => handleTouchStart(item.spotlightColor)}

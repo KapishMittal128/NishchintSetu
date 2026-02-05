@@ -1,8 +1,8 @@
 {
   "landingHero": {
-    "src": "https://picsum.photos/seed/robot-elderly/800/1000",
+    "src": "https://picsum.photos/seed/actual-robot/800/1000",
     "width": 800,
     "height": 1000,
-    "hint": "robot elderly"
+    "hint": "actual robot"
   }
 }
