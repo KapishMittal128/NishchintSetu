@@ -142,25 +142,13 @@ const StatsSection = () => {
     )
 }
 
-const FeaturesSection = () => {
-  const { theme } = useTheme();
-
+const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteractionStart: (color: string) => void, onInteractionEnd: () => void }) => {
   const features = [
     { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-500 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/50', spotlightColor: 'hsla(346, 84%, 60%, 0.2)' },
     { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-500 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-950/50', spotlightColor: 'hsla(199, 89%, 55%, 0.2)' },
     { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-500 dark:text-teal-400', bg: 'bg-teal-50 dark:bg-teal-950/50', spotlightColor: 'hsla(165, 76%, 42%, 0.2)' },
     { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/50', spotlightColor: 'hsla(45, 93%, 47%, 0.2)' },
   ];
-
-  const handleInteractionStart = (color: string) => {
-    document.documentElement.style.setProperty('--spotlight-color', color);
-  };
-
-  const handleInteractionEnd = () => {
-    const defaultColor = theme === 'dark' ? 'hsla(0, 0%, 100%, 0.1)' : 'hsla(0, 0%, 0%, 0.05)';
-    document.documentElement.style.setProperty('--spotlight-color', defaultColor);
-  };
-
 
   return (
     <section className="py-24 bg-background">
@@ -174,10 +162,10 @@ const FeaturesSection = () => {
              <div 
                 key={i} 
                 className="group relative text-center p-8 rounded-2xl bg-secondary/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-                onMouseEnter={() => handleInteractionStart(item.spotlightColor)}
-                onMouseLeave={handleInteractionEnd}
-                onTouchStart={() => handleInteractionStart(item.spotlightColor)}
-                onTouchEnd={handleInteractionEnd}
+                onMouseEnter={() => onInteractionStart(item.spotlightColor)}
+                onMouseLeave={onInteractionEnd}
+                onTouchStart={() => onInteractionStart(item.spotlightColor)}
+                onTouchEnd={onInteractionEnd}
               >
                 <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full", item.bg)}>
                   <item.icon className={cn("h-8 w-8", item.color)} />
@@ -214,8 +202,19 @@ const FinalCTASection = ({ onGetStartedClick }: { onGetStartedClick: () => void 
 
 export default function LandingPage() {
   const router = useRouter();
+  const { theme } = useTheme();
+
   const handleGetStarted = () => {
     router.push('/role-selection');
+  };
+
+  const handleInteractionStart = (color: string) => {
+    document.documentElement.style.setProperty('--spotlight-color', color);
+  };
+
+  const handleInteractionEnd = () => {
+    const defaultColor = theme === 'dark' ? 'hsla(0, 0%, 100%, 0.1)' : 'hsla(0, 0%, 0%, 0.05)';
+    document.documentElement.style.setProperty('--spotlight-color', defaultColor);
   };
 
   const [isClient, setIsClient] = useState(false);
@@ -236,7 +235,10 @@ export default function LandingPage() {
       <main className="relative z-10">
         <HeroSection onGetStartedClick={handleGetStarted} />
         <StatsSection />
-        <FeaturesSection />
+        <FeaturesSection 
+            onInteractionStart={handleInteractionStart}
+            onInteractionEnd={handleInteractionEnd}
+        />
         <FinalCTASection onGetStartedClick={handleGetStarted} />
       </main>
     </div>
