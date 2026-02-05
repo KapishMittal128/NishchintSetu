@@ -10,6 +10,7 @@ import { HistoryChart } from '@/components/app/history-chart';
 import { summarizeMonthlyReport } from '@/ai/flows/summarize-monthly-report';
 import { subDays, isAfter } from 'date-fns';
 import { useTranslation } from '@/context/translation-context';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 type MonthlyStats = {
   alertCount: number;
@@ -75,9 +76,12 @@ export default function ReportsPage() {
   return (
     <>
       <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
-        <h1 className="text-2xl font-semibold">
-          {t('ecReports.title', { values: { name } })}
-        </h1>
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="md:!hidden" />
+          <h1 className="text-2xl font-semibold">
+            {t('ecReports.title', { values: { name } })}
+          </h1>
+        </div>
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <ThemeToggle />
@@ -157,5 +161,3 @@ export default function ReportsPage() {
     </>
   );
 }
-
-    

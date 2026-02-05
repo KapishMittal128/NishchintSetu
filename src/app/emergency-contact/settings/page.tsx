@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
 import { useTranslation } from '@/context/translation-context';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function EmergencyContactSettingsPage() {
   const { emergencyContactProfile, removeEmergencyContactProfile } = useAppState();
@@ -32,9 +33,12 @@ export default function EmergencyContactSettingsPage() {
   return (
     <>
       <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
-        <h1 className="text-2xl font-semibold">
-            {t('ecSettings.title')}
-        </h1>
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="md:!hidden" />
+          <h1 className="text-2xl font-semibold">
+              {t('ecSettings.title')}
+          </h1>
+        </div>
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <ThemeToggle />
@@ -105,5 +109,3 @@ export default function EmergencyContactSettingsPage() {
     </>
   );
 }
-
-    
