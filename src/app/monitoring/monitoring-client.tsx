@@ -27,8 +27,7 @@ const THREATENING_KEYWORDS = ['suspicious', 'locked', 'suspended', 'arrest', 'le
 
 
 export default function MonitoringClient() {
-  const [isListening, setIsListening] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'listening' | 'analyzing'>('idle');
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [fullTranscript, setFullTranscript] = useState<string[]>([]);
   const [riskScore, setRiskScore] = useState(0);
@@ -39,7 +38,7 @@ export default function MonitoringClient() {
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
   
   const recognitionRef = useRef<any>(null);
-  const listeningRef = useRef(false);
+  const analysisTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const transcriptRef = useRef<string[]>([]);
 
   const { toast } = useToast();
@@ -78,15 +77,14 @@ export default function MonitoringClient() {
         </div>
     );
   };
-
+  
   const runAnalysis = useCallback(() => {
-    setIsAnalyzing(true);
-    if (transcriptRef.current.length === 0) {
-      setIsAnalyzing(false);
+    const currentTranscript = transcriptRef.current.join(' ');
+    
+    if (!currentTranscript) {
+      setStatus('idle');
       return;
     }
-    
-    const currentTranscript = transcriptRef.current.join(' ');
     const lowerCaseTranscript = currentTranscript.toLowerCase();
 
     let calculatedScore = 0;
@@ -138,7 +136,7 @@ export default function MonitoringClient() {
         });
     }
     
-    setIsAnalyzing(false);
+    setStatus('idle');
   }, [addNotification, userUID, toast, t]);
 
   useEffect(() => {
@@ -174,7 +172,7 @@ export default function MonitoringClient() {
     };
 
     recognition.onerror = (event: any) => {
-      if (event.error === 'aborted') {
+      if (event.error === 'aborted' || status !== 'listening') {
         return;
       }
       console.error('Speech recognition error:', event.error);
@@ -186,14 +184,12 @@ export default function MonitoringClient() {
           setHasPermission(false);
       }
       toast({ variant: 'destructive', title: t('monitoring.client.transcriptionError'), description: errorMessage });
-      setIsListening(false);
-      listeningRef.current = false;
+      setStatus('idle');
     };
 
     recognition.onend = () => {
-      if (listeningRef.current) {
-        setIsListening(false);
-        listeningRef.current = false;
+      if (status === 'listening') {
+        setStatus('analyzing');
         runAnalysis();
       }
     };
@@ -202,9 +198,11 @@ export default function MonitoringClient() {
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
+      if (analysisTimeoutRef.current) {
+        clearTimeout(analysisTimeoutRef.current);
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language, runAnalysis, t]);
+  }, [language, t, toast, runAnalysis, status]);
 
   const handleStartRecording = async () => {
     if (!isBrowserSupported) {
@@ -212,7 +210,7 @@ export default function MonitoringClient() {
       return;
     }
     
-    if (isListening || isAnalyzing) return;
+    if (status !== 'idle') return;
 
     if (hasPermission === null) {
       try {
@@ -246,31 +244,34 @@ export default function MonitoringClient() {
     setSentiment('calm');
     setIsEmergency(false);
     
-    setIsListening(true);
-    listeningRef.current = true;
+    setStatus('listening');
     recognitionRef.current?.start();
 
-    setTimeout(() => {
-      if (listeningRef.current && recognitionRef.current) {
+    if (analysisTimeoutRef.current) {
+      clearTimeout(analysisTimeoutRef.current);
+    }
+
+    analysisTimeoutRef.current = setTimeout(() => {
+      if (recognitionRef.current && status === 'listening') {
           recognitionRef.current.stop();
       }
     }, 3000);
   };
   
   const getStatusText = () => {
-    if (isListening) return t('monitoring.client.status.listening');
-    if (isAnalyzing) return t('monitoring.client.status.analyzing');
+    if (status === 'listening') return t('monitoring.client.status.listening');
+    if (status === 'analyzing') return t('monitoring.client.status.analyzing');
     if (riskScore > 0 && fullTranscript.length > 0) return t('monitoring.client.status.complete');
     return t('monitoring.client.status.idle');
   }
 
   const getButtonText = () => {
-    if (isAnalyzing) return t('monitoring.client.status.analyzing');
-    if (isListening) return t('monitoring.client.status.listening');
+    if (status === 'analyzing') return t('monitoring.client.status.analyzing');
+    if (status === 'listening') return t('monitoring.client.status.listening');
     return t('monitoring.client.startAnalysis');
   }
 
-  const ButtonIcon = isListening || isAnalyzing ? Loader2 : Mic;
+  const ButtonIcon = status === 'listening' || status === 'analyzing' ? Loader2 : Mic;
 
   return (
     <div className="w-full space-y-8 animate-in fade-in-0">
@@ -290,7 +291,7 @@ export default function MonitoringClient() {
             <Card className="md:col-span-1 animate-in fade-in-0 slide-in-from-left-8 duration-1000 ease-out">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
-                        {isListening ? <Mic className="text-primary"/> : <MicOff/>}
+                        {status === 'listening' ? <Mic className="text-primary"/> : <MicOff/>}
                         {t('monitoring.client.statusTitle')}
                     </CardTitle>
                      <CardDescription>{getStatusText()}</CardDescription>
@@ -303,10 +304,10 @@ export default function MonitoringClient() {
                           "w-full mt-4 text-lg py-7 transition-all duration-300 transform hover:scale-105"
                         )}
                         onClick={handleStartRecording} 
-                        disabled={isListening || isAnalyzing || !isBrowserSupported}
+                        disabled={status !== 'idle' || !isBrowserSupported}
                         data-trackable-id="toggle-analysis"
                     >
-                      <ButtonIcon className={cn("mr-2", (isListening || isAnalyzing) && "animate-spin")} />
+                      <ButtonIcon className={cn("mr-2", (status === 'listening' || status === 'analyzing') && "animate-spin")} />
                       {getButtonText()}
                     </Button>
                 </CardContent>
@@ -318,13 +319,13 @@ export default function MonitoringClient() {
                     <CardDescription>{t('monitoring.client.riskDetailsDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent className="text-base leading-relaxed space-y-6">
-                    { isAnalyzing ? <Skeleton className="h-4 w-full" /> : <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p> }
+                    { status === 'analyzing' ? <Skeleton className="h-4 w-full" /> : <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p> }
                     
-                     {fullTranscript.length > 0 && !isListening && (
+                     {fullTranscript.length > 0 && status === 'idle' && (
                         <SentimentDetails sentiment={sentiment} />
                     )}
 
-                    {scamIndicators.length > 0 && !isListening && (
+                    {scamIndicators.length > 0 && status === 'idle' && (
                         <div>
                             <h4 className="font-semibold mb-2">{t('monitoring.client.indicatorsTitle')}</h4>
                             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
