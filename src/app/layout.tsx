@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 const SpaceBackground = () => (
     <div className="fixed inset-0 -z-20 h-full w-full bg-background">
+      <div id="grid-bg" />
       <div id="stars1" className="stars-bg" />
       <div id="stars2" className="stars-bg" />
       <div id="stars3" className="stars-bg" />
