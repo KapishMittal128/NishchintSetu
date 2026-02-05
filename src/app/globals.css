@@ -10,7 +10,7 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 170 80% 45%;
+    --primary: 170 80% 45%; /* Greenish */
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -25,15 +25,15 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 170 80% 45%;
-    --chart-1: 170 80% 45%;
+    --ring: 170 80% 45%; /* Greenish */
+    --chart-1: 170 80% 45%; /* Greenish */
     --chart-2: 210 90% 55%;
     --chart-3: 45 95% 55%;
     --chart-4: 142.1 76.2% 36.3%;
     --chart-5: 35 91% 60%;
     --radius: 0.75rem;
 
-    --sidebar-background: 228 6% 97% / 0.75;
+    --sidebar-background: 228 6% 97% / 0.5;
     --sidebar-foreground: 222.2 84% 4.9%;
     --sidebar-border: 214.3 31.8% 91.4%;
     --sidebar-accent: 228 6% 90%;
@@ -44,11 +44,11 @@
   .dark {
     --background: 224 71% 4%;
     --foreground: 0 0% 98%;
-    --card: 224 71% 9% / 0.7;
+    --card: 224 71% 9% / 0.5;
     --card-foreground: 0 0% 98%;
     --popover: 224 71% 4%;
     --popover-foreground: 0 0% 98%;
-    --primary: 170 80% 55%;
+    --primary: 170 80% 55%; /* Greenish */
     --primary-foreground: 0 0% 98%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -61,19 +61,19 @@
     --warning-foreground: 35 91% 3%;
     --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9% / 0.5;
+    --border: 170 80% 55% / 0.1; /* Greenish glow border */
     --input: 240 3.7% 15.9%;
-    --ring: 170 80% 55%;
-    --chart-1: 170 80% 55%;
+    --ring: 170 80% 55%; /* Greenish */
+    --chart-1: 170 80% 55%; /* Greenish */
     --chart-2: 210 90% 55%;
     --chart-3: 45 95% 55%;
     --chart-4: 142.1 76.2% 36.3%;
     --chart-5: 35 91% 60%;
 
-    --sidebar-background: 224 71% 6% / 0.6;
+    --sidebar-background: 224 71% 6% / 0.2;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9% / 0.5;
-    --sidebar-accent: 170 80% 55% / 0.1;
+    --sidebar-border: 170 80% 55% / 0.2; /* Greenish glow border */
+    --sidebar-accent: 170 80% 55% / 0.1; /* Greenish */
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-ring: 215 20.2% 65.1%;
   }
