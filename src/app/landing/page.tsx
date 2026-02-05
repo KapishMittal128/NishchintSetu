@@ -66,15 +66,15 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     return (
         <section className="relative min-h-screen flex flex-col justify-center py-20 sm:py-24">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-12 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
+                <div className="space-y-8 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <ShieldCheck className="h-7 w-7 text-primary" />
                         </div>
-                        <h2 className="text-8xl font-bold text-white tracking-tight">NISHCHINT <span className="text-primary">SETU</span></h2>
+                        <h2 className="text-7xl font-bold text-white tracking-tight">NISHCHINT <span className="text-primary">SETU</span></h2>
                     </div>
 
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-white">
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-white">
                         A <span className="text-primary">gentle guardian</span> for your phone calls.
                     </h1>
                     <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto md:mx-0">
@@ -112,7 +112,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                     <div className="w-full mt-6 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="relative w-[500px] h-[450px] transition-transform duration-500 hover:scale-105">
+                    <div className="relative w-[450px] h-[450px] transition-transform duration-500 hover:scale-105">
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-slate-950 rounded-3xl p-2 shadow-2xl border border-white/10">
                             <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
                                 <Image
@@ -144,15 +144,15 @@ const FeatureCard = ({ item }: { item: any }) => {
       <DialogTrigger asChild>
         <div
           className={cn(
-            "group relative p-8 rounded-2xl bg-gray-900/40 border border-white/10 transition-all duration-300 cursor-pointer h-full flex flex-col text-left backdrop-blur-lg",
-            "hover:-translate-y-1 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10"
+            "group relative p-8 rounded-2xl bg-card text-card-foreground shadow-lg backdrop-blur-md transition-all duration-300 ease-out hover:border-primary/30 hover:shadow-primary/20 hover:shadow-2xl hover:-translate-y-2 cursor-pointer flex flex-col justify-between text-left aspect-square",
+            item.gradient
           )}
         >
           <div className={cn(
             "absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300",
             item.gradient
           )}></div>
-          <div className="relative z-10 flex-1">
+          <div className="relative z-10">
             <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
               <item.icon className={cn("h-6 w-6", item.iconColor)} />
             </div>
