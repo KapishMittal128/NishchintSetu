@@ -8,6 +8,15 @@ import { cn } from '@/lib/utils';
 import { Heart, ShieldCheck, Eye, Zap, ArrowRight, Target, Clock } from 'lucide-react';
 import { LanguageToggle } from '@/components/app/language-toggle';
 import { ThemeToggle } from '@/components/app/theme-toggle';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 
 // --- Components ---
 
@@ -100,29 +109,80 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
 
 const FeatureCard = ({ item, onMouseEnter, onMouseLeave }: { item: any, onMouseEnter: () => void, onMouseLeave: () => void }) => {
   return (
-    <div
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      className="group relative p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300 overflow-hidden"
-    >
-      <div className={cn("relative z-10 text-center")}>
-        <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5")}>
-          <item.icon className={cn("h-8 w-8", item.color)} />
+    <Dialog>
+      <DialogTrigger asChild>
+        <div
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          className={cn(
+            "group relative p-8 rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 overflow-hidden cursor-pointer",
+            "hover:-translate-y-2",
+            item.hoverClasses
+          )}
+        >
+          <div className="relative z-10 text-center">
+            <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/10 transition-colors duration-300")}>
+              <item.icon className={cn("h-8 w-8 transition-colors duration-300", item.color)} />
+            </div>
+            <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+            <p className="mt-2 text-lg text-gray-400">{item.description}</p>
+          </div>
         </div>
-        <h3 className="text-2xl font-bold text-white">{item.title}</h3>
-        <p className="mt-2 text-lg text-gray-400">{item.description}</p>
-      </div>
-    </div>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950/80 backdrop-blur-md border-white/20 text-white">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3 text-2xl">
+            <item.icon className={cn("h-6 w-6", item.color)} />
+            {item.title}
+          </DialogTitle>
+          <DialogDescription className="text-gray-300 text-base pt-4">
+            {item.longDescription}
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   );
 };
 
 
 const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => void }) => {
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'hsla(346, 84%, 60%, 0.5)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'hsla(199, 91%, 60%, 0.5)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'hsla(175, 76%, 42%, 0.5)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'hsla(39, 92%, 50%, 0.5)' },
+    { 
+      icon: Heart, 
+      title: "Utmost Respect", 
+      description: "Your dignity is our priority, always.",
+      longDescription: "We believe technology should empower, not intimidate. Our app is designed with a clear, simple interface. You're always in control, and our assistance is gentle and non-intrusive, ensuring a respectful and stress-free experience.",
+      color: 'text-rose-400', 
+      hoverClasses: 'hover:bg-rose-900/30 hover:border-rose-400/50',
+      spotlightColor: 'hsla(346, 84%, 60%, 0.5)' 
+    },
+    { 
+      icon: ShieldCheck, 
+      title: "Private by Design", 
+      description: "Conversations never leave your phone.",
+      longDescription: "Your privacy is non-negotiable. All audio processing and analysis happens directly on your device. No conversations, transcripts, or personal data are ever sent to the cloud or seen by anyone else. It's your data, and it stays with you.",
+      color: 'text-sky-400', 
+      hoverClasses: 'hover:bg-sky-900/30 hover:border-sky-400/50',
+      spotlightColor: 'hsla(199, 91%, 60%, 0.5)' 
+    },
+    { 
+      icon: Eye, 
+      title: "A Gentle Watch", 
+      description: "Always there, but never intrusive.",
+      longDescription: "Our AI guardian works silently in the background. It only steps in when it detects a potential risk, providing clear, calm alerts. It's a safety net that you can rely on, without it getting in your way.",
+      color: 'text-teal-400', 
+      hoverClasses: 'hover:bg-teal-900/30 hover:border-teal-400/50',
+      spotlightColor: 'hsla(175, 76%, 42%, 0.5)' 
+    },
+    { 
+      icon: Zap, 
+      title: "Simple & Clear", 
+      description: "No confusing alerts, just simple help.",
+      longDescription: "We avoid technical jargon and complex alerts. If there's a risk, you'll get a simple, easy-to-understand notification. Our goal is to provide clarity, not confusion, in moments that matter.",
+      color: 'text-orange-400',
+      hoverClasses: 'hover:bg-orange-900/30 hover:border-orange-400/50',
+      spotlightColor: 'hsla(39, 92%, 50%, 0.5)' 
+    },
   ];
 
   return (
