@@ -4,41 +4,41 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 170 80% 45%; /* Greenish */
+    --background: 224 71% 4%;
+    --foreground: 0 0% 98%;
+    --card: 224 71% 9% / 0.5;
+    --card-foreground: 0 0% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 170 80% 55%; /* Greenish */
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --success: 142.1 76.2% 36.3%;
-    --warning: 38.9 92.3% 50%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --success: 142.1 70.6% 45.3%;
+    --warning: 45 93% 47%;
     --warning-foreground: 35 91% 3%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 170 80% 45%; /* Greenish */
-    --chart-1: 170 80% 45%; /* Greenish */
+    --border: 170 80% 55% / 0.2; /* Greenish glow border */
+    --input: 240 3.7% 15.9%;
+    --ring: 170 80% 55%; /* Greenish */
+    --chart-1: 170 80% 55%; /* Greenish */
     --chart-2: 210 90% 55%;
     --chart-3: 45 95% 55%;
     --chart-4: 142.1 76.2% 36.3%;
     --chart-5: 35 91% 60%;
     --radius: 0.75rem;
 
-    --sidebar-background: 228 6% 97% / 0.5;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-accent: 228 6% 90%;
-    --sidebar-accent-foreground: 222.2 84% 4.9%;
-    --sidebar-ring: 222.2 84% 4.9%;
+    --sidebar-background: 224 71% 6% / 0.2;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-border: 170 80% 55% / 0.2; /* Greenish glow border */
+    --sidebar-accent: 170 80% 55% / 0.1; /* Greenish */
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-ring: 215 20.2% 65.1%;
   }
 
   .dark {
@@ -61,7 +61,7 @@
     --warning-foreground: 35 91% 3%;
     --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 170 80% 55% / 0.1; /* Greenish glow border */
+    --border: 170 80% 55% / 0.2; /* Greenish glow border */
     --input: 240 3.7% 15.9%;
     --ring: 170 80% 55%; /* Greenish */
     --chart-1: 170 80% 55%; /* Greenish */
@@ -133,19 +133,19 @@
   #stars1 {
     background-image: radial-gradient(1px, hsla(0,0%,100%,0.5) 1px, transparent 0);
     background-size: 800px 800px;
-    animation: move-stars 250s linear infinite;
+    animation: move-stars 150s linear infinite;
   }
 
   #stars2 {
     background-image: radial-gradient(1.5px, hsla(0,0%,100%,0.7) 1.5px, transparent 0);
     background-size: 1000px 1000px;
-    animation: move-stars 300s linear infinite;
+    animation: move-stars 100s linear infinite;
   }
 
   #stars3 {
     background-image: radial-gradient(2.5px, white 2.5px, transparent 0);
     background-size: 1200px 1200px;
-    animation: move-stars 350s linear infinite;
+    animation: move-stars 50s linear infinite;
   }
 }
 
@@ -173,9 +173,9 @@
 
 @keyframes move-stars {
   from {
-    background-position-y: 0px;
+    background-position: 0 0;
   }
   to {
-    background-position-y: -10000px;
+    background-position: -5000px -10000px;
   }
 }

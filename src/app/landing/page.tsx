@@ -67,14 +67,14 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
         <section className="relative min-h-screen flex flex-col justify-center py-20 sm:py-24">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-8 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
-                    <div className="flex items-center gap-3 justify-center md:justify-start">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                            <ShieldCheck className="h-7 w-7 text-primary" />
-                        </div>
-                        <h2 className="text-7xl font-bold text-white tracking-tight">NISHCHINT <span className="text-primary">SETU</span></h2>
+                    <div className="flex items-center gap-4 justify-center md:justify-start">
+                        <ShieldCheck className="h-12 w-12 text-primary flex-shrink-0" />
+                        <h2 className="text-6xl font-bold text-white tracking-tighter">
+                            Nishchint Setu
+                        </h2>
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-white">
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white">
                         A <span className="text-primary">gentle guardian</span> for your phone calls.
                     </h1>
                     <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto md:mx-0">
