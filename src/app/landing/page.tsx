@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Heart, ShieldCheck, Eye, Zap, ArrowRight, Target, Clock } from 'lucide-react';
-import { LanguageToggle } from '@/components/app/language-toggle';
-import { ThemeToggle } from '@/components/app/theme-toggle';
+import { Shield, Lock, ShieldCheck, HandHelping, ArrowRight, Target, Clock } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -38,10 +36,6 @@ const Header = () => {
             </div>
             <h2 className="text-3xl font-bold text-white tracking-tight">Nishchint Setu</h2>
         </div>
-         <div className="flex items-center gap-2">
-            <LanguageToggle />
-            <ThemeToggle />
-          </div>
       </div>
     </header>
   );
@@ -107,32 +101,35 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     )
 }
 
-const FeatureCard = ({ item, onMouseEnter, onMouseLeave }: { item: any, onMouseEnter: () => void, onMouseLeave: () => void }) => {
+const FeatureCard = ({ item }: { item: any }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <div
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
           className={cn(
-            "group relative p-8 rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 overflow-hidden cursor-pointer",
-            "hover:-translate-y-2",
-            item.hoverClasses
+            "group relative p-8 rounded-2xl border border-white/10 bg-black/20 transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col text-left",
+            "hover:-translate-y-2 hover:border-white/20",
+            item.cardClass
           )}
         >
-          <div className="relative z-10 text-center">
-            <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/10 transition-colors duration-300")}>
-              <item.icon className={cn("h-8 w-8 transition-colors duration-300", item.color)} />
+          <div className="flex-1">
+            <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
+              <item.icon className={cn("h-6 w-6", item.iconColor)} />
             </div>
-            <h3 className="text-2xl font-bold text-white">{item.title}</h3>
-            <p className="mt-2 text-lg text-gray-400">{item.description}</p>
+            <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
+          </div>
+          <div className="mt-6 flex items-center text-sm font-medium text-sky-400 group-hover:text-sky-300 transition-colors">
+            Learn more <ArrowRight className="ml-2 h-4 w-4" />
           </div>
         </div>
       </DialogTrigger>
       <DialogContent className="bg-gray-950/80 backdrop-blur-md border-white/20 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-2xl">
-            <item.icon className={cn("h-6 w-6", item.color)} />
+            <div className={cn("inline-flex h-10 w-10 items-center justify-center rounded-lg", item.iconBg)}>
+              <item.icon className={cn("h-5 w-5", item.iconColor)} />
+            </div>
             {item.title}
           </DialogTitle>
           <DialogDescription className="text-gray-300 text-base pt-4">
@@ -144,68 +141,67 @@ const FeatureCard = ({ item, onMouseEnter, onMouseLeave }: { item: any, onMouseE
   );
 };
 
-
-const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => void }) => {
+const FeaturesSection = () => {
   const features = [
-    { 
-      icon: Heart, 
-      title: "Utmost Respect", 
-      description: "Your dignity is our priority, always.",
-      longDescription: "We believe technology should empower, not intimidate. Our app is designed with a clear, simple interface. You're always in control, and our assistance is gentle and non-intrusive, ensuring a respectful and stress-free experience.",
-      color: 'text-rose-400', 
-      hoverClasses: 'hover:bg-rose-900/30 hover:border-rose-400/50',
-      spotlightColor: 'hsla(346, 84%, 60%, 0.5)' 
+    {
+      icon: Shield,
+      title: "Real-Time Risk Analysis",
+      description: "Analyzes conversations live on your device to detect suspicious keywords...",
+      longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
+      iconBg: 'bg-red-900/40',
+      iconColor: 'text-red-400',
+      cardClass: "border-red-900/30 hover:border-red-500/50"
     },
-    { 
-      icon: ShieldCheck, 
-      title: "Private by Design", 
-      description: "Conversations never leave your phone.",
-      longDescription: "Your privacy is non-negotiable. All audio processing and analysis happens directly on your device. No conversations, transcripts, or personal data are ever sent to the cloud or seen by anyone else. It's your data, and it stays with you.",
-      color: 'text-sky-400', 
-      hoverClasses: 'hover:bg-sky-900/30 hover:border-sky-400/50',
-      spotlightColor: 'hsla(199, 91%, 60%, 0.5)' 
+    {
+      icon: Lock,
+      title: "100% Private",
+      description: "No audio or transcript data is ever sent to the cloud. All analysis...",
+      longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
+      iconBg: 'bg-purple-900/40',
+      iconColor: 'text-purple-400',
+      cardClass: "bg-purple-600/10 border-purple-900/50 hover:border-purple-500/50"
     },
-    { 
-      icon: Eye, 
-      title: "A Gentle Watch", 
-      description: "Always there, but never intrusive.",
-      longDescription: "Our AI guardian works silently in the background. It only steps in when it detects a potential risk, providing clear, calm alerts. It's a safety net that you can rely on, without it getting in your way.",
-      color: 'text-teal-400', 
-      hoverClasses: 'hover:bg-teal-900/30 hover:border-teal-400/50',
-      spotlightColor: 'hsla(175, 76%, 42%, 0.5)' 
+    {
+      icon: ShieldCheck,
+      title: "Guardian Alerts",
+      description: "If a potential threat is identified, your chosen emergency contact is alerte...",
+      longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
+      iconBg: 'bg-green-900/40',
+      iconColor: 'text-green-400',
+      cardClass: "border-green-900/50 hover:border-green-500/50"
     },
-    { 
-      icon: Zap, 
-      title: "Simple & Clear", 
-      description: "No confusing alerts, just simple help.",
-      longDescription: "We avoid technical jargon and complex alerts. If there's a risk, you'll get a simple, easy-to-understand notification. Our goal is to provide clarity, not confusion, in moments that matter.",
-      color: 'text-orange-400',
-      hoverClasses: 'hover:bg-orange-900/30 hover:border-orange-400/50',
-      spotlightColor: 'hsla(39, 92%, 50%, 0.5)' 
+    {
+      icon: HandHelping,
+      title: "Guided Assistance",
+      description: "Detects if you're stuck and offers simple, clear options to get you bac...",
+      longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
+      iconBg: 'bg-sky-900/40',
+      iconColor: 'text-sky-400',
+      cardClass: "border-sky-900/50 hover:border-sky-500/50"
     },
   ];
 
   return (
     <section className="py-24 bg-transparent">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white">A Guardian Angel for Your Digital Life</h2>
-            <p className="text-lg text-gray-400 mt-4">Core principles that guide our mission.</p>
+        <div className="text-center mb-16 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000">
+          <h2 className="text-4xl font-bold text-white">Powerful Features</h2>
+          <p className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">
+            Comprehensive protection powered by advanced AI technology
+          </p>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((item, i) => (
-             <FeatureCard 
-                key={i} 
-                item={item} 
-                onMouseEnter={() => setBloomColor(item.spotlightColor)}
-                onMouseLeave={() => setBloomColor('hsla(55, 100%, 70%, 0.3)')}
-            />
+            <div key={i} className="animate-in fade-in-0 slide-in-from-bottom-12 duration-1000" style={{ animationDelay: `${i * 150}ms` }}>
+              <FeatureCard item={item} />
+            </div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }
+
 
 const FinalCTASection = () => {
     return (
@@ -268,7 +264,7 @@ export default function LandingPage() {
         <Header />
         <main>
           <HeroSection onGetStartedClick={handleGetStarted} />
-          <FeaturesSection setBloomColor={setBloomColor}/>
+          <FeaturesSection />
           <FinalCTASection />
         </main>
       </div>
