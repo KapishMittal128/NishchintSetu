@@ -167,13 +167,6 @@ const FinalCTASection = ({ onGetStartedClick }: { onGetStartedClick: () => void 
             <div className="container mx-auto px-8 space-y-10">
                 <h2 className="text-5xl md:text-6xl font-bold text-white">Begin Your Journey to Peace of Mind</h2>
                 <p className="text-xl text-gray-400 max-w-2xl mx-auto">Join thousands of users who are protecting themselves and their loved ones from the growing threat of phone scams.</p>
-                <Button 
-                  onClick={onGetStartedClick}
-                  className="pulse-button rounded-full bg-white text-black text-xl md:text-2xl px-12 py-8 transition-transform duration-300 ease-in-out hover:scale-105"
-                  data-trackable-id="landing-get-started-final"
-                >
-                  Get Started for Free
-                </Button>
             </div>
         </section>
     )

@@ -80,11 +80,12 @@
 @layer utilities {
   .spotlight-effect {
     background: radial-gradient(
-      500px circle at var(--x) var(--y),
+      700px circle at var(--x) var(--y),
       var(--spotlight-color),
       transparent 80%
     );
     transition: background 0.3s ease-out;
+    pointer-events: none;
   }
 
   .floating-icon {
