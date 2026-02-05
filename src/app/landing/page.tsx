@@ -26,21 +26,6 @@ const SpaceBackground = () => (
   </div>
 );
 
-const Header = () => {
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-      <div className="container mx-auto flex h-24 items-center justify-between px-6">
-        <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-                <ShieldCheck className="h-6 w-6 text-primary" />
-            </div>
-            <h2 className="text-3xl font-bold text-white tracking-tight">Nishchint <span className="text-primary">Setu</span></h2>
-        </div>
-      </div>
-    </header>
-  );
-};
-
 const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
     const heroImage = {
         "src": "https://picsum.photos/seed/robot-elderly-illustration/600/600",
@@ -59,6 +44,13 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
         <section className="relative min-h-screen flex items-center overflow-hidden">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
+                    <div className="flex items-center gap-2 justify-center md:justify-start">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                            <ShieldCheck className="h-6 w-6 text-primary" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-white tracking-tight">Nishchint <span className="text-primary">Setu</span></h2>
+                    </div>
+
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-white">
                         A <span className="text-primary">gentle guardian</span> for your phone calls.
                     </h1>
@@ -213,7 +205,7 @@ const FeaturesSection = () => {
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {features.map((item, i) => (
-            <div key={i} className="animate-in fade-in-0 slide-in-from-bottom-12 duration-1000" style={{ animationDelay: `${i * 150}ms` }}>
+            <div key={i} className="animate-in fade-in-0 slide-in-from-bottom-12 duration-1000" style={{ animationDelay: `${'i' * 150}ms` }}>
               <FeatureCard item={item} />
             </div>
           ))}
@@ -248,7 +240,6 @@ export default function LandingPage() {
        <div 
         className="relative z-10 w-full"
       >
-        <Header />
         <main>
           <HeroSection onGetStartedClick={handleGetStarted} />
           <FeaturesSection />
