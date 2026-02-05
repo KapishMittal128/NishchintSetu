@@ -34,7 +34,7 @@
     --radius: 0.75rem;
 
     /* Spotlight effect variables */
-    --spotlight-color: hsla(45, 93%, 47%, 0.1);
+    --spotlight-color: hsla(39, 92%, 50%, 0.25);
   }
 
   .dark {
@@ -62,7 +62,7 @@
     --ring: 215 20.2% 65.1%;
 
     /* Spotlight effect variables */
-    --spotlight-color: hsla(45, 93%, 47%, 0.1);
+    --spotlight-color: hsla(39, 92%, 50%, 0.25);
   }
 }
 
@@ -80,9 +80,9 @@
 @layer utilities {
   .spotlight-effect {
     background: radial-gradient(
-      700px circle at var(--x) var(--y),
+      1000px circle at var(--x) var(--y),
       var(--spotlight-color),
-      transparent 80%
+      transparent 40%
     );
     transition: background 0.5s ease-out; /* Slower fade for trail effect */
     pointer-events: none;
@@ -94,6 +94,17 @@
   
   .pulse-button {
     animation: pulse-glow 5s ease-in-out infinite;
+  }
+
+  .stars-bg {
+    background-color: black;
+    background-image:
+      radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+      radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+      radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px),
+      radial-gradient(rgba(255,255,255,.4), rgba(255,255,255,.1) 2px, transparent 30px);
+    background-size: 550px 550px, 350px 350px, 250px 250px, 150px 150px;
+    background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
   }
 }
 

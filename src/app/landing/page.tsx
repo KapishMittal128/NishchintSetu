@@ -28,8 +28,9 @@ const AnimatedBackground = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-20 h-full w-full bg-black">
-        <div ref={spotlightRef} className="spotlight-effect absolute inset-0" />
+    <div className="fixed inset-0 h-full w-full">
+        <div className="stars-bg absolute inset-0 -z-20" />
+        <div ref={spotlightRef} className="spotlight-effect absolute inset-0 -z-10" />
     </div>
   );
 };
@@ -62,7 +63,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
         <section className="relative min-h-screen flex items-center overflow-hidden">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-white">
+                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-white">
                         A gentle guardian for your phone calls.
                     </h1>
                     <p className="text-xl md:text-2xl text-gray-300 max-w-xl mx-auto md:mx-0">
@@ -77,17 +78,10 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                         >
                             Get Started Now <ArrowRight className="ml-2"/>
                         </Button>
-                         <Button
-                            size="lg"
-                            variant="outline"
-                            className="text-lg px-8 py-7 border-gray-700 text-white hover:bg-gray-800 hover:text-white"
-                        >
-                            Watch Demo
-                        </Button>
                     </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[450px] h-[600px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
+                    <div className="w-[380px] h-[500px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
                          <Image
                             src={heroImage.src}
                             alt="AI assistant helping an elderly person"
@@ -127,10 +121,10 @@ const StatsSection = () => {
 
 const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteractionStart: (color: string) => void, onInteractionEnd: () => void }) => {
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-red-400', bg: 'bg-red-950/50', spotlightColor: 'hsla(0, 84%, 60%, 0.25)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-blue-400', bg: 'bg-blue-950/50', spotlightColor: 'hsla(217, 91%, 60%, 0.25)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', bg: 'bg-teal-950/50', spotlightColor: 'hsla(165, 76%, 42%, 0.25)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', bg: 'bg-orange-950/50', spotlightColor: 'hsla(39, 92%, 50%, 0.25)' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-red-400', bg: 'bg-red-950/50', spotlightColor: 'hsla(0, 84%, 60%, 0.4)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-blue-400', bg: 'bg-blue-950/50', spotlightColor: 'hsla(217, 91%, 60%, 0.4)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', bg: 'bg-teal-950/50', spotlightColor: 'hsla(165, 76%, 42%, 0.4)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', bg: 'bg-orange-950/50', spotlightColor: 'hsla(39, 92%, 50%, 0.4)' },
   ];
 
   const handleMouseEnter = (color: string) => {
@@ -180,12 +174,20 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
   )
 }
 
-const FinalCTASection = () => {
+const FinalCTASection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
     return (
         <section className="py-32 sm:py-48 text-center bg-black/50">
             <div className="container mx-auto px-8 space-y-10">
                 <h2 className="text-5xl md:text-6xl font-bold text-white">Begin Your Journey to Peace of Mind</h2>
                 <p className="text-xl text-gray-400 max-w-2xl mx-auto">Join thousands of users who are protecting themselves and their loved ones from the growing threat of phone scams.</p>
+                 <Button
+                    size="lg"
+                    className="text-lg px-8 py-7 pulse-button"
+                    onClick={onGetStartedClick}
+                    data-trackable-id="landing-get-started-final"
+                >
+                    Get Started Now <ArrowRight className="ml-2"/>
+                </Button>
             </div>
         </section>
     )
@@ -195,7 +197,7 @@ const FinalCTASection = () => {
 
 export default function LandingPage() {
   const router = useRouter();
-  const defaultSpotlightColor = 'hsla(45, 93%, 47%, 0.1)'; // Soft yellow
+  const defaultSpotlightColor = 'hsla(39, 92%, 50%, 0.25)'; // Soft orange
 
   const handleGetStarted = () => {
     router.push('/role-selection');
@@ -207,7 +209,7 @@ export default function LandingPage() {
 
   const handleInteractionEnd = useCallback(() => {
     document.documentElement.style.setProperty('--spotlight-color', defaultSpotlightColor);
-  }, []);
+  }, [defaultSpotlightColor]);
 
   useEffect(() => {
     // Set the default spotlight color on initial load
@@ -224,7 +226,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden text-white">
+    <div className="min-h-screen w-full overflow-x-hidden text-white isolate">
       <AnimatedBackground />
       <Header />
       <main className="relative z-10">
@@ -234,7 +236,7 @@ export default function LandingPage() {
             onInteractionStart={handleInteractionStart}
             onInteractionEnd={handleInteractionEnd}
         />
-        <FinalCTASection />
+        <FinalCTASection onGetStartedClick={handleGetStarted} />
       </main>
     </div>
   );
