@@ -1,14 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { LayoutDashboard, LogOut, User, HeartPulse, History, Settings, FileText, BookOpen, HandHelping } from 'lucide-react';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarRail,
+  SidebarTrigger
+} from '@/components/ui/sidebar';
+import { LayoutDashboard, LogOut, User, HeartPulse, History, Settings, FileText, BookOpen, HandHelping, ShieldCheck } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from '@/context/translation-context';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 export default function EmergencyContactLayout({ children }: { children: React.ReactNode }) {
-  const { signOut } = useAppState();
+  const { signOut, allUserProfiles, pairedUserUID } = useAppState();
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
@@ -27,46 +40,89 @@ export default function EmergencyContactLayout({ children }: { children: React.R
     { href: '/emergency-contact/resources', label: t('nav.scamResources'), icon: BookOpen },
     { href: '/emergency-contact/user-profile', label: t('nav.pairedUserProfile'), icon: User },
   ];
+  
+  const pairedUser = pairedUserUID ? allUserProfiles[pairedUserUID] : null;
+  const name = pairedUser?.name || t('common.user');
+
+  const getTitle = () => {
+    const route = navLinks.find(link => pathname.startsWith(link.href));
+    if (pathname.startsWith('/emergency-contact/settings')) return t('nav.settings');
+    
+    // Handle dynamic titles
+    if (pathname.startsWith('/emergency-contact/dashboard')) return t('ecDashboard.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/history')) return t('ecRiskHistory.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/mood')) return t('ecMoodHistory.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/assistance')) return t('ecAssistanceLog.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/reports')) return t('ecReports.title', { values: { name }});
+
+    return route ? route.label : t('appName');
+  }
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-60 bg-background/80 border-r p-4 flex flex-col">
-        <h1 className="text-2xl font-semibold mb-2">{t('appName')}</h1>
-        <p className="text-sm text-muted-foreground mb-8">{t('nav.guardianDashboard')}</p>
-        <nav className="flex-1 space-y-2">
-          {navLinks.map(link => (
-            <Link key={link.href} href={link.href} passHref>
-              <Button
-                variant={pathname === link.href ? 'secondary' : 'ghost'}
-                className="w-full justify-start text-base"
-              >
-                <link.icon className="mr-2 h-5 w-5" />
-                {link.label}
-              </Button>
-            </Link>
-          ))}
-        </nav>
-        <div className="space-y-2">
-             <Link href="/emergency-contact/settings" passHref>
-                <Button 
-                    variant={pathname === '/emergency-contact/settings' ? 'secondary' : 'outline'}
-                    className="w-full justify-start text-base"
-                >
-                    <Settings className="mr-2 h-5 w-5" />
-                    {t('nav.settings')}
-                </Button>
-            </Link>
-            <Button variant="outline" className="w-full justify-start text-base" onClick={handleSignOut}>
-                <LogOut className="mr-2 h-5 w-5" />
-                {t('nav.signOut')}
-            </Button>
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarRail />
+        <SidebarHeader>
+          <div className="relative flex h-8 items-center justify-center">
+            <h1 className="absolute text-2xl font-semibold px-2 transition-opacity duration-300 group-data-[state=expanded]:opacity-100 group-data-[state=collapsed]:opacity-0">{t('appName')}</h1>
+            <ShieldCheck className="absolute h-7 w-7 text-primary transition-opacity duration-300 group-data-[state=collapsed]:opacity-100 group-data-[state=expanded]:opacity-0" />
+          </div>
+          <p className="text-sm text-muted-foreground px-2 transition-opacity duration-300 group-data-[state=expanded]:opacity-100 group-data-[state=collapsed]:opacity-0">{t('nav.guardianDashboard')}</p>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {navLinks.map(link => (
+              <SidebarMenuItem key={link.href}>
+                <Link href={link.href}>
+                  <SidebarMenuButton
+                    isActive={pathname === link.href}
+                    tooltip={link.label}
+                  >
+                    <link.icon />
+                    <span>{link.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <Link href="/emergency-contact/settings">
+                  <SidebarMenuButton 
+                      isActive={pathname === '/emergency-contact/settings'}
+                      tooltip={t('nav.settings')}
+                  >
+                    <Settings />
+                    <span>{t('nav.settings')}</span>
+                  </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSignOut} tooltip={t('nav.signOut')}>
+                  <LogOut />
+                  <span>{t('nav.signOut')}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <main className="flex-1 overflow-y-auto bg-transparent peer-data-[state=collapsed]:md:ml-[var(--sidebar-width-icon)] transition-[margin-left] duration-200">
+        <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+            <div className="flex items-center gap-2">
+                <SidebarTrigger className="md:hidden" />
+                <h1 className="text-2xl font-semibold">{getTitle()}</h1>
+            </div>
+            <div className="flex items-center gap-2">
+                <LanguageToggle />
+                <ThemeToggle />
+            </div>
+        </header>
+        <div className="p-6">
+            {children}
         </div>
-      </aside>
-      <main className="flex-1 overflow-y-auto bg-muted/20">
-        {children}
       </main>
-    </div>
+    </SidebarProvider>
   );
 }
-
-    

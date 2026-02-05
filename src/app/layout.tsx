@@ -11,6 +11,20 @@ export const metadata: Metadata = {
     'Real-time conversation monitoring to protect you from scams.',
 };
 
+const SpaceBackground = () => (
+    <div className="fixed inset-0 -z-10 h-full w-full bg-background overflow-hidden">
+      <div id="grid-bg" />
+      <div id="stars1" className="stars-bg" />
+      <div id="stars2" className="stars-bg" />
+      <div id="stars3" className="stars-bg" />
+      <div id="stars4" className="stars-bg" />
+      <div id="stars5" className="stars-bg" />
+      <div id="planet1" className="planet" />
+      <div id="planet2" className="planet" />
+      <div id="planet3" className="planet" />
+    </div>
+);
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,9 +38,9 @@ export default function RootLayout({
           'font-sans antialiased'
         )}
       >
-        <ThemeProvider storageKey="nishchint-setu-theme">
+        <ThemeProvider storageKey="nishchint-setu-theme" defaultTheme="dark">
           <TranslationProvider>
-            <div className="aurora-bg"></div>
+            <SpaceBackground />
             <main className="relative flex flex-col min-h-screen">
               {children}
             </main>
@@ -37,5 +51,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    

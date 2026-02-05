@@ -1,1 +1,8 @@
-{}
+{
+  "landingHero": {
+    "src": "https://picsum.photos/seed/actual-robot/800/1000",
+    "width": 800,
+    "height": 1000,
+    "hint": "actual robot"
+  }
+}

@@ -45,7 +45,7 @@ export default function LoginPage() {
                                 <Label htmlFor="password">{t('login.passwordLabel')}</Label>
                                 <Input id="password" type="password" required />
                             </div>
-                            <Button type="submit" size="lg" className="w-full mt-4 bg-gradient-to-br from-primary to-[#8deeb7] hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <Button type="submit" size="lg" className="w-full mt-4 bg-gradient-to-br from-primary to-teal-400 text-white hover:shadow-primary/30 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                                 {t('login.signInButton')}
                             </Button>
                         </form>

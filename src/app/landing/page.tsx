@@ -1,135 +1,271 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { ShieldCheck, AlertTriangle, Lock, HandHelping, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
-import { useTranslation } from '@/context/translation-context';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { Shield, Lock, ShieldCheck, HandHelping, ArrowRight, Target, Clock, Sparkles, Play } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
-const features = [
-  {
-    icon: AlertTriangle,
-    key: "risk",
-  },
-  {
-    icon: Lock,
-    key: "privacy",
-  },
-  {
-    icon: ShieldCheck,
-    key: "alerts",
-  },
-  {
-    icon: HandHelping,
-    key: "assistance",
-  },
-];
 
-type FeatureKey = "risk" | "privacy" | "alerts" | "assistance";
+// --- Components ---
+
+const SpotlightEffect = () => {
+    const spotlightRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (spotlightRef.current) {
+                const { clientX, clientY } = e;
+                spotlightRef.current.style.setProperty('--x', `${clientX}px`);
+                spotlightRef.current.style.setProperty('--y', `${clientY}px`);
+            }
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
+
+    return <div ref={spotlightRef} className="spotlight-card-bloom pointer-events-none" />;
+};
+
+const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
+    const heroImage = {
+        "width": 600,
+        "height": 600,
+    };
+
+    const stats = [
+        { icon: ShieldCheck, text: "100% Privacy" },
+        { icon: Target, text: "Highly Accurate" },
+        { icon: Clock, text: "24/7 Guardian Watch" },
+    ];
+
+    return (
+        <section className="relative pt-20 sm:pt-24 pb-12 sm:pb-16">
+            <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div className="space-y-6 text-center animate-in fade-in slide-in-from-left-12 duration-700">
+                    
+                    <h1 className="text-7xl font-bold text-white tracking-wider">
+                        Nishchint <span className="text-primary">Setu</span>
+                    </h1>
+
+                    <div className="inline-block bg-yellow-400/10 text-yellow-300 text-sm font-medium px-4 py-1.5 rounded-full border border-yellow-400/30 backdrop-blur-sm">
+                        <Sparkles className="inline-block mr-2 h-4 w-4" />
+                        AI POWERED
+                    </div>
+
+                    <h2 className="text-2xl md:text-3xl font-extrabold tracking-tighter text-white !mt-6">
+                        A <span className="text-primary">gentle guardian</span> for your phone calls.
+                    </h2>
+                    <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto">
+                       Nishchint Setu offers peace of mind with on-device AI that monitors calls and messages for scams in real-time.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button
+                            size="lg"
+                            className="text-lg px-8 py-7 pulse-button"
+                            onClick={onGetStartedClick}
+                            data-trackable-id="landing-get-started-hero"
+                        >
+                            Get Started Now <ArrowRight className="ml-2"/>
+                        </Button>
+                        <Button
+                            size="lg"
+                            variant="outline"
+                            className="text-lg px-8 py-7 bg-transparent border-2 border-white/50 text-white hover:bg-white/10 hover:text-white"
+                        >
+                            <Play className="mr-2"/> Watch Demo
+                        </Button>
+                    </div>
+
+                    <div className="w-full my-6 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+
+                     <div className="flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+                        {stats.map((stat, index) => (
+                             <div key={index} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105">
+                                <stat.icon className="h-5 w-5 text-gray-300" />
+                                <span className="text-sm font-medium text-gray-200">{stat.text}</span>
+                            </div>
+                        ))}
+                    </div>
+                    
+                </div>
+                 <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
+                    <div className="relative w-[450px] h-[450px] transition-transform duration-500 hover:scale-105">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-slate-950 rounded-3xl p-2 shadow-2xl border border-white/10">
+                            <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
+                                <Image
+                                    src="/landing-hero.svg"
+                                    alt="A friendly robot with an elderly person"
+                                    width={heroImage.width}
+                                    height={heroImage.height}
+                                    className="object-contain w-full h-full"
+                                    priority
+                                />
+                            </div>
+                        </div>
+                        <div className="absolute top-5 left-0 bg-green-500 text-white rounded-lg px-4 py-1.5 text-sm font-semibold shadow-lg">
+                            Safe
+                        </div>
+                        <div className="absolute bottom-5 right-0 bg-blue-500 text-white rounded-lg px-4 py-1.5 text-sm font-semibold shadow-lg">
+                            Protected
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+const FeatureCard = ({ item }: { item: any }) => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <div
+          className={cn(
+            "group relative p-8 rounded-2xl bg-card/80 text-card-foreground shadow-lg backdrop-blur-md transition-all duration-300 ease-out hover:border-primary/30 hover:shadow-primary/20 hover:shadow-2xl hover:-translate-y-2 cursor-pointer flex flex-col justify-between text-left aspect-square overflow-hidden"
+          )}
+        >
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/40 z-0" />
+          {/* Color gradient overlay on hover */}
+          <div className={cn(
+            "absolute inset-0 bg-gradient-to-br z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-30",
+            item.gradient
+          )}/>
+          
+          <div className="relative z-10">
+            <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
+              <item.icon className={cn("h-6 w-6", item.iconColor)} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
+          </div>
+          <div className="relative z-10 mt-6 flex items-center text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
+            Learn more <ArrowRight className="ml-2 h-4 w-4" />
+          </div>
+        </div>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950/80 backdrop-blur-md border-white/20 text-white">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3 text-2xl">
+            <div className={cn("inline-flex h-10 w-10 items-center justify-center rounded-lg", item.iconBg)}>
+              <item.icon className={cn("h-5 w-5", item.iconColor)} />
+            </div>
+            {item.title}
+          </DialogTitle>
+          <DialogDescription className="text-gray-300 text-base pt-4">
+            {item.longDescription}
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const FeaturesSection = () => {
+  const features = [
+    {
+      icon: Shield,
+      title: "Real-Time Risk Analysis",
+      description: "Live analysis of calls and messages to detect suspicious keywords and patterns.",
+      longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
+      iconBg: 'bg-red-900/40',
+      iconColor: 'text-red-400',
+      gradient: 'from-red-500/80 to-transparent',
+    },
+    {
+      icon: Lock,
+      title: "100% Private",
+      description: "No audio or message data ever leaves your phone. All analysis is done locally.",
+      longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
+      iconBg: 'bg-green-900/40',
+      iconColor: 'text-green-400',
+      gradient: 'from-green-500/80 to-transparent',
+    },
+    {
+      icon: ShieldCheck,
+      title: "Guardian Alerts",
+      description: "If a high-risk threat is identified, your chosen emergency contact is alerted.",
+      longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
+      iconBg: 'bg-green-900/40',
+      iconColor: 'text-green-400',
+      gradient: 'from-green-500/80 to-transparent',
+    },
+    {
+      icon: HandHelping,
+      title: "Guided Assistance",
+      description: "The app detects if you're stuck and offers simple, clear help to get you back on track.",
+      longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
+      iconBg: 'bg-sky-900/40',
+      iconColor: 'text-sky-400',
+      gradient: 'from-sky-500/80 to-transparent',
+    },
+  ];
+
+  return (
+    <section className="py-24 bg-transparent">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-16 animate-in fade-in-0 slide-in-from-bottom-8 duration-1000">
+          <h2 className="text-4xl font-bold text-white">Powerful Features, Total Peace of Mind</h2>
+          <p className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">
+            Comprehensive protection powered by advanced on-device AI technology
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {features.map((item, i) => (
+            <div key={i} className="animate-in fade-in-0 slide-in-from-bottom-12 duration-1000" style={{ animationDelay: `${i * 150}ms` }}>
+              <FeatureCard item={item} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+// --- Main Page Component ---
 
 export default function LandingPage() {
   const router = useRouter();
-  const [selectedFeatureKey, setSelectedFeatureKey] = useState<FeatureKey | null>(null);
-  const { t } = useTranslation();
-
+  
   const handleGetStarted = () => {
     router.push('/role-selection');
   };
 
-  const handleFeatureSelect = (key: FeatureKey) => {
-    setSelectedFeatureKey(key);
-  };
-  
-  const handleGoBack = () => {
-      setSelectedFeatureKey(null);
-  }
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  const getFeatureDetails = (key: FeatureKey | null) => {
-    if (!key) return null;
-    const feature = features.find(f => f.key === key);
-    return {
-        icon: feature!.icon,
-        title: t(`landing.features.${key}.title`),
-        description: t(`landing.features.${key}.description`)
-    }
+  if (!isClient) {
+    return null;
   }
-  const selectedFeature = getFeatureDetails(selectedFeatureKey);
 
   return (
-    <div className="dark text-foreground min-h-screen w-full overflow-hidden">
-       <Image
-        alt="Background"
-        src="https://picsum.photos/seed/green-abstract/1920/1080"
-        data-ai-hint="abstract green"
-        fill
-        objectFit="cover"
-        objectPosition="center"
-        quality={80}
-        className="-z-10 brightness-[.2]"
-      />
-      
-      <header className="absolute top-0 left-0 w-full z-30 p-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">{t('appName')}</h2>
-      </header>
-
-      <div className="relative h-screen flex flex-col items-center justify-center">
-        
-        {/* Main Hero Content */}
-        <div className={`flex-1 flex flex-col items-center justify-center text-center p-6 transition-all duration-700 ease-in-out ${selectedFeature ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
-            <div className="relative z-20 flex flex-col items-center justify-center">
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-                {t('landing.title')}
-              </h1>
-              <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto text-foreground/80">
-                {t('landing.subtitle')}
-              </p>
-              <div className="mt-10">
-                <Button size="lg" className="text-lg py-7 px-10" onClick={handleGetStarted}>
-                  {t('landing.cta')}
-                </Button>
-              </div>
-            </div>
-        </div>
-
-        {/* Feature Buttons Bar */}
-        <div className={`w-full max-w-4xl mx-auto p-6 transition-transform duration-700 ease-in-out ${selectedFeature ? 'translate-y-[200%]' : 'translate-y-0'}`}>
-            <div className="bg-black/20 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center justify-around gap-4">
-                {features.map((feature) => (
-                <Button 
-                    key={feature.key}
-                    variant="ghost" 
-                    className="flex flex-col items-center h-auto gap-2 text-center text-xs text-foreground/70 hover:bg-white/10 hover:text-foreground p-3 border-2 border-transparent hover:border-primary/50 rounded-lg transition-colors"
-                    onClick={() => handleFeatureSelect(feature.key as FeatureKey)}
-                >
-                    <feature.icon className="h-6 w-6" />
-                    <span>{t(`landing.features.${feature.key}.title`)}</span>
-                </Button>
-                ))}
-            </div>
-        </div>
-
-        {/* Feature Details View */}
-        <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center p-6 transition-all duration-700 ease-in-out ${selectedFeature ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'}`}>
-            {selectedFeature && (
-                <div className="max-w-2xl w-full text-center">
-                    <Button variant="ghost" onClick={handleGoBack} className="mb-8">
-                        <ArrowLeft className="mr-2 h-4 w-4"/> {t('landing.backToHome')}
-                    </Button>
-                    <div className="bg-black/20 backdrop-blur-lg border border-white/10 p-8 rounded-2xl animate-in fade-in-0 zoom-in-95">
-                        <div className="mx-auto bg-primary/20 text-primary p-4 rounded-full w-fit mb-6">
-                            <selectedFeature.icon className="h-10 w-10" />
-                        </div>
-                        <h2 className="text-4xl font-bold mb-4">{selectedFeature.title}</h2>
-                        <p className="text-lg text-foreground/80">{selectedFeature.description}</p>
-                    </div>
-                </div>
-            )}
-        </div>
-
+    <div className="min-h-screen w-full text-white isolate">
+      <SpotlightEffect />
+       <div 
+        className="relative z-10 w-full"
+      >
+        <main>
+          <HeroSection onGetStartedClick={handleGetStarted} />
+          <FeaturesSection />
+        </main>
       </div>
     </div>
   );
 }
-
-    

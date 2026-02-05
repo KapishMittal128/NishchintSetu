@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Mic, MicOff, Info, AlertTriangle, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Info, AlertTriangle, Loader2, Smile, Clock, Siren, Square } from 'lucide-react';
 import { EmergencyOverlay } from '@/components/app/emergency-overlay';
 import { RiskMeter } from '@/components/app/risk-meter';
 import { TranscriptDisplay } from '@/components/app/transcript-display';
@@ -12,30 +12,130 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useAppState } from '@/hooks/use-app-state';
 import { useTranslation } from '@/context/translation-context';
+import { cn } from '@/lib/utils';
+
 
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
-  'card': 15, 'credit': 15, 'debit': 15, 'upi': 15, 'police': 12, 'arrest': 15,
+  'card': 15, 'credit': 15, 'debit': 15, 'upi': 15, 'police': 12, 'arrest': 50,
   'refund': 10, 'verify': 10, 'urgent': 12, 'immediately': 12, 'secret': 15,
   'social security': 20, 'scam': 20, 'fraud': 20,
 };
 
+const URGENT_KEYWORDS = ['urgent', 'act now', 'today only', 'expires', 'final notice', 'immediately', 'limited time'];
+const THREATENING_KEYWORDS = ['suspicious', 'locked', 'suspended', 'arrest', 'legal action', 'police', 'fraud alert', 'problem with your account', 'compromised'];
+
+
 export default function MonitoringClient() {
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [fullTranscript, setFullTranscript] = useState<string[]>([]);
   const [riskScore, setRiskScore] = useState(0);
   const [riskExplanation, setRiskExplanation] = useState('');
   const [scamIndicators, setScamIndicators] = useState<string[]>([]);
+  const [sentiment, setSentiment] = useState<'calm' | 'urgent' | 'threatening'>('calm');
   const [isEmergency, setIsEmergency] = useState(false);
-  const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
-  const [cycleStatus, setCycleStatus] = useState('Idle');
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
-
+  
   const recognitionRef = useRef<any>(null);
+  const stopInitiatedByUser = useRef(false);
+
   const { toast } = useToast();
   const { userUID, addNotification } = useAppState();
   const { t, language } = useTranslation();
+
+  const SentimentDetails = ({ sentiment }: { sentiment: 'calm' | 'urgent' | 'threatening' }) => {
+    const { t } = useTranslation();
+    const sentimentInfo = {
+        threatening: {
+            icon: Siren,
+            className: 'text-destructive',
+            description: t('smsSafety.sentimentDetails.threatening')
+        },
+        urgent: {
+            icon: Clock,
+            className: 'text-warning',
+            description: t('smsSafety.sentimentDetails.urgent')
+        },
+        calm: {
+            icon: Smile,
+            className: 'text-success',
+            description: t('smsSafety.sentimentDetails.calm')
+        }
+    };
+    const { icon: Icon, className, description } = sentimentInfo[sentiment];
+    const text = t(`smsSafety.sentimentIndicator.${sentiment}`);
+
+    return (
+        <div className="mt-4 p-3 bg-muted/50 rounded-lg border">
+            <div className="flex items-center gap-2">
+                <Icon className={cn('h-5 w-5', className)} />
+                <h4 className={cn('font-semibold', className)}>{text}</h4>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1 pl-7">{description}</p>
+        </div>
+    );
+  };
+
+  const runAnalysis = useCallback(() => {
+    if (fullTranscript.length === 0) {
+      toast({ title: t('monitoring.client.noSpeechError') });
+      return;
+    }
+    
+    setIsAnalyzing(true);
+
+    const currentTranscript = fullTranscript.join(' ');
+    const lowerCaseTranscript = currentTranscript.toLowerCase();
+
+    // --- Local Risk Score and Sentiment Calculation ---
+    let calculatedScore = 0;
+    const detectedKeywords = new Set<string>();
+    for (const keyword in KEYWORD_WEIGHTS) {
+        if (lowerCaseTranscript.includes(keyword)) {
+            calculatedScore += KEYWORD_WEIGHTS[keyword];
+            detectedKeywords.add(keyword);
+        }
+    }
+    const finalScore = Math.min(100, calculatedScore);
+    
+    let currentSentiment: 'calm' | 'urgent' | 'threatening' = 'calm';
+    if (THREATENING_KEYWORDS.some(keyword => lowerCaseTranscript.includes(keyword))) {
+        currentSentiment = 'threatening';
+    } else if (URGENT_KEYWORDS.some(keyword => lowerCaseTranscript.includes(keyword))) {
+        currentSentiment = 'urgent';
+    }
+    
+    setRiskScore(finalScore);
+    setSentiment(currentSentiment);
+    setScamIndicators(Array.from(detectedKeywords));
+
+    if (finalScore > 75) {
+        setRiskExplanation(t('monitoring.client.riskExplanation.high'));
+        setIsEmergency(true);
+    } else if (finalScore > 40) {
+        setRiskExplanation(t('monitoring.client.riskExplanation.medium'));
+    } else {
+        setRiskExplanation(t('monitoring.client.riskExplanation.low'));
+    }
+
+    if (finalScore >= 50 && userUID) {
+        addNotification(userUID, { 
+          riskScore: finalScore, 
+          timestamp: new Date().toISOString(),
+          transcript: currentTranscript,
+          sentiment: currentSentiment,
+        });
+         toast({
+            title: t('monitoring.client.alertSent'),
+            description: t('monitoring.client.alertSentDescription'),
+            variant: 'destructive'
+        });
+    }
+    
+    setIsAnalyzing(false);
+  }, [fullTranscript, addNotification, userUID, toast, t]);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -46,150 +146,117 @@ export default function MonitoringClient() {
         title: t('monitoring.client.browserNotSupported'),
         description: t('monitoring.client.browserNotSupportedDescription'),
       });
-    } else {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
-
-        recognition.onresult = (event: any) => {
-            setCycleStatus('Processing...');
-            const newChunkText = event.results[0][0].transcript;
-            if (newChunkText && newChunkText.trim()) {
-                setFullTranscript(prev => [...prev, newChunkText]);
-            } else {
-                toast({ title: t('monitoring.client.emptyTranscription'), description: t('monitoring.client.emptyTranscriptionDescription') });
-                setIsProcessing(false);
-                setCycleStatus('Ready');
-            }
-        };
-
-        recognition.onerror = (event: any) => {
-            console.error('Speech recognition error:', event.error);
-            let errorMessage = t('monitoring.client.genericError', { values: { error: event.error }});
-            if (event.error === 'no-speech') {
-                errorMessage = t('monitoring.client.noSpeechError');
-            } else if (event.error === 'not-allowed') {
-                errorMessage = t('monitoring.client.micDeniedToastDescription');
-                setHasPermission(false);
-            }
-            toast({ variant: 'destructive', title: t('monitoring.client.transcriptionError'), description: errorMessage });
-            setIsProcessing(false);
-            setCycleStatus('Idle');
-        };
-        
-        recognition.onend = () => {
-            if (isProcessing) {
-                setCycleStatus('Analysis Complete.');
-            }
-        };
-
-        recognitionRef.current = recognition;
+      return;
     }
-  }, [toast, isProcessing, t, language]);
-  
-  const runSingleCycle = async () => {
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+    recognitionRef.current = recognition;
+
+    recognition.onresult = (event: any) => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          transcript += event.results[i][0].transcript + ' ';
+        }
+      }
+      if (transcript.trim()) {
+        setFullTranscript(prev => [...prev, transcript.trim()]);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event.error === 'aborted') {
+        // This can happen if the user stops talking or stops the recognition.
+        // We can safely ignore it as the `onend` handler will deal with it.
+        return;
+      }
+      console.error('Speech recognition error:', event.error);
+      let errorMessage = t('monitoring.client.genericError', { values: { error: event.error }});
+      if (event.error === 'no-speech') {
+          errorMessage = t('monitoring.client.noSpeechError');
+      } else if (event.error === 'not-allowed') {
+          errorMessage = t('monitoring.client.micDeniedToastDescription');
+          setHasPermission(false);
+      }
+      toast({ variant: 'destructive', title: t('monitoring.client.transcriptionError'), description: errorMessage });
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      if (stopInitiatedByUser.current) {
+        runAnalysis();
+        stopInitiatedByUser.current = false;
+      } else if (isListening) {
+        recognitionRef.current?.start();
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language, t, toast, runAnalysis]);
+
+  const handleToggleListening = async () => {
     if (!isBrowserSupported) {
       toast({ variant: 'destructive', title: t('monitoring.client.browserNotSupported') });
       return;
     }
 
-    if (hasPermission === false) {
-      toast({
-        variant: 'destructive',
-        title: t('monitoring.client.micDeniedToast'),
-        description: t('monitoring.client.micDeniedToastDescription'),
-      });
-      return;
-    }
-    
-    setIsProcessing(true);
-    setCycleStatus('Initializing...');
-
-    try {
-      // Quick check for permission, but main request is via recognition.start()
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
-      setHasPermission(true);
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      setHasPermission(false);
-      toast({
-        variant: 'destructive',
-        title: t('monitoring.client.micDeniedToast'),
-        description: t('monitoring.client.micDeniedToastDescription'),
-      });
-      setIsProcessing(false);
-      setCycleStatus('Idle');
-      return;
+    if (hasPermission === null) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        setHasPermission(true);
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        setHasPermission(false);
+        toast({
+          variant: 'destructive',
+          title: t('monitoring.client.micDeniedToast'),
+          description: t('monitoring.client.micDeniedToastDescription'),
+        });
+        return;
+      }
+    } else if (hasPermission === false) {
+        toast({
+          variant: 'destructive',
+          title: t('monitoring.client.micDeniedToast'),
+          description: t('monitoring.client.micDeniedToastDescription'),
+        });
+        return;
     }
 
-    setCycleStatus('Listening...');
-    recognitionRef.current.start();
+    if (isListening) {
+      stopInitiatedByUser.current = true;
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      setFullTranscript([]);
+      setRiskScore(0);
+      setRiskExplanation('');
+      setScamIndicators([]);
+      setSentiment('calm');
+      setIsEmergency(false);
+      setIsListening(true);
+      recognitionRef.current?.start();
+    }
   };
   
-  useEffect(() => {
-    if (fullTranscript.length === 0) {
-      if (cycleStatus === 'Analysis Complete.') {
-          setIsProcessing(false);
-      }
-      return;
-    };
+  const getStatusText = () => {
+    if (isListening) return t('monitoring.client.status.listening');
+    if (isAnalyzing) return t('monitoring.client.status.analyzing');
+    if (riskScore > 0 && fullTranscript.length > 0) return t('monitoring.client.status.complete');
+    return t('monitoring.client.status.idle');
+  }
 
-    const runLocalAnalysis = () => {
-        setCycleStatus('Analyzing...');
-        const currentTranscript = fullTranscript.join(' ');
-        
-        let calculatedScore = 0;
-        const detectedKeywords = new Set<string>();
-        
-        for (const keyword in KEYWORD_WEIGHTS) {
-            if (currentTranscript.toLowerCase().includes(keyword)) {
-                calculatedScore += KEYWORD_WEIGHTS[keyword];
-                detectedKeywords.add(keyword);
-            }
-        }
-        
-        const finalScore = Math.min(100, calculatedScore);
-        setRiskScore(finalScore);
+  const getButtonText = () => {
+    if (isAnalyzing) return t('monitoring.client.status.analyzing');
+    if (isListening) return t('monitoring.client.stopAnalysis');
+    return t('monitoring.client.startAnalysis');
+  }
 
-        if (finalScore >= 50 && userUID) {
-            addNotification(userUID, { 
-              riskScore: finalScore, 
-              timestamp: new Date().toISOString(),
-              transcript: currentTranscript,
-            });
-             toast({
-                title: t('monitoring.client.alertSent'),
-                description: t('monitoring.client.alertSentDescription'),
-                variant: 'destructive'
-            });
-        }
-        
-        const indicators = Array.from(detectedKeywords);
-        setScamIndicators(indicators);
-        
-        setIsLoadingExplanation(true);
-        let explanationText = t('monitoring.client.riskExplanations.safe');
-        if (finalScore > 75) {
-            setIsEmergency(true);
-            explanationText = t('monitoring.client.riskExplanations.high', { values: { indicators: indicators.join(', ') } });
-        } else if (finalScore > 30) {
-            explanationText = t('monitoring.client.riskExplanations.medium', { values: { indicators: indicators.join(', ') } });
-        }
-        setRiskExplanation(explanationText);
-        
-        setIsLoadingExplanation(false);
-        setIsProcessing(false);
-        setCycleStatus('Ready');
-    };
+  const ButtonIcon = isAnalyzing ? Loader2 : isListening ? Square : Mic;
 
-    if (cycleStatus === 'Processing...' || cycleStatus === 'Analysis Complete.') {
-        runLocalAnalysis();
-    }
-    
-  }, [fullTranscript, cycleStatus, userUID, addNotification, toast, t]);
-  
   return (
     <div className="w-full space-y-8 animate-in fade-in-0">
       {isEmergency && <EmergencyOverlay onDismiss={() => setIsEmergency(false)} />}
@@ -208,22 +275,25 @@ export default function MonitoringClient() {
             <Card className="md:col-span-1 animate-in fade-in-0 slide-in-from-left-8 duration-1000 ease-out">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
-                        {isProcessing ? <Mic className="text-primary"/> : <MicOff/>}
+                        {isListening ? <Mic className="text-primary"/> : <MicOff/>}
                         {t('monitoring.client.statusTitle')}
                     </CardTitle>
-                     <CardDescription>{t('monitoring.client.status', { values: { status: cycleStatus } })}</CardDescription>
+                     <CardDescription>{getStatusText()}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center gap-4">
                     <RiskMeter value={riskScore} />
                      <Button 
                         size="lg" 
-                        className="w-full mt-4 text-lg py-7 transition-all duration-300 transform hover:scale-105" 
-                        onClick={runSingleCycle} 
-                        disabled={isProcessing || !isBrowserSupported}
-                        data-trackable-id="start-analysis"
+                        className={cn(
+                          "w-full mt-4 text-lg py-7 transition-all duration-300 transform hover:scale-105",
+                          isListening && "bg-destructive hover:bg-destructive/90"
+                        )}
+                        onClick={handleToggleListening} 
+                        disabled={isAnalyzing || !isBrowserSupported}
+                        data-trackable-id="toggle-analysis"
                     >
-                        {isProcessing ? <Loader2 className="mr-2 animate-spin" /> : <Mic className="mr-2" />}
-                        {isProcessing ? t('monitoring.client.status', { values: { status: cycleStatus } }) : t('monitoring.client.startAnalysis')}
+                      <ButtonIcon className={cn("mr-2", isAnalyzing && "animate-spin")} />
+                      {getButtonText()}
                     </Button>
                 </CardContent>
             </Card>
@@ -233,17 +303,14 @@ export default function MonitoringClient() {
                     <CardTitle className="flex items-center gap-2 text-xl"><Info /> {t('monitoring.client.riskDetailsTitle')}</CardTitle>
                     <CardDescription>{t('monitoring.client.riskDetailsDescription')}</CardDescription>
                 </CardHeader>
-                <CardContent className="text-base leading-relaxed space-y-4">
-                    {isLoadingExplanation ? (
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-3/4" />
-                        </div>
-                    ) : (
-                        <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p>
+                <CardContent className="text-base leading-relaxed space-y-6">
+                    { isAnalyzing ? <Skeleton className="h-4 w-full" /> : <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p> }
+                    
+                     {fullTranscript.length > 0 && !isListening && (
+                        <SentimentDetails sentiment={sentiment} />
                     )}
-                    {scamIndicators.length > 0 && (
+
+                    {scamIndicators.length > 0 && !isListening && (
                         <div>
                             <h4 className="font-semibold mb-2">{t('monitoring.client.indicatorsTitle')}</h4>
                             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
@@ -274,5 +341,3 @@ export default function MonitoringClient() {
     </div>
   );
 }
-
-    

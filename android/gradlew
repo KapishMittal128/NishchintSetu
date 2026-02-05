@@ -1,0 +1,201 @@
+#!/usr/bin/env sh
+
+#
+# Copyright 2015 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass any JVM options to Gradle.
+DEFAULT_JVM_OPTS=""
+
+APP_NAME="Gradle"
+APP_BASE_NAME=`basename "$0"`
+
+# Use the maximum available path length for the TEMP directory
+if [ -d /var/tmp/ ]; then
+    TEMP_DIR=/var/tmp/
+elif [ -d /tmp/ ]; then
+    TEMP_DIR=/tmp/
+fi
+# Add additional script-specific junk to the TEMP_DIR path
+TEMP_DIR=${TEMP_DIR}java.io.tmpdir
+# Ensure the TEMP_DIR exists, and is a directory
+mkdir -p ${TEMP_DIR}
+
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+APP_HOME=`dirname "$PRG"`
+
+# Absolutize APP_HOME
+APP_HOME=`cd "$APP_HOME" > /dev/null; pwd`
+
+# Add the '-XX:+HeapDumpOnOutOfMemoryError' JVM option without stating it was done
+# Some environments don't like it...
+if [ -z "${GRADLE_OPTS}" ] ; then
+    GRADLE_OPTS="-XX:+HeapDumpOnOutOfMemoryError"
+else
+    # Funky syntax to check if a variable contains a substring
+    # This is pretty much POSIX standard
+    case "${GRADLE_OPTS}" in
+        *"-XX:+HeapDumpOnOutOfMemoryError"*) echo > /dev/null;;
+        *) GRADLE_OPTS="${GRADLE_OPTS} -XX:+HeapDumpOnOutOfMemoryError";;
+    esac
+fi
+
+# For Cygwin, ensure paths are in UNIX format before anything is touched
+if ${cygwin} ; then
+    [ -n "$APP_HOME" ] &&
+        APP_HOME=`cygpath --unix "$APP_HOME"`
+    [ -n "$JAVA_HOME" ] &&
+        JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+fi
+
+# Setup the Java agent
+if [ -f "$APP_HOME/build-fs-plugin.jar" ]; then
+    if [ -z "${GRADLE_OPTS}" ]; then
+        GRADLE_OPTS="-javaagent:$APP_HOME/build-fs-plugin.jar"
+    else
+        GRADLE_OPTS="${GRADLE_OPTS} -javaagent:$APP_HOME/build-fs-plugin.jar"
+    fi
+fi
+
+# Collect all arguments for the java command, following the shell quoting rules.
+#
+# The following test is equivalent to haveArguments=$#
+# but it is more robust, as it accounts for the case of the initial arguments being empty.
+if test "$1" ; then
+    # Add the arguments to the new array
+    for arg in "$@" ; do
+        # We need to quote the arguments that have spaces
+        case "$arg" in
+            *\ * )
+                jvm_args="${jvm_args} \"$arg\"" ;;
+            *)
+                jvm_args="${jvm_args} $arg" ;;
+        esac
+    done
+fi
+
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD="java"
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+fi
+
+# Increase the maximum file descriptors if we can.
+if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
+    MAX_FD_LIMIT=`ulimit -H -n`
+    if [ $? -eq 0 ] ; then
+        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+            # Use the maximum available limit
+            MAX_FD="$MAX_FD_LIMIT"
+        fi
+        ulimit -n $MAX_FD
+        if [ $? -ne 0 ] ; then
+            warn "Could not set maximum file descriptor limit: $MAX_FD"
+        fi
+    else
+        warn "Could not query maximum file descriptor limit"
+    fi
+fi
+
+# Add the jar to the classpath
+if [ -n "$APP_HOME" ]; then
+    CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+fi
+
+# Split up the JVM options only if the variable is not quoted
+if [ -z "${JVM_OPTS}" ]; then
+    # Add the JAVA_OPTS to the JVM options
+    if [ -n "${JAVA_OPTS}" ]; then
+        # The following syntax will split the JAVA_OPTS variable by spaces
+        # and handle the quoted arguments.
+        # This is robust and works on all shells.
+        for arg in ${JAVA_OPTS} ; do
+            JVM_OPTS="${JVM_OPTS} \"$arg\""
+        done
+    fi
+fi
+
+# Add the script-defined default JVM options, if they are not already set
+if [ -z "${JVM_OPTS}" ]; then
+    # Add the DEFAULT_JVM_OPTS to the JVM options
+    if [ -n "${DEFAULT_JVM_OPTS}" ]; then
+        # The following syntax will split the DEFAULT_JVM_OPTS variable by spaces
+        # and handle the quoted arguments.
+        # This is robust and works on all shells.
+        for arg in ${DEFAULT_JVM_OPTS} ; do
+            JVM_OPTS="${JVM_OPTS} \"$arg\""
+        done
+    fi
+fi
+
+# Build the command line
+# The funky quoting is to avoid issues with spaces in paths
+# What we are doing is:
+# 1. Add the Java command
+# 2. Add the JVM options
+# 3. Add the Gradle options
+# 4. Add the classpath
+# 5. Add the main class
+# 6. Add the application home
+# 7. Add the application arguments
+#
+# The quoting of the arguments is important, as it will allow the shell
+# to handle the arguments correctly.
+#
+# The `eval` command is used to execute the command line, as it will
+# correctly handle the quoted arguments.
+#
+# The `exec` command is used to replace the current shell with the Java
+# process, which is more efficient.
+#
+# The `"$@"` syntax will expand to the list of arguments, with each
+# argument being quoted. This is important to handle the arguments
+t
+# correctly.
+eval exec \"$JAVACMD\" \
+    ${JVM_OPTS} \
+    ${GRADLE_OPTS} \
+    -Dorg.gradle.appname=\"$APP_BASE_NAME\" \
+    -classpath \"$CLASSPATH\" \
+    org.gradle.wrapper.GradleWrapperMain \
+    "\"$@\""

@@ -32,6 +32,7 @@ export type Notification = {
   riskScore: number;
   timestamp: string;
   transcript?: string;
+  sentiment?: 'calm' | 'urgent' | 'threatening';
 };
 
 export type MoodEntry = {
