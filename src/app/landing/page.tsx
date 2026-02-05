@@ -43,7 +43,7 @@ const AnimatedBackground = () => {
   );
 };
 
-const Header = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
+const Header = () => {
   const { t } = useTranslation();
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
@@ -57,14 +57,6 @@ const Header = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
         <div className="flex items-center gap-2">
             <LanguageToggle />
             <ThemeToggle />
-             <Button 
-              onClick={onGetStartedClick} 
-              size="lg"
-              className="rounded-full bg-foreground text-background hover:bg-foreground/80 text-lg px-8 py-6 transition-transform duration-300 ease-in-out hover:scale-105 hidden sm:flex"
-              data-trackable-id="landing-get-started-header"
-            >
-              {t('landing.cta')}
-            </Button>
         </div>
       </div>
     </header>
@@ -231,7 +223,7 @@ export default function LandingPage() {
   return (
     <div className="bg-background min-h-screen w-full overflow-x-hidden">
       <AnimatedBackground />
-      <Header onGetStartedClick={handleGetStarted} />
+      <Header />
       <main className="relative z-10">
         <HeroSection onGetStartedClick={handleGetStarted} />
         <StatsSection />
