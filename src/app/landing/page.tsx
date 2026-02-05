@@ -46,10 +46,6 @@ const Header = () => {
             </div>
             <h2 className="text-3xl font-bold text-white tracking-tight">{t('appName')}</h2>
         </div>
-        <div className="flex items-center gap-2">
-            <LanguageToggle />
-            <ThemeToggle />
-        </div>
       </div>
     </header>
   );
@@ -155,7 +151,7 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
           {features.map((item, i) => (
              <div 
                 key={i} 
-                className="group relative text-center p-8 rounded-2xl bg-black/30 border border-gray-800 hover:border-gray-600 hover:-translate-y-2 transition-all duration-300"
+                className="group relative text-center p-8 rounded-2xl border border-gray-800 hover:border-gray-600 hover:-translate-y-2 transition-all duration-300"
                 onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
                 onMouseLeave={handleMouseLeave}
                 onTouchStart={() => handleTouchStart(item.spotlightColor)}
@@ -174,20 +170,12 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
   )
 }
 
-const FinalCTASection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
+const FinalCTASection = () => {
     return (
         <section className="py-32 sm:py-48 text-center bg-black/50">
             <div className="container mx-auto px-8 space-y-10">
                 <h2 className="text-5xl md:text-6xl font-bold text-white">Begin Your Journey to Peace of Mind</h2>
                 <p className="text-xl text-gray-400 max-w-2xl mx-auto">Join thousands of users who are protecting themselves and their loved ones from the growing threat of phone scams.</p>
-                 <Button
-                    size="lg"
-                    className="text-lg px-8 py-7 pulse-button"
-                    onClick={onGetStartedClick}
-                    data-trackable-id="landing-get-started-final"
-                >
-                    Get Started Now <ArrowRight className="ml-2"/>
-                </Button>
             </div>
         </section>
     )
@@ -236,7 +224,7 @@ export default function LandingPage() {
             onInteractionStart={handleInteractionStart}
             onInteractionEnd={handleInteractionEnd}
         />
-        <FinalCTASection onGetStartedClick={handleGetStarted} />
+        <FinalCTASection />
       </main>
     </div>
   );
