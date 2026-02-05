@@ -7,7 +7,6 @@ import { Mic, MicOff, Info, AlertTriangle, Loader2, Smile, Clock, Siren } from '
 import { EmergencyOverlay } from '@/components/app/emergency-overlay';
 import { RiskMeter } from '@/components/app/risk-meter';
 import { TranscriptDisplay } from '@/components/app/transcript-display';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useAppState } from '@/hooks/use-app-state';
@@ -39,6 +38,8 @@ export default function MonitoringClient() {
   
   const recognitionRef = useRef<any>(null);
   const transcriptRef = useRef<string[]>([]);
+  const statusRef = useRef(status);
+  statusRef.current = status;
 
   const { toast } = useToast();
   const { userUID, addNotification } = useAppState();
@@ -130,6 +131,69 @@ export default function MonitoringClient() {
     };
   }, [t]);
 
+  // Effect to manage speech recognition lifecycle
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setIsBrowserSupported(false);
+      return;
+    }
+
+    if (!recognitionRef.current) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognitionRef.current = recognition;
+    }
+
+    const recognition = recognitionRef.current;
+    recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+      
+      if(finalTranscript.trim()) {
+        transcriptRef.current.push(finalTranscript.trim());
+      }
+      setFullTranscript([...transcriptRef.current, interimTranscript]);
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event.error === 'aborted' || statusRef.current !== 'listening') {
+        return;
+      }
+      let errorMessage = t('monitoring.client.genericError', { values: { error: event.error }});
+      if (event.error === 'no-speech') {
+          errorMessage = t('monitoring.client.noSpeechError');
+      } else if (event.error === 'not-allowed') {
+          errorMessage = t('monitoring.client.micDeniedToastDescription');
+          setHasPermission(false);
+      }
+      toast({ variant: 'destructive', title: t('monitoring.client.transcriptionError'), description: errorMessage });
+      setStatus('idle');
+    };
+
+    recognition.onend = () => {
+      if (statusRef.current === 'listening') {
+        setStatus('analyzing');
+      }
+    };
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    }
+  }, [language, t, toast]);
+
   // Effect to run analysis when status changes to 'analyzing'
   useEffect(() => {
     if (status === 'analyzing') {
@@ -158,75 +222,12 @@ export default function MonitoringClient() {
       
       const timer = setTimeout(() => {
         setStatus('idle');
-      }, 1000); // Keep "analyzing" state visible for a second
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [status, runAnalysis, addNotification, userUID, toast, t]);
-
-  // Effect to manage speech recognition lifecycle
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setIsBrowserSupported(false);
-      return;
-    }
-
-    if (!recognitionRef.current) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true; // Use interim results for live transcript
-        recognitionRef.current = recognition;
-    }
-
-    const recognition = recognitionRef.current;
-    recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
-
-    recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
-        }
-      }
-      
-      if(finalTranscript.trim()) {
-        transcriptRef.current.push(finalTranscript.trim());
-      }
-      // Update UI with both final and interim for live effect
-      setFullTranscript([...transcriptRef.current, interimTranscript]);
-    };
-
-    recognition.onerror = (event: any) => {
-      if (event.error === 'aborted' || status !== 'listening') {
-        return;
-      }
-      let errorMessage = t('monitoring.client.genericError', { values: { error: event.error }});
-      if (event.error === 'no-speech') {
-          errorMessage = t('monitoring.client.noSpeechError');
-      } else if (event.error === 'not-allowed') {
-          errorMessage = t('monitoring.client.micDeniedToastDescription');
-          setHasPermission(false);
-      }
-      toast({ variant: 'destructive', title: t('monitoring.client.transcriptionError'), description: errorMessage });
-      setStatus('idle');
-    };
-
-    recognition.onend = () => {
-      if (status === 'listening') {
-        setStatus('analyzing');
-      }
-    };
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
-    }
-  }, [language, t, toast, status]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, userUID]);
 
   const handleStartRecording = async () => {
     if (!isBrowserSupported) {
@@ -252,7 +253,6 @@ export default function MonitoringClient() {
       }
     }
     
-    // Reset state for a new analysis
     transcriptRef.current = [];
     setFullTranscript([]);
     setRiskScore(0);
@@ -266,7 +266,7 @@ export default function MonitoringClient() {
 
     // Automatically stop after 3 seconds
     setTimeout(() => {
-        if (recognitionRef.current && status === 'listening') {
+        if (recognitionRef.current) {
              recognitionRef.current.stop();
         }
     }, 3000);
