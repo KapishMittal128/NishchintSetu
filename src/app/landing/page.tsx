@@ -40,17 +40,6 @@ const SpotlightEffect = () => {
     return <div ref={spotlightRef} className="spotlight-card-bloom pointer-events-none" />;
 };
 
-
-const SpaceBackground = () => (
-  <div className="fixed inset-0 -z-20 h-full w-full" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
-    <div id="stars1" className="stars-bg" />
-    <div id="stars2" className="stars-bg" />
-    <div id="stars3" className="stars-bg" />
-    <div id="stars4" className="stars-bg" />
-    <div id="stars5" className="stars-bg" />
-  </div>
-);
-
 const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
     const heroImage = {
         "src": "https://picsum.photos/seed/robot-elderly-illustration/600/600",
@@ -269,7 +258,6 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen w-full text-white isolate">
       <SpotlightEffect />
-      <SpaceBackground />
        <div 
         className="relative z-10 w-full"
       >
