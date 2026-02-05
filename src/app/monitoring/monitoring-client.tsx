@@ -98,6 +98,12 @@ export default function MonitoringClient() {
             detectedKeywords.add(keyword);
         }
     }
+    
+    // If 'otp' or 'arrest' is mentioned, set score to at least 75
+    if (lowerCaseTranscript.includes('otp') || lowerCaseTranscript.includes('arrest')) {
+        calculatedScore = Math.max(calculatedScore, 75);
+    }
+
     const finalScore = Math.min(100, calculatedScore);
     
     let currentSentiment: 'calm' | 'urgent' | 'threatening' = 'calm';
