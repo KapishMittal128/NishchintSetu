@@ -118,7 +118,7 @@
     height: 2400px;
     background: radial-gradient(circle, var(--bloom-color) 0%, transparent 40%);
     transition: background 0.3s ease-in-out;
-    filter: blur(160px);
+    filter: blur(120px);
   }
 
   .stars-bg {
