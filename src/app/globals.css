@@ -88,11 +88,11 @@
     left: var(--x);
     top: var(--y);
     transform: translate(-50%, -50%);
-    width: 1200px;
-    height: 1200px;
+    width: 2400px;
+    height: 2400px;
     background: radial-gradient(circle, var(--bloom-color) 0%, transparent 40%);
     transition: background 0.3s ease-in-out;
-    filter: blur(80px);
+    filter: blur(160px);
   }
 
   .stars-bg {
@@ -106,20 +106,20 @@
 
   #stars1 {
     background-image: radial-gradient(1px, hsla(0,0%,100%,0.5) 1px, transparent 0);
-    background-size: 800px 800px;
-    animation: move-stars 1200s linear infinite;
+    background-size: 600px 600px;
+    animation: move-stars 200s linear infinite;
   }
 
   #stars2 {
     background-image: radial-gradient(1.5px, hsla(0,0%,100%,0.7) 1.5px, transparent 0);
-    background-size: 1200px 1200px;
-    animation: move-stars 1400s linear infinite;
+    background-size: 800px 800px;
+    animation: move-stars 250s linear infinite;
   }
 
   #stars3 {
     background-image: radial-gradient(2.5px, white 2.5px, transparent 0);
-    background-size: 1600px 1600px;
-    animation: move-stars 1600s linear infinite;
+    background-size: 1000px 1000px;
+    animation: move-stars 300s linear infinite;
   }
 }
 

@@ -144,10 +144,14 @@ const FeatureCard = ({ item }: { item: any }) => {
       <DialogTrigger asChild>
         <div
           className={cn(
-            "group relative p-8 rounded-2xl bg-gray-900/40 border border-white/10 transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col text-left backdrop-blur-lg",
+            "group relative p-8 rounded-2xl bg-gray-900/40 border border-white/10 transition-all duration-300 cursor-pointer h-full flex flex-col text-left backdrop-blur-lg",
             "hover:-translate-y-1 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10"
           )}
         >
+          <div className={cn(
+            "absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+            item.gradient
+          )}></div>
           <div className="relative z-10 flex-1">
             <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
               <item.icon className={cn("h-6 w-6", item.iconColor)} />
@@ -186,6 +190,7 @@ const FeaturesSection = () => {
       longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
       iconBg: 'bg-red-900/40',
       iconColor: 'text-red-400',
+      gradient: 'from-red-500/20',
     },
     {
       icon: Lock,
@@ -194,6 +199,7 @@ const FeaturesSection = () => {
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
       iconBg: 'bg-purple-900/40',
       iconColor: 'text-purple-400',
+      gradient: 'from-purple-500/20',
     },
     {
       icon: ShieldCheck,
@@ -202,6 +208,7 @@ const FeaturesSection = () => {
       longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
+      gradient: 'from-green-500/20',
     },
     {
       icon: HandHelping,
@@ -210,6 +217,7 @@ const FeaturesSection = () => {
       longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
       iconBg: 'bg-sky-900/40',
       iconColor: 'text-sky-400',
+      gradient: 'from-sky-500/20',
     },
   ];
 
@@ -254,7 +262,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen w-full text-white isolate" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
+    <div className="min-h-screen w-full text-white isolate">
       <SpotlightEffect />
       <SpaceBackground />
        <div 
