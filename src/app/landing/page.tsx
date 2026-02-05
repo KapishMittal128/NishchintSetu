@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Shield, Lock, ShieldCheck, HandHelping, ArrowRight, Target, Clock, Sparkles } from 'lucide-react';
+import { Shield, Lock, ShieldCheck, HandHelping, ArrowRight, Target, Clock, Sparkles, Play } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -42,7 +42,7 @@ const SpotlightEffect = () => {
 
 
 const SpaceBackground = () => (
-  <div className="fixed inset-0 -z-20 h-full w-full overflow-hidden" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
+  <div className="fixed inset-0 -z-20 h-full w-full" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
     <div id="stars1" className="stars-bg" />
     <div id="stars2" className="stars-bg" />
     <div id="stars3" className="stars-bg" />
@@ -88,6 +88,13 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                             data-trackable-id="landing-get-started-hero"
                         >
                             Get Started Now <ArrowRight className="ml-2"/>
+                        </Button>
+                        <Button
+                            size="lg"
+                            variant="outline"
+                            className="text-lg px-8 py-7 bg-transparent border-2 border-white/50 text-white hover:bg-white/10 hover:text-white"
+                        >
+                            <Play className="mr-2"/> Watch Demo
                         </Button>
                     </div>
 
@@ -137,19 +144,18 @@ const FeatureCard = ({ item }: { item: any }) => {
       <DialogTrigger asChild>
         <div
           className={cn(
-            "group relative p-8 rounded-2xl bg-secondary transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col text-left",
-            "hover:-translate-y-2 hover:bg-[var(--hover-bg)]"
+            "group relative p-8 rounded-2xl bg-gray-900/40 border border-white/10 transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col text-left backdrop-blur-lg",
+            "hover:-translate-y-1 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10"
           )}
-           style={{ '--hover-bg': item.hoverBg } as React.CSSProperties}
         >
-          <div className="relative flex-1">
+          <div className="relative z-10 flex-1">
             <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
               <item.icon className={cn("h-6 w-6", item.iconColor)} />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
             <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
           </div>
-          <div className="relative mt-6 flex items-center text-sm font-medium text-sky-400 group-hover:text-sky-300 transition-colors">
+          <div className="relative z-10 mt-6 flex items-center text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
             Learn more <ArrowRight className="ml-2 h-4 w-4" />
           </div>
         </div>
@@ -180,7 +186,6 @@ const FeaturesSection = () => {
       longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
       iconBg: 'bg-red-900/40',
       iconColor: 'text-red-400',
-      hoverBg: 'hsla(0, 100%, 70%, 0.1)'
     },
     {
       icon: Lock,
@@ -189,7 +194,6 @@ const FeaturesSection = () => {
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
       iconBg: 'bg-purple-900/40',
       iconColor: 'text-purple-400',
-      hoverBg: 'hsla(280, 100%, 70%, 0.1)'
     },
     {
       icon: ShieldCheck,
@@ -198,7 +202,6 @@ const FeaturesSection = () => {
       longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
-      hoverBg: 'hsla(140, 100%, 70%, 0.1)'
     },
     {
       icon: HandHelping,
@@ -207,7 +210,6 @@ const FeaturesSection = () => {
       longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
       iconBg: 'bg-sky-900/40',
       iconColor: 'text-sky-400',
-      hoverBg: 'hsla(200, 100%, 70%, 0.1)'
     },
   ];
 
@@ -252,7 +254,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden text-white isolate" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
+    <div className="min-h-screen w-full text-white isolate" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7, 0.98)' }}>
       <SpotlightEffect />
       <SpaceBackground />
        <div 
