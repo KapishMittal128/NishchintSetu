@@ -68,18 +68,18 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6 text-center animate-in fade-in slide-in-from-left-12 duration-700">
                     
-                    <h2 className="text-6xl font-bold text-white tracking-tighter">
+                    <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter">
                         Nishchint Setu
-                    </h2>
+                    </h1>
 
                     <div className="inline-block bg-yellow-400/10 text-yellow-300 text-sm font-medium px-4 py-1.5 rounded-full border border-yellow-400/30 backdrop-blur-sm">
                         <Sparkles className="inline-block mr-2 h-4 w-4" />
                         AI POWERED
                     </div>
 
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white !mt-8">
+                    <h2 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-white !mt-8">
                         A <span className="text-primary">gentle guardian</span> for your phone calls.
-                    </h1>
+                    </h2>
                     <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto">
                        Nishchint Setu offers peace of mind with on-device AI that monitors calls and messages for scams in real-time.
                     </p>
