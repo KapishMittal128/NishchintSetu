@@ -168,6 +168,11 @@ export default function MonitoringClient() {
     };
 
     recognition.onerror = (event: any) => {
+      if (event.error === 'aborted') {
+        // This can happen if the user stops talking or stops the recognition.
+        // We can safely ignore it as the `onend` handler will deal with it.
+        return;
+      }
       console.error('Speech recognition error:', event.error);
       let errorMessage = t('monitoring.client.genericError', { values: { error: event.error }});
       if (event.error === 'no-speech') {
