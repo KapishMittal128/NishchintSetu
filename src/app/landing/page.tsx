@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -127,11 +127,28 @@ const StatsSection = () => {
 
 const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteractionStart: (color: string) => void, onInteractionEnd: () => void }) => {
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', bg: 'bg-rose-950/50', spotlightColor: 'hsla(346, 84%, 60%, 0.15)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', bg: 'bg-sky-950/50', spotlightColor: 'hsla(199, 89%, 55%, 0.15)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', bg: 'bg-teal-950/50', spotlightColor: 'hsla(165, 76%, 42%, 0.15)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-amber-400', bg: 'bg-amber-950/50', spotlightColor: 'hsla(45, 93%, 47%, 0.15)' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-red-400', bg: 'bg-red-950/50', spotlightColor: 'hsla(0, 84%, 60%, 0.25)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-blue-400', bg: 'bg-blue-950/50', spotlightColor: 'hsla(217, 91%, 60%, 0.25)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', bg: 'bg-teal-950/50', spotlightColor: 'hsla(165, 76%, 42%, 0.25)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', bg: 'bg-orange-950/50', spotlightColor: 'hsla(39, 92%, 50%, 0.25)' },
   ];
+
+  const handleMouseEnter = (color: string) => {
+    onInteractionStart(color);
+  };
+
+  const handleMouseLeave = () => {
+    onInteractionEnd();
+  };
+
+  const handleTouchStart = (color: string) => {
+    onInteractionStart(color);
+  };
+  
+  const handleTouchEnd = () => {
+    onInteractionEnd();
+  };
+
 
   return (
     <section className="py-24 bg-black">
@@ -145,8 +162,10 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
              <div 
                 key={i} 
                 className="group relative text-center p-8 rounded-2xl bg-gray-900/50 border border-gray-800 hover:shadow-xl hover:border-gray-700 hover:-translate-y-2 transition-all duration-300"
-                onMouseEnter={() => onInteractionStart(item.spotlightColor)}
-                onMouseLeave={onInteractionEnd}
+                onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
+                onMouseLeave={handleMouseLeave}
+                onTouchStart={() => handleTouchStart(item.spotlightColor)}
+                onTouchEnd={handleTouchEnd}
               >
                 <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full", item.bg)}>
                   <item.icon className={cn("h-8 w-8", item.color)} />
@@ -161,7 +180,7 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
   )
 }
 
-const FinalCTASection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
+const FinalCTASection = () => {
     return (
         <section className="py-32 sm:py-48 text-center bg-black/50">
             <div className="container mx-auto px-8 space-y-10">
@@ -182,18 +201,18 @@ export default function LandingPage() {
     router.push('/role-selection');
   };
 
-  useEffect(() => {
-    // Set the default spotlight color on initial load
+  const handleInteractionStart = useCallback((color: string) => {
+    document.documentElement.style.setProperty('--spotlight-color', color);
+  }, []);
+
+  const handleInteractionEnd = useCallback(() => {
     document.documentElement.style.setProperty('--spotlight-color', defaultSpotlightColor);
   }, []);
 
-  const handleInteractionStart = (color: string) => {
-    document.documentElement.style.setProperty('--spotlight-color', color);
-  };
-
-  const handleInteractionEnd = () => {
+  useEffect(() => {
+    // Set the default spotlight color on initial load
     document.documentElement.style.setProperty('--spotlight-color', defaultSpotlightColor);
-  };
+  }, [defaultSpotlightColor]);
 
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -215,7 +234,7 @@ export default function LandingPage() {
             onInteractionStart={handleInteractionStart}
             onInteractionEnd={handleInteractionEnd}
         />
-        <FinalCTASection onGetStartedClick={handleGetStarted} />
+        <FinalCTASection />
       </main>
     </div>
   );
