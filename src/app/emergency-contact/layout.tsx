@@ -10,15 +10,18 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarRail
+  SidebarRail,
+  SidebarTrigger
 } from '@/components/ui/sidebar';
 import { LayoutDashboard, LogOut, User, HeartPulse, History, Settings, FileText, BookOpen, HandHelping } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from '@/context/translation-context';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 export default function EmergencyContactLayout({ children }: { children: React.ReactNode }) {
-  const { signOut } = useAppState();
+  const { signOut, allUserProfiles, pairedUserUID } = useAppState();
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
@@ -37,6 +40,23 @@ export default function EmergencyContactLayout({ children }: { children: React.R
     { href: '/emergency-contact/resources', label: t('nav.scamResources'), icon: BookOpen },
     { href: '/emergency-contact/user-profile', label: t('nav.pairedUserProfile'), icon: User },
   ];
+  
+  const pairedUser = pairedUserUID ? allUserProfiles[pairedUserUID] : null;
+  const name = pairedUser?.name || t('common.user');
+
+  const getTitle = () => {
+    const route = navLinks.find(link => pathname.startsWith(link.href));
+    if (pathname.startsWith('/emergency-contact/settings')) return t('nav.settings');
+    
+    // Handle dynamic titles
+    if (pathname.startsWith('/emergency-contact/dashboard')) return t('ecDashboard.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/history')) return t('ecRiskHistory.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/mood')) return t('ecMoodHistory.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/assistance')) return t('ecAssistanceLog.title', { values: { name }});
+    if (pathname.startsWith('/emergency-contact/reports')) return t('ecReports.title', { values: { name }});
+
+    return route ? route.label : t('appName');
+  }
 
   return (
     <SidebarProvider>
@@ -86,7 +106,19 @@ export default function EmergencyContactLayout({ children }: { children: React.R
         </SidebarFooter>
       </Sidebar>
       <main className="flex-1 overflow-y-auto bg-muted/20 md:ml-[var(--sidebar-width)] peer-data-[state=collapsed]:md:ml-[var(--sidebar-width-icon)] transition-[margin-left] duration-200">
-        {children}
+        <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+            <div className="flex items-center gap-2">
+                <SidebarTrigger className="md:hidden" />
+                <h1 className="text-2xl font-semibold">{getTitle()}</h1>
+            </div>
+            <div className="flex items-center gap-2">
+                <LanguageToggle />
+                <ThemeToggle />
+            </div>
+        </header>
+        <div className="p-6">
+            {children}
+        </div>
       </main>
     </SidebarProvider>
   );

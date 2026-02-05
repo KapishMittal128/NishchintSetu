@@ -83,7 +83,7 @@ export function UserLayout({ children, title }: { children: React.ReactNode; tit
       <main className="flex-1 overflow-y-auto bg-muted/20 md:ml-[var(--sidebar-width)] peer-data-[state=collapsed]:md:ml-[var(--sidebar-width-icon)] transition-[margin-left] duration-200">
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
             <div className="flex items-center gap-2">
-                <SidebarTrigger className="md:!hidden" />
+                <SidebarTrigger className="md:hidden" />
                 <h1 className="text-2xl font-semibold">{title}</h1>
             </div>
           <div className="flex items-center gap-2">
