@@ -48,7 +48,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <ShieldCheck className="h-7 w-7 text-primary" />
                         </div>
-                        <h2 className="text-4xl font-bold text-white tracking-tight">Nishchint <span className="text-primary">Setu</span></h2>
+                        <h2 className="text-4xl font-bold text-white tracking-tight">NISHCHINT <span className="text-primary">SETU</span></h2>
                     </div>
 
                     <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-white">
