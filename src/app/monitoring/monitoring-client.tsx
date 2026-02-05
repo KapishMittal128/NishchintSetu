@@ -45,39 +45,6 @@ export default function MonitoringClient() {
   const { userUID, addNotification } = useAppState();
   const { t, language } = useTranslation();
 
-  const SentimentDetails = ({ sentiment }: { sentiment: 'calm' | 'urgent' | 'threatening' }) => {
-    const { t } = useTranslation();
-    const sentimentInfo = {
-        threatening: {
-            icon: Siren,
-            className: 'text-destructive',
-            description: t('smsSafety.sentimentDetails.threatening')
-        },
-        urgent: {
-            icon: Clock,
-            className: 'text-warning',
-            description: t('smsSafety.sentimentDetails.urgent')
-        },
-        calm: {
-            icon: Smile,
-            className: 'text-success',
-            description: t('smsSafety.sentimentDetails.calm')
-        }
-    };
-    const { icon: Icon, className, description } = sentimentInfo[sentiment];
-    const text = t(`smsSafety.sentimentIndicator.${sentiment}`);
-
-    return (
-        <div className="mt-4 p-3 bg-muted/50 rounded-lg border">
-            <div className="flex items-center gap-2">
-                <Icon className={cn('h-5 w-5', className)} />
-                <h4 className={cn('font-semibold', className)}>{text}</h4>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1 pl-7">{description}</p>
-        </div>
-    );
-  };
-  
   const runAnalysis = useCallback((transcript: string) => {
     if (!transcript.trim()) {
       return {
@@ -130,6 +97,40 @@ export default function MonitoringClient() {
         isEmergency: emergency,
     };
   }, [t]);
+
+  const SentimentDetails = ({ sentiment }: { sentiment: 'calm' | 'urgent' | 'threatening' }) => {
+    const { t } = useTranslation();
+    const sentimentInfo = {
+        threatening: {
+            icon: Siren,
+            className: 'text-destructive',
+            description: t('smsSafety.sentimentDetails.threatening')
+        },
+        urgent: {
+            icon: Clock,
+            className: 'text-warning',
+            description: t('smsSafety.sentimentDetails.urgent')
+        },
+        calm: {
+            icon: Smile,
+            className: 'text-success',
+            description: t('smsSafety.sentimentDetails.calm')
+        }
+    };
+    const { icon: Icon, className, description } = sentimentInfo[sentiment];
+    const text = t(`smsSafety.sentimentIndicator.${sentiment}`);
+
+    return (
+        <div className="mt-4 p-3 bg-muted/50 rounded-lg border">
+            <div className="flex items-center gap-2">
+                <Icon className={cn('h-5 w-5', className)} />
+                <h4 className={cn('font-semibold', className)}>{text}</h4>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1 pl-7">{description}</p>
+        </div>
+    );
+  };
+  
 
   // Effect to manage speech recognition lifecycle
   useEffect(() => {
@@ -202,7 +203,7 @@ export default function MonitoringClient() {
 
       setRiskScore(results.riskScore);
       setSentiment(results.sentiment);
-      setScamIndicators(results.scamIndicators);
+      setScamIndicators(Array.from(results.scamIndicators));
       setRiskExplanation(results.riskExplanation);
       setIsEmergency(results.isEmergency);
 
@@ -264,12 +265,12 @@ export default function MonitoringClient() {
     setStatus('listening');
     recognitionRef.current?.start();
 
-    // Automatically stop after 3 seconds
+    // Automatically stop after 5 seconds
     setTimeout(() => {
         if (recognitionRef.current) {
              recognitionRef.current.stop();
         }
-    }, 3000);
+    }, 5000);
   };
   
   const getStatusText = () => {
