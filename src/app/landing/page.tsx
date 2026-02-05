@@ -8,8 +8,6 @@ import { cn } from '@/lib/utils';
 import { Heart, ShieldCheck, Eye, Zap, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/context/translation-context';
 import placeholderImages from '@/lib/placeholder-images.json';
-import { LanguageToggle } from '@/components/app/language-toggle';
-import { ThemeToggle } from '@/components/app/theme-toggle';
 
 // --- Components ---
 
@@ -117,10 +115,10 @@ const StatsSection = () => {
 
 const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteractionStart: (color: string) => void, onInteractionEnd: () => void }) => {
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-red-400', bg: 'bg-red-950/50', spotlightColor: 'hsla(0, 84%, 60%, 0.4)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-blue-400', bg: 'bg-blue-950/50', spotlightColor: 'hsla(217, 91%, 60%, 0.4)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', bg: 'bg-teal-950/50', spotlightColor: 'hsla(165, 76%, 42%, 0.4)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', bg: 'bg-orange-950/50', spotlightColor: 'hsla(39, 92%, 50%, 0.4)' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'hsla(346, 84%, 60%, 0.4)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'hsla(199, 91%, 60%, 0.4)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'hsla(165, 76%, 42%, 0.4)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'hsla(39, 92%, 50%, 0.4)' },
   ];
 
   const handleMouseEnter = (color: string) => {
@@ -141,7 +139,7 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
 
 
   return (
-    <section className="py-24 bg-black">
+    <section className="py-24 bg-transparent">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white">A Guardian Angel for Your Digital Life</h2>
@@ -151,13 +149,13 @@ const FeaturesSection = ({ onInteractionStart, onInteractionEnd }: { onInteracti
           {features.map((item, i) => (
              <div 
                 key={i} 
-                className="group relative text-center p-8 rounded-2xl border border-gray-800 hover:border-gray-600 hover:-translate-y-2 transition-all duration-300"
+                className="group relative text-center p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300"
                 onMouseEnter={() => handleMouseEnter(item.spotlightColor)}
                 onMouseLeave={handleMouseLeave}
                 onTouchStart={() => handleTouchStart(item.spotlightColor)}
                 onTouchEnd={handleTouchEnd}
               >
-                <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full", item.bg)}>
+                <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5")}>
                   <item.icon className={cn("h-8 w-8", item.color)} />
                 </div>
                 <h3 className="text-2xl font-bold text-white">{item.title}</h3>
