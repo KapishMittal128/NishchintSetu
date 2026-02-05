@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Heart, ShieldCheck, Eye, Zap, ArrowRight } from 'lucide-react';
+import { Heart, ShieldCheck, Eye, Zap, ArrowRight, Target, Clock } from 'lucide-react';
 import { useTranslation } from '@/context/translation-context';
 import placeholderImages from '@/lib/placeholder-images.json';
 
@@ -34,6 +34,11 @@ const Header = () => {
 const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) => {
     const { t } = useTranslation();
     const heroImage = placeholderImages.landingHero;
+    const stats = [
+        { icon: ShieldCheck, text: "100% Privacy" },
+        { icon: Target, text: "Highly Accurate" },
+        { icon: Clock, text: "24/7 Guardian Watch" },
+    ];
 
     return (
         <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -55,9 +60,17 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                             Get Started Now <ArrowRight className="ml-2"/>
                         </Button>
                     </div>
+                     <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+                        {stats.map((stat, index) => (
+                            <div key={index} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
+                                <stat.icon className="h-5 w-5 text-gray-300" />
+                                <span className="text-sm font-medium text-gray-200">{stat.text}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                  <div className="relative h-full hidden md:flex items-center justify-center animate-in fade-in slide-in-from-right-12 duration-700">
-                    <div className="w-[280px] h-[380px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
+                    <div className="w-[400px] h-[450px] rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 border-4 border-gray-900">
                          <Image
                             src={heroImage.src}
                             alt="An actual robot assistant"
@@ -73,30 +86,9 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     )
 }
 
-const StatsSection = () => {
-    const stats = [
-        { value: '10K+', label: 'Protected Users' },
-        { value: '99.9%', label: 'On-Device Analysis' },
-        { value: '24/7', label: 'Guardian Watch' },
-    ];
-    return (
-        <section className="py-20 bg-black/50 backdrop-blur-sm">
-            <div className="container mx-auto px-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                    {stats.map((stat) => (
-                        <div key={stat.label} className="p-6 rounded-2xl animate-in fade-in-0 zoom-in-95 duration-500">
-                            <p className="text-5xl font-bold text-primary">{stat.value}</p>
-                            <p className="mt-2 text-lg text-gray-400">{stat.label}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    )
-}
-
 const FeatureCard = ({ item }: { item: any }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (cardRef.current) {
@@ -105,28 +97,30 @@ const FeatureCard = ({ item }: { item: any }) => {
       const y = e.clientY - rect.top;
       cardRef.current.style.setProperty('--x', `${x}px`);
       cardRef.current.style.setProperty('--y', `${y}px`);
-      cardRef.current.style.setProperty('--spotlight-color', item.spotlightColor);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (cardRef.current) {
-      cardRef.current.style.setProperty('--spotlight-color', 'transparent');
     }
   };
 
   return (
     <div
       ref={cardRef}
-      className="spotlight-card group relative text-center p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className="spotlight-card-container group relative p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300"
     >
-      <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5")}>
-        <item.icon className={cn("h-8 w-8", item.color)} />
+      <div 
+        className="spotlight-card-bloom"
+        style={{
+            background: isHovered ? item.spotlightColor : 'transparent',
+        }}
+      />
+      <div className={cn("relative z-10 text-center")}>
+        <div className={cn("mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5")}>
+          <item.icon className={cn("h-8 w-8", item.color)} />
+        </div>
+        <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+        <p className="mt-2 text-lg text-gray-400">{item.description}</p>
       </div>
-      <h3 className="text-2xl font-bold text-white">{item.title}</h3>
-      <p className="mt-2 text-lg text-gray-400">{item.description}</p>
     </div>
   );
 };
@@ -134,10 +128,10 @@ const FeatureCard = ({ item }: { item: any }) => {
 
 const FeaturesSection = () => {
   const features = [
-    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'hsla(346, 84%, 60%, 0.6)' },
-    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'hsla(199, 91%, 60%, 0.6)' },
-    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'hsla(165, 76%, 42%, 0.6)' },
-    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'hsla(39, 92%, 50%, 0.6)' },
+    { icon: Heart, title: "Utmost Respect", description: "Your dignity is our priority, always.", color: 'text-rose-400', spotlightColor: 'radial-gradient(circle, hsla(346, 84%, 60%, 0.6) 0%, transparent 60%)' },
+    { icon: ShieldCheck, title: "Private by Design", description: "Conversations never leave your phone.", color: 'text-sky-400', spotlightColor: 'radial-gradient(circle, hsla(199, 91%, 60%, 0.6) 0%, transparent 60%)' },
+    { icon: Eye, title: "A Gentle Watch", description: "Always there, but never intrusive.", color: 'text-teal-400', spotlightColor: 'radial-gradient(circle, hsla(175, 76%, 42%, 0.6) 0%, transparent 60%)' },
+    { icon: Zap, title: "Simple & Clear", description: "No confusing alerts, just simple help.", color: 'text-orange-400', spotlightColor: 'radial-gradient(circle, hsla(39, 92%, 50%, 0.6) 0%, transparent 60%)' },
   ];
 
   return (
@@ -192,7 +186,6 @@ export default function LandingPage() {
       <Header />
       <main className="relative z-10">
         <HeroSection onGetStartedClick={handleGetStarted} />
-        <StatsSection />
         <FeaturesSection />
         <FinalCTASection />
       </main>
