@@ -18,6 +18,29 @@ import {
 
 // --- Components ---
 
+const SpotlightEffect = () => {
+    const spotlightRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (spotlightRef.current) {
+                const { clientX, clientY } = e;
+                spotlightRef.current.style.setProperty('--x', `${clientX}px`);
+                spotlightRef.current.style.setProperty('--y', `${clientY}px`);
+            }
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
+
+    return <div ref={spotlightRef} className="spotlight-card-bloom pointer-events-none" />;
+};
+
+
 const SpaceBackground = () => (
   <div className="fixed inset-0 -z-20 h-full w-full bg-slate-950 overflow-hidden" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(10 25 47 / var(--tw-bg-opacity))' }}>
     <div id="stars1" className="stars-bg" />
@@ -43,7 +66,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     return (
         <section className="relative min-h-screen flex items-center overflow-hidden">
             <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-8 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
+                <div className="space-y-10 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <ShieldCheck className="h-7 w-7 text-primary" />
@@ -55,7 +78,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
                         A <span className="text-primary">gentle guardian</span> for your phone calls.
                     </h1>
                     <p className="text-lg md:text-xl text-gray-300 max-w-xl mx-auto md:mx-0">
-                        In an increasingly complex digital world, Nishchint Setu offers peace of mind. Our revolutionary on-device AI diligently monitors your phone calls and messages in real-time, identifying and flagging potential scams before they can cause harm. By keeping all analysis on your device, we guarantee that your conversations remain completely private and secure. Protect your independence and stay connected with confidence.
+                       Nishchint Setu offers peace of mind with on-device AI that monitors calls and messages for scams in real-time. Your conversations remain completely private, allowing you to stay connected with confidence.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                         <Button
@@ -230,6 +253,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden text-white isolate bg-slate-950" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2 7 21 / var(--tw-bg-opacity))' }}>
+      <SpotlightEffect />
       <SpaceBackground />
        <div 
         className="relative z-10 w-full"
