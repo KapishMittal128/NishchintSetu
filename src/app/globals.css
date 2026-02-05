@@ -44,7 +44,7 @@
   .dark {
     --background: 224 71% 4%;
     --foreground: 0 0% 98%;
-    --card: 224 71% 9%;
+    --card: 224 71% 9% / 0.7;
     --card-foreground: 0 0% 98%;
     --popover: 224 71% 4%;
     --popover-foreground: 0 0% 98%;
@@ -61,7 +61,7 @@
     --warning-foreground: 35 91% 3%;
     --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
+    --border: 240 3.7% 15.9% / 0.5;
     --input: 240 3.7% 15.9%;
     --ring: 262 85% 65%;
     --chart-1: 262 85% 65%;
@@ -70,10 +70,10 @@
     --chart-4: 45 95% 55%;
     --chart-5: 210 90% 55%;
 
-    --sidebar-background: 224 71% 6% / 0.8;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-accent: 262 80% 58% / 0.1;
+    --sidebar-background: 224 71% 8% / 0.6;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9% / 0.5;
+    --sidebar-accent: 262 85% 65% / 0.2;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-ring: 215 20.2% 65.1%;
   }
@@ -87,6 +87,9 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  [data-sidebar="menu-button"][data-active="true"] > svg {
+      animation: breathing-glow 3s ease-in-out infinite;
   }
 }
 
@@ -171,4 +174,15 @@
   to {
     background-position-y: -10000px;
   }
+}
+
+@keyframes breathing-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 1px hsl(var(--primary)));
+        transform: scale(1);
+    }
+    50% {
+        filter: drop-shadow(0 0 5px hsl(var(--primary)));
+        transform: scale(1.1);
+    }
 }
