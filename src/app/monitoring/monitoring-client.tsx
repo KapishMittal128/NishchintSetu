@@ -40,6 +40,7 @@ export default function MonitoringClient() {
   
   const recognitionRef = useRef<any>(null);
   const stopInitiatedByUser = useRef(false);
+  const transcriptRef = useRef<string[]>([]); // Ref to hold the latest transcript
 
   const { toast } = useToast();
   const { userUID, addNotification } = useAppState();
@@ -79,14 +80,15 @@ export default function MonitoringClient() {
   };
 
   const runAnalysis = useCallback(() => {
-    if (fullTranscript.length === 0) {
+    // Use the ref which is guaranteed to be up-to-date
+    if (transcriptRef.current.length === 0) {
       toast({ title: t('monitoring.client.noSpeechError') });
       return;
     }
     
     setIsAnalyzing(true);
 
-    const currentTranscript = fullTranscript.join(' ');
+    const currentTranscript = transcriptRef.current.join(' ');
     const lowerCaseTranscript = currentTranscript.toLowerCase();
 
     // --- Local Risk Score and Sentiment Calculation ---
@@ -141,7 +143,7 @@ export default function MonitoringClient() {
     }
     
     setIsAnalyzing(false);
-  }, [fullTranscript, addNotification, userUID, toast, t]);
+  }, [addNotification, userUID, toast, t]);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -169,14 +171,15 @@ export default function MonitoringClient() {
         }
       }
       if (transcript.trim()) {
-        setFullTranscript(prev => [...prev, transcript.trim()]);
+        const newChunk = transcript.trim();
+        // Update both state (for UI) and ref (for analysis callback)
+        transcriptRef.current.push(newChunk);
+        setFullTranscript(prev => [...prev, newChunk]);
       }
     };
 
     recognition.onerror = (event: any) => {
       if (event.error === 'aborted') {
-        // This can happen if the user stops talking or stops the recognition.
-        // We can safely ignore it as the `onend` handler will deal with it.
         return;
       }
       console.error('Speech recognition error:', event.error);
@@ -196,11 +199,12 @@ export default function MonitoringClient() {
         runAnalysis();
         stopInitiatedByUser.current = false;
       } else if (isListening) {
+        // If recognition stops on its own (e.g. silence), restart it if we're still meant to be listening
         recognitionRef.current?.start();
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language, t, toast, runAnalysis]);
+  }, [language, t, toast, runAnalysis, isListening]);
 
   const handleToggleListening = async () => {
     if (!isBrowserSupported) {
@@ -237,6 +241,7 @@ export default function MonitoringClient() {
       recognitionRef.current?.stop();
       setIsListening(false);
     } else {
+      transcriptRef.current = []; // Reset ref
       setFullTranscript([]);
       setRiskScore(0);
       setRiskExplanation('');
