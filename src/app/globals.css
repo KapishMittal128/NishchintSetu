@@ -32,6 +32,13 @@
     --chart-4: 0 84.2% 60.2%;
     --chart-5: 290 80% 60%;
     --radius: 0.75rem;
+
+    --sidebar-background: 228 6% 97%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-accent: 228 6% 90%;
+    --sidebar-accent-foreground: 222.2 84% 4.9%;
+    --sidebar-ring: 222.2 84% 4.9%;
   }
 
   .dark {
@@ -57,6 +64,13 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 215 20.2% 65.1%;
+
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-accent: 217.2 32.6% 22.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-ring: 215 20.2% 65.1%;
   }
 }
 
@@ -84,7 +98,7 @@
     --x: 50%;
     --y: 50%;
     --bloom-color: hsla(190, 100%, 70%, 0.3);
-    position: absolute;
+    position: fixed;
     left: var(--x);
     top: var(--y);
     transform: translate(-50%, -50%);
@@ -106,20 +120,20 @@
 
   #stars1 {
     background-image: radial-gradient(1px, hsla(0,0%,100%,0.5) 1px, transparent 0);
-    background-size: 600px 600px;
-    animation: move-stars 200s linear infinite;
-  }
-
-  #stars2 {
-    background-image: radial-gradient(1.5px, hsla(0,0%,100%,0.7) 1.5px, transparent 0);
     background-size: 800px 800px;
     animation: move-stars 250s linear infinite;
   }
 
-  #stars3 {
-    background-image: radial-gradient(2.5px, white 2.5px, transparent 0);
+  #stars2 {
+    background-image: radial-gradient(1.5px, hsla(0,0%,100%,0.7) 1.5px, transparent 0);
     background-size: 1000px 1000px;
     animation: move-stars 300s linear infinite;
+  }
+
+  #stars3 {
+    background-image: radial-gradient(2.5px, white 2.5px, transparent 0);
+    background-size: 1200px 1200px;
+    animation: move-stars 350s linear infinite;
   }
 }
 
