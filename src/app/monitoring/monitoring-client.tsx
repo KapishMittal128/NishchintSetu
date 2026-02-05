@@ -39,7 +39,8 @@ export default function MonitoringClient() {
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
   
   const recognitionRef = useRef<any>(null);
-  const transcriptRef = useRef<string[]>([]); // Ref to hold the latest transcript
+  const listeningRef = useRef(false);
+  const transcriptRef = useRef<string[]>([]);
 
   const { toast } = useToast();
   const { userUID, addNotification } = useAppState();
@@ -80,10 +81,7 @@ export default function MonitoringClient() {
 
   const runAnalysis = useCallback(() => {
     setIsAnalyzing(true);
-    // Use the ref which is guaranteed to be up-to-date
     if (transcriptRef.current.length === 0) {
-      // Don't toast here, the onerror for 'no-speech' handles it.
-      // Just stop the analyzing spinner.
       setIsAnalyzing(false);
       return;
     }
@@ -91,7 +89,6 @@ export default function MonitoringClient() {
     const currentTranscript = transcriptRef.current.join(' ');
     const lowerCaseTranscript = currentTranscript.toLowerCase();
 
-    // --- Local Risk Score and Sentiment Calculation ---
     let calculatedScore = 0;
     const detectedKeywords = new Set<string>();
     for (const keyword in KEYWORD_WEIGHTS) {
@@ -101,7 +98,6 @@ export default function MonitoringClient() {
         }
     }
     
-    // If 'otp' or 'arrest' is mentioned, set score to at least 75
     if (lowerCaseTranscript.includes('otp') || lowerCaseTranscript.includes('arrest')) {
         calculatedScore = Math.max(calculatedScore, 75);
     }
@@ -172,7 +168,6 @@ export default function MonitoringClient() {
       }
       if (transcript.trim()) {
         const newChunk = transcript.trim();
-        // Update both state (for UI) and ref (for analysis callback)
         transcriptRef.current.push(newChunk);
         setFullTranscript(prev => [...prev, newChunk]);
       }
@@ -192,14 +187,24 @@ export default function MonitoringClient() {
       }
       toast({ variant: 'destructive', title: t('monitoring.client.transcriptionError'), description: errorMessage });
       setIsListening(false);
+      listeningRef.current = false;
     };
 
     recognition.onend = () => {
-      setIsListening(false);
-      runAnalysis();
+      if (listeningRef.current) {
+        setIsListening(false);
+        listeningRef.current = false;
+        runAnalysis();
+      }
     };
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language, t, toast, runAnalysis]);
+  }, [language, runAnalysis, t]);
 
   const handleStartRecording = async () => {
     if (!isBrowserSupported) {
@@ -207,7 +212,6 @@ export default function MonitoringClient() {
       return;
     }
     
-    // Disable if already recording or analyzing
     if (isListening || isAnalyzing) return;
 
     if (hasPermission === null) {
@@ -234,7 +238,6 @@ export default function MonitoringClient() {
         return;
     }
     
-    // Reset state for a new recording
     transcriptRef.current = [];
     setFullTranscript([]);
     setRiskScore(0);
@@ -243,17 +246,15 @@ export default function MonitoringClient() {
     setSentiment('calm');
     setIsEmergency(false);
     
-    // Start listening
     setIsListening(true);
+    listeningRef.current = true;
     recognitionRef.current?.start();
 
-    // Set a timer to stop listening after 3 seconds
     setTimeout(() => {
-      // Check if recognition is still active before stopping
-      if (recognitionRef.current) {
+      if (listeningRef.current && recognitionRef.current) {
           recognitionRef.current.stop();
       }
-    }, 3000); // 3 seconds
+    }, 3000);
   };
   
   const getStatusText = () => {
