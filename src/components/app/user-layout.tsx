@@ -14,7 +14,7 @@ import {
   SidebarTrigger,
   SidebarRail,
 } from '@/components/ui/sidebar';
-import { Home, Shield, LogOut, Bot, Settings, Activity, MessageSquareWarning } from 'lucide-react';
+import { Home, Shield, LogOut, Bot, Settings, Activity, MessageSquareWarning, ShieldCheck } from 'lucide-react';
 import { useAppState } from '@/hooks/use-app-state';
 import { useTranslation } from '@/context/translation-context';
 import { LanguageToggle } from '@/components/app/language-toggle';
@@ -48,7 +48,8 @@ export function UserLayout({ children, title }: { children: React.ReactNode; tit
       <Sidebar collapsible="icon">
         <SidebarRail />
         <SidebarHeader>
-            <h1 className="text-2xl font-semibold px-2">{t('appName')}</h1>
+            <h1 className="text-2xl font-semibold px-2 group-data-[state=expanded]:block hidden">{t('appName')}</h1>
+            <ShieldCheck className="h-7 w-7 text-primary mx-auto group-data-[state=collapsed]:block hidden" />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -80,7 +81,7 @@ export function UserLayout({ children, title }: { children: React.ReactNode; tit
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <main className="flex-1 overflow-y-auto bg-muted/20 md:ml-[var(--sidebar-width)] peer-data-[state=collapsed]:md:ml-[var(--sidebar-width-icon)] transition-[margin-left] duration-200">
+      <main className="flex-1 overflow-y-auto bg-muted/20 peer-data-[state=collapsed]:md:ml-[var(--sidebar-width-icon)] transition-[margin-left] duration-200">
         <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 md:px-6 backdrop-blur-xl">
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="md:hidden" />
