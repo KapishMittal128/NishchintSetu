@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Mic, MicOff, Info, AlertTriangle, Loader2, Smile, Clock, Siren, Square } from 'lucide-react';
+import { Mic, MicOff, Info, AlertTriangle, Loader2, Smile, Clock, Siren } from 'lucide-react';
 import { EmergencyOverlay } from '@/components/app/emergency-overlay';
 import { RiskMeter } from '@/components/app/risk-meter';
 import { TranscriptDisplay } from '@/components/app/transcript-display';
@@ -39,7 +39,6 @@ export default function MonitoringClient() {
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
   
   const recognitionRef = useRef<any>(null);
-  const stopInitiatedByUser = useRef(false);
   const transcriptRef = useRef<string[]>([]); // Ref to hold the latest transcript
 
   const { toast } = useToast();
@@ -80,14 +79,15 @@ export default function MonitoringClient() {
   };
 
   const runAnalysis = useCallback(() => {
+    setIsAnalyzing(true);
     // Use the ref which is guaranteed to be up-to-date
     if (transcriptRef.current.length === 0) {
-      toast({ title: t('monitoring.client.noSpeechError') });
+      // Don't toast here, the onerror for 'no-speech' handles it.
+      // Just stop the analyzing spinner.
+      setIsAnalyzing(false);
       return;
     }
     
-    setIsAnalyzing(true);
-
     const currentTranscript = transcriptRef.current.join(' ');
     const lowerCaseTranscript = currentTranscript.toLowerCase();
 
@@ -195,22 +195,20 @@ export default function MonitoringClient() {
     };
 
     recognition.onend = () => {
-      if (stopInitiatedByUser.current) {
-        runAnalysis();
-        stopInitiatedByUser.current = false;
-      } else if (isListening) {
-        // If recognition stops on its own (e.g. silence), restart it if we're still meant to be listening
-        recognitionRef.current?.start();
-      }
+      setIsListening(false);
+      runAnalysis();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language, t, toast, runAnalysis, isListening]);
+  }, [language, t, toast, runAnalysis]);
 
-  const handleToggleListening = async () => {
+  const handleStartRecording = async () => {
     if (!isBrowserSupported) {
       toast({ variant: 'destructive', title: t('monitoring.client.browserNotSupported') });
       return;
     }
+    
+    // Disable if already recording or analyzing
+    if (isListening || isAnalyzing) return;
 
     if (hasPermission === null) {
       try {
@@ -235,22 +233,27 @@ export default function MonitoringClient() {
         });
         return;
     }
+    
+    // Reset state for a new recording
+    transcriptRef.current = [];
+    setFullTranscript([]);
+    setRiskScore(0);
+    setRiskExplanation('');
+    setScamIndicators([]);
+    setSentiment('calm');
+    setIsEmergency(false);
+    
+    // Start listening
+    setIsListening(true);
+    recognitionRef.current?.start();
 
-    if (isListening) {
-      stopInitiatedByUser.current = true;
-      recognitionRef.current?.stop();
-      setIsListening(false);
-    } else {
-      transcriptRef.current = []; // Reset ref
-      setFullTranscript([]);
-      setRiskScore(0);
-      setRiskExplanation('');
-      setScamIndicators([]);
-      setSentiment('calm');
-      setIsEmergency(false);
-      setIsListening(true);
-      recognitionRef.current?.start();
-    }
+    // Set a timer to stop listening after 3 seconds
+    setTimeout(() => {
+      // Check if recognition is still active before stopping
+      if (recognitionRef.current) {
+          recognitionRef.current.stop();
+      }
+    }, 3000); // 3 seconds
   };
   
   const getStatusText = () => {
@@ -262,11 +265,11 @@ export default function MonitoringClient() {
 
   const getButtonText = () => {
     if (isAnalyzing) return t('monitoring.client.status.analyzing');
-    if (isListening) return t('monitoring.client.stopAnalysis');
+    if (isListening) return t('monitoring.client.status.listening');
     return t('monitoring.client.startAnalysis');
   }
 
-  const ButtonIcon = isAnalyzing ? Loader2 : isListening ? Square : Mic;
+  const ButtonIcon = isListening || isAnalyzing ? Loader2 : Mic;
 
   return (
     <div className="w-full space-y-8 animate-in fade-in-0">
@@ -296,14 +299,13 @@ export default function MonitoringClient() {
                      <Button 
                         size="lg" 
                         className={cn(
-                          "w-full mt-4 text-lg py-7 transition-all duration-300 transform hover:scale-105",
-                          isListening && "bg-destructive hover:bg-destructive/90"
+                          "w-full mt-4 text-lg py-7 transition-all duration-300 transform hover:scale-105"
                         )}
-                        onClick={handleToggleListening} 
-                        disabled={isAnalyzing || !isBrowserSupported}
+                        onClick={handleStartRecording} 
+                        disabled={isListening || isAnalyzing || !isBrowserSupported}
                         data-trackable-id="toggle-analysis"
                     >
-                      <ButtonIcon className={cn("mr-2", isAnalyzing && "animate-spin")} />
+                      <ButtonIcon className={cn("mr-2", (isListening || isAnalyzing) && "animate-spin")} />
                       {getButtonText()}
                     </Button>
                 </CardContent>
