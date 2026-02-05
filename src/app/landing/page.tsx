@@ -135,11 +135,17 @@ const FeatureCard = ({ item }: { item: any }) => {
       <DialogTrigger asChild>
         <div
           className={cn(
-            "group relative p-8 rounded-2xl bg-card/80 text-card-foreground shadow-lg backdrop-blur-md transition-all duration-300 ease-out hover:border-primary/30 hover:shadow-primary/20 hover:shadow-2xl hover:-translate-y-2 cursor-pointer flex flex-col justify-between text-left aspect-square",
-            "before:absolute before:inset-0 before:bg-black/40 before:rounded-2xl",
-            item.gradient
+            "group relative p-8 rounded-2xl bg-card/80 text-card-foreground shadow-lg backdrop-blur-md transition-all duration-300 ease-out hover:border-primary/30 hover:shadow-primary/20 hover:shadow-2xl hover:-translate-y-2 cursor-pointer flex flex-col justify-between text-left aspect-square overflow-hidden"
           )}
         >
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/40 z-0" />
+          {/* Color gradient overlay on hover */}
+          <div className={cn(
+            "absolute inset-0 bg-gradient-to-br z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-30",
+            item.gradient
+          )}/>
+          
           <div className="relative z-10">
             <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
               <item.icon className={cn("h-6 w-6", item.iconColor)} />
@@ -174,38 +180,38 @@ const FeaturesSection = () => {
     {
       icon: Shield,
       title: "Real-Time Risk Analysis",
-      description: "Live analysis to detect suspicious keywords and patterns.",
+      description: "Live analysis of calls and messages to detect suspicious keywords and patterns.",
       longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
       iconBg: 'bg-red-900/40',
       iconColor: 'text-red-400',
-      gradient: 'from-red-500/20',
+      gradient: 'from-red-500/80 to-transparent',
     },
     {
       icon: Lock,
       title: "100% Private",
-      description: "No audio data ever leaves your phone. All analysis is local.",
+      description: "No audio or message data ever leaves your phone. All analysis is done locally.",
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
-      gradient: 'from-green-500/20',
+      gradient: 'from-green-500/80 to-transparent',
     },
     {
       icon: ShieldCheck,
       title: "Guardian Alerts",
-      description: "If a threat is identified, your chosen contact is alerted.",
+      description: "If a high-risk threat is identified, your chosen emergency contact is alerted.",
       longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
-      gradient: 'from-green-500/20',
+      gradient: 'from-green-500/80 to-transparent',
     },
     {
       icon: HandHelping,
       title: "Guided Assistance",
-      description: "App detects if you're stuck and offers simple help.",
+      description: "The app detects if you're stuck and offers simple, clear help to get you back on track.",
       longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
       iconBg: 'bg-sky-900/40',
       iconColor: 'text-sky-400',
-      gradient: 'from-sky-500/20',
+      gradient: 'from-sky-500/80 to-transparent',
     },
   ];
 
