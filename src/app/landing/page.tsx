@@ -6,11 +6,17 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Heart, ShieldCheck, Eye, Zap, ArrowRight, Target, Clock } from 'lucide-react';
+import { LanguageToggle } from '@/components/app/language-toggle';
+import { ThemeToggle } from '@/components/app/theme-toggle';
 
 // --- Components ---
 
 const SpaceBackground = () => (
-  <div className="stars-bg fixed inset-0 -z-20 h-full w-full" />
+  <div className="fixed inset-0 -z-20 h-full w-full bg-blue-950/40 overflow-hidden">
+    <div id="stars1" className="stars-bg" />
+    <div id="stars2" className="stars-bg" />
+    <div id="stars3" className="stars-bg" />
+  </div>
 );
 
 const Header = () => {
@@ -23,6 +29,10 @@ const Header = () => {
             </div>
             <h2 className="text-3xl font-bold text-white tracking-tight">Nishchint Setu</h2>
         </div>
+         <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
       </div>
     </header>
   );
@@ -88,10 +98,11 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
     )
 }
 
-const FeatureCard = ({ item, onMouseEnter }: { item: any, onMouseEnter: () => void }) => {
+const FeatureCard = ({ item, onMouseEnter, onMouseLeave }: { item: any, onMouseEnter: () => void, onMouseLeave: () => void }) => {
   return (
     <div
       onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className="group relative p-8 rounded-2xl border border-white/10 bg-white/5 hover:border-white/20 hover:-translate-y-2 transition-all duration-300 overflow-hidden"
     >
       <div className={cn("relative z-10 text-center")}>
@@ -115,7 +126,7 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
   ];
 
   return (
-    <section className="py-24 bg-transparent" onMouseLeave={() => setBloomColor('hsla(55, 100%, 70%, 0.3)')}>
+    <section className="py-24 bg-transparent">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white">A Guardian Angel for Your Digital Life</h2>
@@ -127,6 +138,7 @@ const FeaturesSection = ({ setBloomColor }: { setBloomColor: (color: string) => 
                 key={i} 
                 item={item} 
                 onMouseEnter={() => setBloomColor(item.spotlightColor)}
+                onMouseLeave={() => setBloomColor('hsla(55, 100%, 70%, 0.3)')}
             />
           ))}
         </div>
