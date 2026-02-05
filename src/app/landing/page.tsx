@@ -102,7 +102,7 @@ const HeroSection = ({ onGetStartedClick }: { onGetStartedClick: () => void }) =
 
                      <div className="flex flex-wrap justify-center md:justify-start gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
                         {stats.map((stat, index) => (
-                             <div key={index} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
+                             <div key={index} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105">
                                 <stat.icon className="h-5 w-5 text-gray-300" />
                                 <span className="text-sm font-medium text-gray-200">{stat.text}</span>
                             </div>
