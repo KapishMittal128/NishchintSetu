@@ -83,7 +83,7 @@
   .spotlight-card-bloom {
     --x: 50%;
     --y: 50%;
-    --bloom-color: hsla(55, 100%, 70%, 0.3);
+    --bloom-color: hsla(190, 100%, 70%, 0.3);
     position: absolute;
     left: var(--x);
     top: var(--y);
@@ -106,20 +106,20 @@
 
   #stars1 {
     background-image: radial-gradient(1px, hsla(0,0%,100%,0.5) 1px, transparent 0);
-    background-size: 200px 200px;
-    animation: move-stars 400s linear infinite;
+    background-size: 400px 400px;
+    animation: move-stars 600s linear infinite;
   }
 
   #stars2 {
     background-image: radial-gradient(1.5px, hsla(0,0%,100%,0.7) 1.5px, transparent 0);
-    background-size: 400px 400px;
-    animation: move-stars 500s linear infinite;
+    background-size: 800px 800px;
+    animation: move-stars 700s linear infinite;
   }
 
   #stars3 {
     background-image: radial-gradient(2.5px, white 2.5px, transparent 0);
-    background-size: 600px 600px;
-    animation: move-stars 600s linear infinite;
+    background-size: 1200px 1200px;
+    animation: move-stars 800s linear infinite;
   }
 }
 
