@@ -42,7 +42,7 @@ const SpotlightEffect = () => {
 
 
 const SpaceBackground = () => (
-  <div className="fixed inset-0 -z-20 h-full w-full overflow-hidden" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(10 25 47 / 0.96)' }}>
+  <div className="fixed inset-0 -z-20 h-full w-full overflow-hidden" style={{'--tw-bg-opacity': '1', backgroundColor: 'rgb(2, 3, 7 / 0.96)' }}>
     <div id="stars1" className="stars-bg" />
     <div id="stars2" className="stars-bg" />
     <div id="stars3" className="stars-bg" />
