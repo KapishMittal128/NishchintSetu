@@ -78,15 +78,19 @@ export default function MonitoringClient() {
     );
   };
   
-  const runAnalysis = useCallback(() => {
-    const currentTranscript = transcriptRef.current.join(' ');
-    
-    if (!currentTranscript) {
-      setStatus('idle');
-      return;
+  const runAnalysis = useCallback((transcript: string) => {
+    if (!transcript.trim()) {
+      return {
+        riskScore: 0,
+        sentiment: 'calm' as const,
+        scamIndicators: [] as string[],
+        riskExplanation: t('monitoring.client.initialExplanation'),
+        isEmergency: false,
+      };
     }
-    const lowerCaseTranscript = currentTranscript.toLowerCase();
 
+    const lowerCaseTranscript = transcript.toLowerCase();
+    
     let calculatedScore = 0;
     const detectedKeywords = new Set<string>();
     for (const keyword in KEYWORD_WEIGHTS) {
@@ -109,53 +113,71 @@ export default function MonitoringClient() {
         currentSentiment = 'urgent';
     }
     
-    setRiskScore(finalScore);
-    setSentiment(currentSentiment);
-    setScamIndicators(Array.from(detectedKeywords));
-
+    let explanation = t('monitoring.client.riskExplanation.low');
+    let emergency = false;
     if (finalScore > 75) {
-        setRiskExplanation(t('monitoring.client.riskExplanation.high'));
-        setIsEmergency(true);
+        explanation = t('monitoring.client.riskExplanation.high');
+        emergency = true;
     } else if (finalScore > 40) {
-        setRiskExplanation(t('monitoring.client.riskExplanation.medium'));
-    } else {
-        setRiskExplanation(t('monitoring.client.riskExplanation.low'));
+        explanation = t('monitoring.client.riskExplanation.medium');
     }
 
-    if (finalScore >= 50 && userUID) {
+    return {
+        riskScore: finalScore,
+        sentiment: currentSentiment,
+        scamIndicators: Array.from(detectedKeywords),
+        riskExplanation: explanation,
+        isEmergency: emergency,
+    };
+  }, [t]);
+
+  // Effect to run analysis when status changes to 'analyzing'
+  useEffect(() => {
+    if (status === 'analyzing') {
+      const currentTranscript = transcriptRef.current.join(' ');
+      const results = runAnalysis(currentTranscript);
+
+      setRiskScore(results.riskScore);
+      setSentiment(results.sentiment);
+      setScamIndicators(results.scamIndicators);
+      setRiskExplanation(results.riskExplanation);
+      setIsEmergency(results.isEmergency);
+
+      if (results.riskScore >= 50 && userUID) {
         addNotification(userUID, { 
-          riskScore: finalScore, 
+          riskScore: results.riskScore, 
           timestamp: new Date().toISOString(),
           transcript: currentTranscript,
-          sentiment: currentSentiment,
+          sentiment: results.sentiment,
         });
-         toast({
-            title: t('monitoring.client.alertSent'),
-            description: t('monitoring.client.alertSentDescription'),
-            variant: 'destructive'
+        toast({
+          title: t('monitoring.client.alertSent'),
+          description: t('monitoring.client.alertSentDescription'),
+          variant: 'destructive'
         });
+      }
+      
+      setStatus('idle');
     }
-    
-    setStatus('idle');
-  }, [addNotification, userUID, toast, t]);
+  }, [status, runAnalysis, addNotification, userUID, toast, t]);
 
+  // Effect to manage speech recognition lifecycle
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setIsBrowserSupported(false);
-      toast({
-        variant: 'destructive',
-        title: t('monitoring.client.browserNotSupported'),
-        description: t('monitoring.client.browserNotSupportedDescription'),
-      });
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = false;
+    if (!recognitionRef.current) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognitionRef.current = recognition;
+    }
+
+    const recognition = recognitionRef.current;
     recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
-    recognitionRef.current = recognition;
 
     recognition.onresult = (event: any) => {
       let transcript = '';
@@ -175,7 +197,6 @@ export default function MonitoringClient() {
       if (event.error === 'aborted' || status !== 'listening') {
         return;
       }
-      console.error('Speech recognition error:', event.error);
       let errorMessage = t('monitoring.client.genericError', { values: { error: event.error }});
       if (event.error === 'no-speech') {
           errorMessage = t('monitoring.client.noSpeechError');
@@ -190,7 +211,6 @@ export default function MonitoringClient() {
     recognition.onend = () => {
       if (status === 'listening') {
         setStatus('analyzing');
-        runAnalysis();
       }
     };
 
@@ -202,7 +222,7 @@ export default function MonitoringClient() {
         clearTimeout(analysisTimeoutRef.current);
       }
     }
-  }, [language, t, toast, runAnalysis, status]);
+  }, [language, t, toast, status]);
 
   const handleStartRecording = async () => {
     if (!isBrowserSupported) {
@@ -218,7 +238,6 @@ export default function MonitoringClient() {
         stream.getTracks().forEach(track => track.stop());
         setHasPermission(true);
       } catch (error) {
-        console.error('Error accessing microphone:', error);
         setHasPermission(false);
         toast({
           variant: 'destructive',
@@ -252,9 +271,9 @@ export default function MonitoringClient() {
     }
 
     analysisTimeoutRef.current = setTimeout(() => {
-      if (recognitionRef.current && status === 'listening') {
-          recognitionRef.current.stop();
-      }
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+        }
     }, 3000);
   };
   
