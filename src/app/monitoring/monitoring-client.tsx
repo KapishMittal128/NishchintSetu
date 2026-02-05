@@ -38,7 +38,6 @@ export default function MonitoringClient() {
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
   
   const recognitionRef = useRef<any>(null);
-  const analysisTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const transcriptRef = useRef<string[]>([]);
 
   const { toast } = useToast();
@@ -157,7 +156,11 @@ export default function MonitoringClient() {
         });
       }
       
-      setStatus('idle');
+      const timer = setTimeout(() => {
+        setStatus('idle');
+      }, 1000); // Keep "analyzing" state visible for a second
+
+      return () => clearTimeout(timer);
     }
   }, [status, runAnalysis, addNotification, userUID, toast, t]);
 
@@ -172,7 +175,7 @@ export default function MonitoringClient() {
     if (!recognitionRef.current) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
-        recognition.interimResults = false;
+        recognition.interimResults = true; // Use interim results for live transcript
         recognitionRef.current = recognition;
     }
 
@@ -180,17 +183,21 @@ export default function MonitoringClient() {
     recognition.lang = language === 'hi' ? 'hi-IN' : 'en-US';
 
     recognition.onresult = (event: any) => {
-      let transcript = '';
+      let interimTranscript = '';
+      let finalTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
-          transcript += event.results[i][0].transcript + ' ';
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
         }
       }
-      if (transcript.trim()) {
-        const newChunk = transcript.trim();
-        transcriptRef.current.push(newChunk);
-        setFullTranscript(prev => [...prev, newChunk]);
+      
+      if(finalTranscript.trim()) {
+        transcriptRef.current.push(finalTranscript.trim());
       }
+      // Update UI with both final and interim for live effect
+      setFullTranscript([...transcriptRef.current, interimTranscript]);
     };
 
     recognition.onerror = (event: any) => {
@@ -218,9 +225,6 @@ export default function MonitoringClient() {
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
-      if (analysisTimeoutRef.current) {
-        clearTimeout(analysisTimeoutRef.current);
-      }
     }
   }, [language, t, toast, status]);
 
@@ -232,7 +236,7 @@ export default function MonitoringClient() {
     
     if (status !== 'idle') return;
 
-    if (hasPermission === null) {
+    if (hasPermission === null || hasPermission === false) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         stream.getTracks().forEach(track => track.stop());
@@ -246,15 +250,9 @@ export default function MonitoringClient() {
         });
         return;
       }
-    } else if (hasPermission === false) {
-        toast({
-          variant: 'destructive',
-          title: t('monitoring.client.micDeniedToast'),
-          description: t('monitoring.client.micDeniedToastDescription'),
-        });
-        return;
     }
     
+    // Reset state for a new analysis
     transcriptRef.current = [];
     setFullTranscript([]);
     setRiskScore(0);
@@ -266,13 +264,10 @@ export default function MonitoringClient() {
     setStatus('listening');
     recognitionRef.current?.start();
 
-    if (analysisTimeoutRef.current) {
-      clearTimeout(analysisTimeoutRef.current);
-    }
-
-    analysisTimeoutRef.current = setTimeout(() => {
-        if (recognitionRef.current) {
-            recognitionRef.current.stop();
+    // Automatically stop after 3 seconds
+    setTimeout(() => {
+        if (recognitionRef.current && status === 'listening') {
+             recognitionRef.current.stop();
         }
     }, 3000);
   };
@@ -280,7 +275,7 @@ export default function MonitoringClient() {
   const getStatusText = () => {
     if (status === 'listening') return t('monitoring.client.status.listening');
     if (status === 'analyzing') return t('monitoring.client.status.analyzing');
-    if (riskScore > 0 && fullTranscript.length > 0) return t('monitoring.client.status.complete');
+    if (riskScore > 0 && fullTranscript.join('').length > 0) return t('monitoring.client.status.complete');
     return t('monitoring.client.status.idle');
   }
 
@@ -338,13 +333,17 @@ export default function MonitoringClient() {
                     <CardDescription>{t('monitoring.client.riskDetailsDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent className="text-base leading-relaxed space-y-6">
-                    { status === 'analyzing' ? <Skeleton className="h-4 w-full" /> : <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p> }
+                    { status === 'listening' || status === 'analyzing' ? 
+                        <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p> 
+                        : 
+                        <p>{riskExplanation || t('monitoring.client.initialExplanation')}</p> 
+                    }
                     
-                     {fullTranscript.length > 0 && status === 'idle' && (
+                     {fullTranscript.join('').length > 0 && status !== 'listening' && (
                         <SentimentDetails sentiment={sentiment} />
                     )}
 
-                    {scamIndicators.length > 0 && status === 'idle' && (
+                    {scamIndicators.length > 0 && status !== 'listening' && (
                         <div>
                             <h4 className="font-semibold mb-2">{t('monitoring.client.indicatorsTitle')}</h4>
                             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
@@ -362,7 +361,7 @@ export default function MonitoringClient() {
             <CardDescription>{t('monitoring.client.transcriptDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
-            {fullTranscript.length > 0 ? (
+            {fullTranscript.join('').length > 0 ? (
                 <TranscriptDisplay chunks={fullTranscript} keywords={Object.keys(KEYWORD_WEIGHTS)} />
             ) : (
                 <div className="text-center py-12 text-muted-foreground">
