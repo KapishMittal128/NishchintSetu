@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 
 const KEYWORD_WEIGHTS: Record<string, number> = {
   'money': 8, 'bank': 10, 'account': 10, 'otp': 25, 'pin': 25, 'password': 20,
-  'card': 15, 'credit': 15, 'debit': 15, 'upi': 15, 'police': 12, 'arrest': 15,
+  'card': 15, 'credit': 15, 'debit': 15, 'upi': 15, 'police': 12, 'arrest': 50,
   'refund': 10, 'verify': 10, 'urgent': 12, 'immediately': 12, 'secret': 15,
   'social security': 20, 'scam': 20, 'fraud': 20,
 };
