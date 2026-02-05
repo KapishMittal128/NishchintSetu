@@ -12,13 +12,16 @@ export const metadata: Metadata = {
 };
 
 const SpaceBackground = () => (
-    <div className="fixed inset-0 -z-20 h-full w-full bg-background">
+    <div className="fixed inset-0 -z-20 h-full w-full bg-background overflow-hidden">
       <div id="grid-bg" />
       <div id="stars1" className="stars-bg" />
       <div id="stars2" className="stars-bg" />
       <div id="stars3" className="stars-bg" />
       <div id="stars4" className="stars-bg" />
       <div id="stars5" className="stars-bg" />
+      <div id="planet1" className="planet" />
+      <div id="planet2" className="planet" />
+      <div id="planet3" className="planet" />
     </div>
 );
 
@@ -48,3 +51,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    

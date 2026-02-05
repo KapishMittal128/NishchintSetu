@@ -178,6 +178,41 @@
     animation-name: move-stars-5;
     animation-duration: 50s;
   }
+
+  .planet {
+    position: absolute;
+    border-radius: 50%;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  #planet1 {
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle at 30% 30%, hsl(200, 80%, 70%), hsl(220, 90%, 40%));
+    box-shadow: 0 0 30px hsl(200, 80%, 70%, 0.5), inset -20px -20px 50px rgba(0,0,0,0.3);
+    animation-name: move-planet1;
+    animation-duration: 150s;
+  }
+
+  #planet2 {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at 70% 70%, hsl(30, 80%, 80%), hsl(10, 70%, 50%));
+    box-shadow: 0 0 40px hsl(30, 80%, 80%, 0.4), inset -10px -10px 40px rgba(0,0,0,0.4);
+    animation-name: move-planet2;
+    animation-duration: 120s;
+  }
+
+  #planet3 {
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle at 50% 50%, hsl(170, 60%, 90%), hsl(170, 70%, 40%));
+    box-shadow: 0 0 20px hsl(170, 60%, 90%, 0.6), inset -5px -5px 20px rgba(0,0,0,0.5);
+    animation-name: move-planet3;
+    animation-duration: 90s;
+  }
 }
 
 @keyframes float {
@@ -226,3 +261,20 @@
   from { transform: translate(0, 0); }
   to { transform: translate(-400px, 100px); }
 }
+
+@keyframes move-planet1 {
+  from { transform: translate(-200px, 100vh); }
+  to { transform: translate(100vw, -200px); }
+}
+
+@keyframes move-planet2 {
+  from { transform: translate(100vw, 20vh); }
+  to { transform: translate(-200px, 80vh); }
+}
+
+@keyframes move-planet3 {
+  from { transform: translate(50vw, -100px); }
+  to { transform: translate(20vw, 110vh); }
+}
+
+    
