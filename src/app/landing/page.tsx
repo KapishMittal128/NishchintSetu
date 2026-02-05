@@ -138,13 +138,10 @@ const FeatureCard = ({ item }: { item: any }) => {
         <div
           className={cn(
             "group relative p-8 rounded-2xl bg-card text-card-foreground shadow-lg backdrop-blur-md transition-all duration-300 ease-out hover:border-primary/30 hover:shadow-primary/20 hover:shadow-2xl hover:-translate-y-2 cursor-pointer flex flex-col justify-between text-left aspect-square",
+            "before:absolute before:inset-0 before:bg-black/20 before:rounded-2xl",
             item.gradient
           )}
         >
-          <div className={cn(
-            "absolute inset-0 bg-gradient-to-br to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-            item.gradient
-          )}></div>
           <div className="relative z-10">
             <div className={cn("mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg", item.iconBg)}>
               <item.icon className={cn("h-6 w-6", item.iconColor)} />
@@ -179,7 +176,7 @@ const FeaturesSection = () => {
     {
       icon: Shield,
       title: "Real-Time Risk Analysis",
-      description: "Analyzes conversations live on your device to detect suspicious keywords...",
+      description: "Live analysis of conversations on your device to detect suspicious keywords and patterns.",
       longDescription: "Our advanced on-device AI listens for red flags in real-time. It cross-references conversational patterns, keywords, and tone against a vast database of known scam tactics, providing an instant risk assessment without any data ever leaving your phone.",
       iconBg: 'bg-red-900/40',
       iconColor: 'text-red-400',
@@ -188,7 +185,7 @@ const FeaturesSection = () => {
     {
       icon: Lock,
       title: "100% Private",
-      description: "No audio or transcript data is ever sent to the cloud. All analysis...",
+      description: "No audio or transcript data ever leaves your phone. All analysis happens locally on-device.",
       longDescription: "Your privacy is our utmost priority. Nishchint Setu processes all audio directly on your device. This means your conversations are never recorded, stored, or shared with anyone—not even us. Your private life stays private.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
@@ -197,7 +194,7 @@ const FeaturesSection = () => {
     {
       icon: ShieldCheck,
       title: "Guardian Alerts",
-      description: "If a potential threat is identified, your chosen emergency contact is alerte...",
+      description: "If a potential threat is identified, your chosen emergency contact is automatically alerted.",
       longDescription: "When a high-risk situation is detected, we don't just warn you; we empower your support system. A detailed alert, including conversation context (if enabled), is sent to your designated guardian, so they can intervene if needed.",
       iconBg: 'bg-green-900/40',
       iconColor: 'text-green-400',
@@ -206,7 +203,7 @@ const FeaturesSection = () => {
     {
       icon: HandHelping,
       title: "Guided Assistance",
-      description: "Detects if you're stuck and offers simple, clear options to get you bac...",
+      description: "The app detects if you're stuck and offers simple, clear options to get you back on track.",
       longDescription: "Our app is designed to be a gentle guide. If it detects that you're confused or struggling with a feature, it will proactively offer simple, step-by-step assistance to ensure you have a smooth and stress-free experience.",
       iconBg: 'bg-sky-900/40',
       iconColor: 'text-sky-400',
